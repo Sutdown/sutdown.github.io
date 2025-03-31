@@ -1,7 +1,7 @@
 # Site settings
 title: Sutdown Blog
 SEOTitle: 江舟的博客 | Sutdown Blog
-header-img: img/15.png
+header-img: img/4.jpg
 email: 3523058920@tju.edu.cn
 description: "欢迎来到我的个人博客~ | 我相信我的命运因我的选择而转动着"
 keyword: "江舟, Sutdown"
@@ -13,7 +13,7 @@ future: true
 
 # SNS settings
 RSS: false
-weibo_username: Sutdown
+weibo_username: yauycy
 zhihu_username: Liberity
 github_username: Sutdown
 twitter_username: Sutdown
@@ -59,7 +59,7 @@ kramdown:
       start_line: 1
 
 # Disqus settings
-disqus_username: hux
+disqus_username: Zhou Jiang
 
 # Netease settings
 netease_comment: false
@@ -69,12 +69,12 @@ netease_comment: false
 # ba_track_id: [your track id]
 
 # Google Analytics
-ga_track_id: "UA-49627206-1" # Format: UA-xxxxxx-xx
-ga_domain: sutdown.me
+ga_track_id: "G-2SFDVBXM3Q" # Format: UA-xxxxxx-xx
+ga_domain: auto
 
 # Sidebar settings
 sidebar: true # whether or not using Sidebar.
-sidebar-about-description: "克己复礼 <br> React Team @ Meta"
+sidebar-about-description: "过去已去，将来未来 <br> React Team @ Meta"
 sidebar-avatar: https://github.com/Sutdown.png # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # Featured Tags
@@ -91,5 +91,8 @@ page-mathjax: false
 # Friends
 friends:
   [
-    { title: "孤筝", href: "https://guzhengsvt.top/" },
+    { 
+      title: "孤筝", 
+      href: "https://guzhengsvt.top/" 
+    },
   ]
