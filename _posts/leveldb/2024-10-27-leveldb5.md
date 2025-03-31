@@ -6,7 +6,6 @@ header-style: text
 catalog:      true
 tags:
     - levelDB
-    - C++
 ---
 
 
