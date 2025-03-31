@@ -6,7 +6,7 @@ header-style: text
 catalog:      true
 tags:
     - stl
-    - c++
+    - C++
 ---
 
 # MyTinySTL
