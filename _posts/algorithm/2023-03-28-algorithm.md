@@ -296,18 +296,6 @@ void Loading<T>::maxLoading(int i) {
 
 > 已知n+1个正数，wi（1<=i<=n）和M，要求找出w的所有子集，使子集的元素之和等于M。
 
-思考：0/1背包问题？？？就是要把背包装满。但这个题目说用回溯，那策略也不太能和01背包的回溯套用，毕竟在回溯上解题点不同，但是要是动态规划应该是可以套用着试试。
-
-n限界函数的一种简单选择是: 
-
-**当且仅<img src="C:\Users\向菲\AppData\Roaming\Typora\typora-user-images\image-20231123174146915.png" alt="image-20231123174146915" style="zoom:67%;" />  时, B(X(1),…,X(k))=true, 并停止展开节点(X(1),…,X(k)).
-
-**已将W(i)按非降次序排列, 则可以进一步限界如下: 如果<img src="C:\Users\向菲\AppData\Roaming\Typora\typora-user-images\image-20231123174515611.png" alt="image-20231123174515611" style="zoom: 50%;" /> 则继续展开X(1),…,X(k)不可能得到答案结点.
-
-**限界函数B(X(1),…,X(k))=ture当且仅当<img src="C:\Users\向菲\AppData\Roaming\Typora\typora-user-images\image-20231123174610900.png" alt="image-20231123174610900" style="zoom:67%;" />
-
-<img src="C:\Users\向菲\AppData\Roaming\Typora\typora-user-images\image-20231123174621171.png" alt="image-20231123174621171" style="zoom:67%;" />停止产生子节点(X(1),…,X(k))及其子树.
-
 ```cpp
 令S=w(1)X(1)+…+w(k-1)X(k-1)
      r=w(k)+…+w(n),假定S+r≥M(不满足该条件的节点已被限界掉)
