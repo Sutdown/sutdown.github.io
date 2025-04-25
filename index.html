@@ -1,6 +1,7 @@
 ---
 layout: page
-description: "Boilerplate of Hux Blog"
+description: "「行至朝雾里，坠入暮云间」"
+image: /assets/images/12.jpg
 ---
 
 {% for post in paginator.posts %}
@@ -15,11 +16,16 @@ description: "Boilerplate of Hux Blog"
         </h3>
         {% endif %}
         <div class="post-content-preview">
+            {% if post.lang == 'en' %}
+            {{ post.content | strip_html | truncate:300 }}
+            {% else %}
             {{ post.content | strip_html | truncate:200 }}
+            {% endif %}
         </div>
     </a>
     <p class="post-meta">
-        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B %-d, %Y" }}
+        Posted by {% if post.author %}{{ post.author }}{% else %}{{ site.title }}{% endif %} on {{ post.date | date: "%B
+        %-d, %Y" }}
     </p>
 </div>
 <hr>
