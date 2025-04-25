@@ -13,10 +13,11 @@ future: false
 
 # SNS settings
 RSS: false
-weibo_username: yauycy
+#weibo_username: yauycy
 zhihu_username: mcgyfw
 github_username: Sutdown
-twitter_username: Sutdown
+bilibili_username: Daxuy
+#twitter_username: Sutdown
 #facebook_username:  huxpro
 #linkedin_username:  firstname-lastname-idxxxx
 
