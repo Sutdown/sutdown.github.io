@@ -10,6 +10,7 @@
     },
     "bugs": "https://github.com/Sutdown/sutdown.github.io/issues",
     "devDependencies": {
+        "eslint": "^9.25.1",
         "grunt": ">=1.3.0",
         "grunt-banner": "~0.2.3",
         "grunt-contrib-less": "^2.0.0",
