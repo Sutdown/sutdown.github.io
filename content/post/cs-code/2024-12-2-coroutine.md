@@ -5,6 +5,7 @@ description:  "协程是一种用户态的轻量级线程，它的出现解决�
 date:         2024-12-02
 categories:
     - coroutine
+image: /images/9ce9c88f.jpg
 ---
 
 ## 协程详解

@@ -6,6 +6,7 @@ date:         2024-12-10
 toc: true
 categories:
     - coroutine
+image: /images/e20ab07c.jpg
 ---
 
 ## 协程库项目实现1
