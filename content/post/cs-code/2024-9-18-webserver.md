@@ -5,11 +5,8 @@ description:  "从面试角度重新看c++11的Webserver 从main函数开始审�
 date:         2024-09-18
 categories:
     - 计算机网络
-<<<<<<< HEAD
-=======
     - C++
 image: /images/0a9f6d1d.jpg
->>>>>>> 0583cb62d41ba2a455c5c19fc9620ce16759e69b
 ---
 
 ## 从面试角度重新看c++11的Webserver
