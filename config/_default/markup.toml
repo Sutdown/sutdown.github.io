@@ -12,8 +12,8 @@ block = [['\[', '\]'], ['$$', '$$']]
 inline = [['\(', '\)']]
 
 [tableOfContents]
-endLevel = 4
-ordered = true
+endLevel = 6
+ordered = false
 startLevel = 2
 
 [highlight]
