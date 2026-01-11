@@ -46,12 +46,6 @@ type = "categories"
 [widgets.homepage.params]
 limit = 10
 
-[[widgets.homepage]]
-type = "tag-cloud"
-
-[widgets.homepage.params]
-limit = 10
-
 [[widgets.page]]
 type = "toc"
 
