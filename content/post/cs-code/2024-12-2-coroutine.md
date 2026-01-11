@@ -7,6 +7,7 @@ catalog:      true
 tags:
     - coroutine
     - C++
+image: /images/c85bd259.jpg
 ---
 
 ## 协程详解

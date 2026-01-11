@@ -7,6 +7,7 @@ catalog:      true
 tags:
     - coroutine
     - C++
+image: /images/f60bf839.jpg
 ---
 
 ## 协程库项目实现1

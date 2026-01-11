@@ -6,6 +6,7 @@ toc: true
 categories:
     - Algorithm
     - C++
+image: /images/28a3c037.jpg
 ---
 
 

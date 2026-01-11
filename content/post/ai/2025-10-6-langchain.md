@@ -5,6 +5,7 @@ date:         2025-10-06
 toc: true
 categories:
     - AI
+image: /images/d92d9921.jpg
 ---
 
 

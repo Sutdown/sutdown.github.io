@@ -7,6 +7,7 @@ catalog:      true
 tags:
     - coroutine
     - C++
+image: /images/2cfa314c.jpg
 ---
 
 ## 协程库项目实现2 - thread，协程类

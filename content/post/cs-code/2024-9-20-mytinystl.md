@@ -7,6 +7,7 @@ catalog:      true
 tags:
     - stl
     - C++
+image: /images/0f8f6a9d.jpg
 ---
 
 ## MyTinySTL

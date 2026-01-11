@@ -5,6 +5,7 @@ date:         2025-11-01
 toc: true
 categories:
     - AI
+image: /images/f874fc13.jpg
 ---
 
 ## 0 前言

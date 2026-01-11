@@ -5,6 +5,7 @@ date:         2025-12-26
 toc: true
 categories:
     - AI
+image: /images/523b936a.jpg
 ---
 
 ## python基础

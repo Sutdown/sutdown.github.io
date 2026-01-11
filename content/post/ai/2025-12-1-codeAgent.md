@@ -5,6 +5,7 @@ date:         2025-12-01
 toc: true
 categories:
     - AI
+image: /images/92dbc608.jpg
 ---
 
 项目链接：https://github.com/Sutdown/sutdown.github.io.git

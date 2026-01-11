@@ -6,6 +6,7 @@ header-style: text
 catalog:      true
 tags:
     - Blog
+image: /images/febe5336.jpg
 ---
 
 
