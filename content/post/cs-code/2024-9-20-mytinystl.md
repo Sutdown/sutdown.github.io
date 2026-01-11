@@ -5,11 +5,8 @@ description:  "MyTinySTL 是一个基于 C++11 实现的 STL 库，包含了 STL
 date:         2024-09-20
 categories:
     - stl
-<<<<<<< HEAD
-=======
     - C++
 image: /images/0f8f6a9d.jpg
->>>>>>> 0583cb62d41ba2a455c5c19fc9620ce16759e69b
 ---
 
 ## MyTinySTL
