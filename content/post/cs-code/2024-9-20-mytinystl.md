@@ -1,12 +1,10 @@
 ---
-layout:       post
 title:        "MyTinySTL"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "MyTinySTL 是一个基于 C++11 实现的 STL 库，包含了 STL 中的主要组件，如容器、算法、迭代器、仿函数、适配器和分配器等。"
+date:         2024-09-20
+categories:
     - stl
-    - C++
 ---
 
 ## MyTinySTL

@@ -1,12 +1,10 @@
 ---
-layout:       post
 title:        "Webserver-sum"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "从面试角度重新看c++11的Webserver 从main函数开始审视整个流程."
+date:         2024-09-18
+categories:
     - 计算机网络
-    - C++
 ---
 
 ## 从面试角度重新看c++11的Webserver

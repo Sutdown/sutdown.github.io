@@ -1,12 +1,10 @@
 ---
-layout:       post
 title:        "Webserver"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "基于半同步半反应堆模型的Webserver，包括线程同步封装类，半同步半反应堆线程池，HTTP连接管理，服务器优化（定时器处理，日志系统，压测，数据库连接池，注册登录）等模块。"
+date:         2024-09-08
+categories:
     - 计算机网络
-    - C++
 ---
 
 

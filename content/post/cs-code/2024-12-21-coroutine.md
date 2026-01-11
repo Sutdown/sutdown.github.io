@@ -1,12 +1,11 @@
 ---
-layout:       post
 title:        "Coroutinelib项目实现"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "coroutinelib项目，涵盖基于 pthread 的线程模块、ucontext 实现的非对称有栈协程类、N-M 协程调度器、epoll 驱动的协程 IO 与最小堆定时器，及系统调用 hook 方案，实现高效协程调度与异步 IO。"
+date:         2024-12-21
+toc: true
+categories:
     - coroutine
-    - C++
 ---
 
 

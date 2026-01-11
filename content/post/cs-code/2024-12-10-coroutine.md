@@ -1,12 +1,11 @@
 ---
-layout:       post
 title:        "协程库项目实现1"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "一个基于 C++11 实现的协程库，包含了协程的基本功能，如创建、销毁、切换、挂起、恢复等。"
+date:         2024-12-10
+toc: true
+categories:
     - coroutine
-    - C++
 ---
 
 ## 协程库项目实现1

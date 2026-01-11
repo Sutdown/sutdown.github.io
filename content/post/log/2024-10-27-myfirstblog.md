@@ -1,10 +1,9 @@
 ---
-layout:       post
 title:        "My first blog based github"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+date:         2024-10-27
+toc: true
+categories:
     - Blog
 ---
 

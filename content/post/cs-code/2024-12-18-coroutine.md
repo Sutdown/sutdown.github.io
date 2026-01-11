@@ -1,12 +1,11 @@
 ---
-layout:       post
 title:        "协程库项目实现2"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "聚焦协程库项目实现，讲解基于ucontext的非对称有栈协程类（含主 / 调度 / 任务协程）、线程同步组件，补充协程调度逻辑及相关系统函数参数含义，为 IO、定时器等功能铺垫"
+date:         2024-12-18
+toc: true
+categories:
     - coroutine
-    - C++
 ---
 
 ## 协程库项目实现2 - thread，协程类

@@ -1,10 +1,10 @@
 ---
-layout:       post
 title:        "详谈leveldb中的sstable"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "详谈leveldb中的sstable 源码阅读，包括sstable的格式、实现原理、性能优化等。"
+date:         2024-11-30
+toc: true
+categories:
     - levelDB
 ---
 

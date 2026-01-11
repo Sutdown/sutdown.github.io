@@ -1,12 +1,10 @@
 ---
-layout:       post
 title:        "协程详解"
 author:       "Sutdown"
-header-style: text
-catalog:      true
-tags:
+description:  "协程是一种用户态的轻量级线程，它的出现解决了线程的一些问题，比如线程切换的开销大，线程的创建销毁开销大等。"
+date:         2024-12-02
+categories:
     - coroutine
-    - C++
 ---
 
 ## 协程详解
