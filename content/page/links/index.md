@@ -29,6 +29,9 @@ comments: true
 
 欢迎来到我的个人网站。
 
+- 💬 Ask me about anything, I am happy to answer or discussion with you;
+- 📫 How to reach me: feixiang_22@tju.edu.cn;
+
 如想添加友情链接，请遵循以下格式：
 
 ```yaml
