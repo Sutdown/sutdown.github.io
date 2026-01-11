@@ -7,6 +7,7 @@ toc: true
 categories:
     - coroutine
     - C++
+image: /images/e20ab07c.jpg
 ---
 
 ## 协程库项目实现1
