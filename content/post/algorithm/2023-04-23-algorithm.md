@@ -6,6 +6,7 @@ toc: true
 categories:
     - Algorithm
     - C++
+image: /images/5180abbd.jpg
 ---
 
 ## 一：贪心法概述
