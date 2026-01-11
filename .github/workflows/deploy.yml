@@ -45,6 +45,8 @@ jobs:
             - name: Deploy 🚀
               uses: JamesIves/github-pages-deploy-action@v4
               with:
+                  token: ${{ secrets.DEPLOY_TOKEN }}
+                  repository: Sutdown/sutdown.github.io
                   branch: gh-pages
                   folder: public
                   clean: true
