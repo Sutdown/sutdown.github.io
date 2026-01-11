@@ -77,7 +77,7 @@ enabled = true
 ## Comments
 [comments]
 enabled = true
-provider = "disqus"
+provider = "waline"
 
 [comments.disqusjs]
 shortname = ""
@@ -105,13 +105,13 @@ clientSecret = ""
 autoCreateIssue = false
 
 [comments.waline]
-serverURL = ""
-lang = ""
-visitor = ""
-avatar = ""
+serverURL = "https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/"
+lang = "zh-cn"
+visitor = "true"
+avatar = "wavatar"
 emoji = ["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"]
 requiredMeta = ["name", "email", "url"]
-placeholder = ""
+placeholder = "说点什么吧..."
 
 [comments.waline.locale]
 admin = "Admin"
@@ -146,5 +146,5 @@ clientID = ""
 clientSecret = ""
 
 [comments.cusdis]
-host = ""
-id = ""
+host = "https://cusdis.com"
+id = "7d72b793-7e55-4225-8732-2bd7ae8ec314"
