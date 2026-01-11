@@ -1,3 +1,29 @@
 /*
     You can add your own custom styles here.
 */
+
+/* 友情链接一行两个 */
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem; /* 增加间距 */
+}
+
+@media (max-width: 768px) {
+  .links {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 每个链接圆角边框 */
+.link-item {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #f9f9f9;
+  transition: box-shadow 0.3s;
+}
+
+.link-item:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}

@@ -21,4 +21,13 @@ name = "Zhihu"
 url = "https://www.zhihu.com/people/mcgyfw"
 
 [social.params]
-icon = "brand-twitter"
+icon = "zhihu"
+
+[[social]]
+identifier = "Xiaohongshu"
+name = "Xiaohongshu"
+url = "https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378"
+
+[social.params]
+icon = "xhs"
+
