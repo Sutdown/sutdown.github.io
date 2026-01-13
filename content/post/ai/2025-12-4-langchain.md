@@ -5,6 +5,7 @@ date:         2025-12-04
 toc: true
 categories:
     - AI
+    - LangChain
 image: /images/7d388d79.jpg
 ---
 

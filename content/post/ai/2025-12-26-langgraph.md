@@ -5,6 +5,7 @@ date:         2025-12-26
 toc: true
 categories:
     - AI
+    - LangGraph
 image: /images/523b936a.jpg
 ---
 

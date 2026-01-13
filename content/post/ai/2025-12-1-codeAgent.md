@@ -5,6 +5,8 @@ date:         2025-12-01
 toc: true
 categories:
     - AI
+    - LangChain
+    - Agent
 image: /images/92dbc608.jpg
 ---
 

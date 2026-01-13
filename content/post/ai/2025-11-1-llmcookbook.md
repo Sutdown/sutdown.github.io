@@ -5,6 +5,8 @@ date:         2025-11-01
 toc: true
 categories:
     - AI
+    - LangChain
+    - LLM
 image: /images/f874fc13.jpg
 ---
 
