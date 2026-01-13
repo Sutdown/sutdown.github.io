@@ -5,7 +5,7 @@ rssFullContent = true
 favicon = "/favicon.svg"
 
 [footer]
-since = 2026
+since = 2023
 customText = ""
 
 [dateFormat]
@@ -13,7 +13,6 @@ published = "Jan 02, 2006"
 lastUpdated = "Jan 02, 2006 15:04 MST"
 
 [sidebar]
-emoji = "🍥"
 subtitle = "白日依山尽，黄河入海流。"
 
 [sidebar.avatar]
@@ -22,7 +21,7 @@ local = false
 src = "https://avatars.githubusercontent.com/Sutdown"
 
 [article]
-headingAnchor = false
+headingAnchor = true
 math = false
 readingTime = true
 

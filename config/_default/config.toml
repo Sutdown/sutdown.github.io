@@ -1,7 +1,7 @@
 # Change baseurl before deploy
 baseurl = "https://sutdown.github.io"
 languageCode = "zh-cn"
-title = "Sutdown Blog"
+title = "Sutdown"
 
 # Theme i18n support
 # Available values: en, fr, id, ja, ko, pt-br, zh-cn, zh-tw, es, de, nl, it, th, el, uk, ar
