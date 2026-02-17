@@ -1,0 +1,200 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="协程是一种用户态的轻量级线程，它的出现解决了线程的一些问题，比如线程切换的开销大，线程的创建销毁开销大等。"><title>协程详解</title><link rel=canonical href=https://sutdown.github.io/p/%E5%8D%8F%E7%A8%8B%E8%AF%A6%E8%A7%A3/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="协程详解"><meta property='og:description' content="协程是一种用户态的轻量级线程，它的出现解决了线程的一些问题，比如线程切换的开销大，线程的创建销毁开销大等。"><meta property='og:url' content='https://sutdown.github.io/p/%E5%8D%8F%E7%A8%8B%E8%AF%A6%E8%A7%A3/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2024-12-02T00:00:00+00:00'><meta property='article:modified_time' content='2024-12-02T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/c85bd259.jpg'><meta name=twitter:title content="协程详解"><meta name=twitter:description content="协程是一种用户态的轻量级线程，它的出现解决了线程的一些问题，比如线程切换的开销大，线程的创建销毁开销大等。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/c85bd259.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#协程详解>协程详解</a><ul><li><a href=#前言>前言</a></li><li><a href=#正文>正文</a><ul><li><a href=#进程线程协程>进程线程协程</a></li><li><a href=#协程的使用>协程的使用</a></li><li><a href=#协程学习>协程学习</a></li><li><a href=#awaitable>Awaitable</a></li><li><a href=#promise>Promise</a></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/%E5%8D%8F%E7%A8%8B%E8%AF%A6%E8%A7%A3/><img src=/images/c85bd259.jpg loading=lazy alt="Featured image of post 协程详解"></a></div><div class=article-details><header class=article-category><a href=/categories/coroutine/>Coroutine
+</a><a href=/categories/c++/>C++</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/%E5%8D%8F%E7%A8%8B%E8%AF%A6%E8%A7%A3/>协程详解</a></h2><h3 class=article-subtitle>协程是一种用户态的轻量级线程，它的出现解决了线程的一些问题，比如线程切换的开销大，线程的创建销毁开销大等。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-12-02T00:00:00Z>Dec 02, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><h2 id=协程详解><a href=#%e5%8d%8f%e7%a8%8b%e8%af%a6%e8%a7%a3 class=header-anchor></a>协程详解</h2><h3 id=前言><a href=#%e5%89%8d%e8%a8%80 class=header-anchor></a>前言</h3><p>最近在学协程库，因为计划是12月底之前，时间有限想着直接从代码起步，果然这样子还是不好的，这几天很多东西处于一种似懂非懂的状态，很难受。所以决定写篇文章重新捋一下，之前也写过一点点，但是太浅了。</p><p>主要参考<a class=link href=https://www.zhihu.com/question/625089836/answer/3243736805 target=_blank rel=noopener>有没有C++大佬把C++20的协程讲解下？ - 知乎</a>这个问题中<a class=link href=https://www.zhihu.com/people/frmf target=_blank rel=noopener>南山烟雨珠江潮 - 知乎</a>的回答，以及代码随想录的<a class=link href=https://github.com/youngyangyang04/coroutine-lib/tree/main target=_blank rel=noopener>协程库源码</a>。</p><h3 id=正文><a href=#%e6%ad%a3%e6%96%87 class=header-anchor></a>正文</h3><h4 id=进程线程协程><a href=#%e8%bf%9b%e7%a8%8b%e7%ba%bf%e7%a8%8b%e5%8d%8f%e7%a8%8b class=header-anchor></a>进程线程协程</h4><blockquote><p>进程，线程，协程之间的关系，出现的原因，历史渊源等</p></blockquote><p>理解进程和线程从基本概念着手，</p><p><strong>进程</strong>可以简单认为是由程序代码，相关数据还有进程控制块组成的。操作系统基本职责是控制进程的执行，这包括交替执行的方式以及为进程分配资源。</p><p>倘若我们要执行一个任务，如果全由进程从头至尾执行那必然效率一般，会思考如果将任务分成不同部分，交由不同的进程并行执行能不能提高效率？进程间的地址空间一般来说都是独立不能互相访问的，如果想要通信必须经过内核，那很明显执行一个任务多次进入内核是得不偿失的。因此出现了<strong>线程</strong>，线程是由线程id，程序计数器，寄存器集合和栈组成，一个进程可以有多个线程，线程之间是共享地址空间的，同时多核cpu能够让多线程并行执行，成功达到了提高性能的作用。所以也可以理解成，线程解决了进程的并行问题。</p><blockquote><p>对于进程和线程，其实还有很多可以讨论的问题，比如进程间的通信方式；多线程需要共享数据，那么如何避免冲突；进程最多可以创建多少个线程；线程崩溃进程也会崩溃吗；死锁，悲观锁，乐观锁，共享锁，排他锁，这么多锁的说法到底是怎么一回事。这些如果讲起来就有点偏离本篇协程的主题了，因此估计会再写一篇文章吧，留个悬念。</p></blockquote><h4 id=协程的使用><a href=#%e5%8d%8f%e7%a8%8b%e7%9a%84%e4%bd%bf%e7%94%a8 class=header-anchor></a>协程的使用</h4><p><a class=link href=https://www.cnblogs.com/blizzard8204/p/17563217.html target=_blank rel=noopener>https://www.cnblogs.com/blizzard8204/p/17563217.html</a></p><p>语言：C++20 C++20的协程是一个无栈，非对称的协程。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;coroutine&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;optional&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* promise_type 定义协程的行为，管理协程生命周期中的各种状态。
+</span></span></span><span class=line><span class=cl><span class=cm>* Generator 提供协程控制器和迭代器接口，方便协程的使用。
+</span></span></span><span class=line><span class=cl><span class=cm>* sequence 是一个协程函数，用来生成一个值序列。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 协程的返回类型
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>Generator</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=nc>promise_type</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>optional</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>current_value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/* C++编译器通过函数返回值识别协程函数。
+</span></span></span><span class=line><span class=cl><span class=cm>    * 返回类型result中有一个子类型承诺对象（promise），
+</span></span></span><span class=line><span class=cl><span class=cm>    * 通过std::coroutine_handle&lt;promise_type&gt;::from_promise()
+</span></span></span><span class=line><span class=cl><span class=cm>    * 可以得到协程句柄（coroutine handle）。
+</span></span></span><span class=line><span class=cl><span class=cm>    */</span>
+</span></span><span class=line><span class=cl>   <span class=c1>// 生成协程函数的返回对象
+</span></span></span><span class=line><span class=cl>    <span class=n>Generator</span> <span class=nf>get_return_object</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=n>Generator</span><span class=p>{</span><span class=n>std</span><span class=o>::</span><span class=n>coroutine_handle</span><span class=o>&lt;</span><span class=n>promise_type</span><span class=o>&gt;::</span><span class=n>from_promise</span><span class=p>(</span><span class=o>*</span><span class=k>this</span><span class=p>)};</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>suspend_always</span> <span class=n>initial_suspend</span><span class=p>()</span> <span class=p>{</span> <span class=k>return</span> <span class=p>{};</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>suspend_always</span> <span class=n>final_suspend</span><span class=p>()</span> <span class=k>noexcept</span> <span class=p>{</span> <span class=k>return</span> <span class=p>{};</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>suspend_always</span> <span class=n>yield_value</span><span class=p>(</span><span class=kt>int</span> <span class=n>value</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>      <span class=n>current_value</span> <span class=o>=</span> <span class=n>value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>return_void</span><span class=p>()</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>unhandled_exception</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>      <span class=n>std</span><span class=o>::</span><span class=n>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span> <span class=c1>// 未处理异常时退出程序
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 协程句柄
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>coroutine_handle</span><span class=o>&lt;</span><span class=n>promise_type</span><span class=o>&gt;</span> <span class=n>handle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=nf>Generator</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>coroutine_handle</span><span class=o>&lt;</span><span class=n>promise_type</span><span class=o>&gt;</span> <span class=n>h</span><span class=p>)</span> <span class=o>:</span> <span class=n>handle</span><span class=p>(</span><span class=n>h</span><span class=p>)</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>  <span class=o>~</span><span class=n>Generator</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>handle</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=n>handle</span><span class=p>.</span><span class=n>destroy</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=nc>Iterator</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>coroutine_handle</span><span class=o>&lt;</span><span class=n>promise_type</span><span class=o>&gt;</span> <span class=n>handle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>Iterator</span> <span class=o>&amp;</span><span class=k>operator</span><span class=o>++</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>      <span class=n>handle</span><span class=p>.</span><span class=n>resume</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=o>*</span><span class=k>this</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=k>operator</span><span class=o>*</span><span class=p>()</span> <span class=k>const</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=o>*</span><span class=n>handle</span><span class=p>.</span><span class=n>promise</span><span class=p>().</span><span class=n>current_value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=k>operator</span><span class=o>==</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>default_sentinel_t</span><span class=p>)</span> <span class=k>const</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=n>handle</span><span class=p>.</span><span class=n>done</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Iterator</span> <span class=nf>begin</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>    <span class=n>handle</span><span class=p>.</span><span class=n>resume</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>Iterator</span><span class=p>{</span><span class=n>handle</span><span class=p>};</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>default_sentinel_t</span> <span class=n>end</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 协程函数：生成一个从 1 到 n 的序列
+</span></span></span><span class=line><span class=cl><span class=n>Generator</span> <span class=nf>sequence</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>co_yield</span> <span class=n>i</span><span class=p>;</span> <span class=c1>// 协程暂停并返回值
+</span></span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(){</span>
+</span></span><span class=line><span class=cl>  <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=nl>value</span> <span class=p>:</span> <span class=n>sequence</span><span class=p>(</span><span class=mi>5</span><span class=p>)){</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>value</span> <span class=o>&lt;&lt;</span> <span class=s>&#34; &#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=协程学习><a href=#%e5%8d%8f%e7%a8%8b%e5%ad%a6%e4%b9%a0 class=header-anchor></a>协程学习</h4><p><a class=link href=https://lewissbaker.github.io/2017/09/25/coroutine-theory target=_blank rel=noopener>https://lewissbaker.github.io/2017/09/25/coroutine-theory</a></p><p>协程是函数的泛化。</p><p>对于函数而言，存在两个操作：call和return。</p><p>发生call时，call创建一个激活框架，暂停调用函数的执行，同时将执行转移到调用函数的开始处；return时将返回值传递给调用者，恢复原本调用者的状态，销毁激活框架。这里的激活框架可以视为保存函数特定调用的当前状态的内存块，同时这套激活框架也被成为‘堆栈’。</p><ul><li><p>协程中有三个<strong>新的语言关键字</strong>：<code>co_await</code>、<code>co_yield</code>和<code>co_return</code></p></li><li><p>命名空间中的几种新类型<code>std::experimental</code>""</p><ul><li><code>coroutine_handle&lt;P></code></li><li><code>coroutine_traits&lt;Ts...></code></li><li><code>suspend_always</code></li><li><code>suspend_never</code></li></ul></li><li><p>库编写者可以使用该机制与协程交互并定制其行为。</p></li><li><p>一种语言工具，使编写异步代码变得更加容易！</p></li></ul><p>当前的协程并没有定义协程的语义。它没有定义如何生成返回给调用者的值。它没有定义如何处理传递给语句的返回值<code>co_return</code>，或者如何处理从协程传播出去的异常。它没有定义应该在哪个线程上恢复协程。相反，它指定了一种通用机制，让库代码通过实现符合特定接口的类型来定制协程的行为。</p><p>比如可以定义一个异步生成单个值的协程，或者一个延迟生成一系列值的协程，或者一个通过遇到值<code>optional&lt;T></code>时提前退出简化使用值的协程。</p><p>协程TS定义了两种接口：<code>Promise</code>接口和<code>Awaitable</code>接口</p><ul><li><strong>Promise</strong>接口指定了<strong>自定义协程本身行为的方法</strong>。库编写者能够自定义调用协程时发生的情况、协程返回时发生的情况（无论是通过正常方式还是通过未处理的异常），以及自定义协程中任何<code>co_await</code>或表达式的行为。<code>co_yield</code></li><li><strong>Awaitable</strong>接口指定了<strong>控制表达式语义的方法</strong><code>co_await</code> 。当传入一个值时<code>co_await</code>，代码将被转换为对 awaitable 对象上的一系列方法的调用，这些方法允许它指定：是否暂停当前协程、在暂停后执行某些逻辑以安排协程稍后恢复、以及在协程恢复后执行某些逻辑以产生表达式的结果<code>co_await</code>。</li></ul><p>接口清单：</p><h4 id=awaitable><a href=#awaitable class=header-anchor></a>Awaitable</h4><ul><li>awaiter type需要实现如下名字的函数:</li></ul><ol><li>await_ready</li><li>await_suspend</li><li>await_resume</li></ol><ul><li>awaitable type需要实现如下的操作符重载:</li></ul><ol><li>operator co_await()</li></ol><h4 id=promise><a href=#promise class=header-anchor></a>Promise</h4><ul><li>promise type需要实现如下名字的函数：</li></ul><ol><li>get_return_object</li><li>initial_suspend</li><li>final_suspend</li><li>unhandled_exception</li><li>return_void</li></ol><ul><li>promise type可选实现如下名字的函数：</li></ul><ol><li>return_value</li><li>operater new</li><li>operater delete</li><li>get_return_object_on_allocation_failure</li><li>yield_value（co_yield）</li><li>await_transform</li></ol><p><a class=link href=https://yearn.xyz/posts/techs/%E5%8D%8F%E7%A8%8B/ target=_blank rel=noopener>https://yearn.xyz/posts/techs/%E5%8D%8F%E7%A8%8B/</a></p><p><a class=link href=https://itnext.io/c-20-coroutines-complete-guide-7c3fc08db89d target=_blank rel=noopener>https://itnext.io/c-20-coroutines-complete-guide-7c3fc08db89d</a></p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/coroutinelib%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0/><div class=article-image><img src=/images/5f69c1c1.jpg loading=lazy data-key data-hash=/images/5f69c1c1.jpg></div><div class=article-details><h2 class=article-title>Coroutinelib项目实现</h2></div></a></article><article class=has-image><a href=/p/%E5%8D%8F%E7%A8%8B%E5%BA%93%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B01/><div class=article-image><img src=/images/e20ab07c.jpg loading=lazy data-key data-hash=/images/e20ab07c.jpg></div><div class=article-details><h2 class=article-title>协程库项目实现1</h2></div></a></article><article class=has-image><a href=/p/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E8%AF%A6%E8%A7%A3/><div class=article-image><img src=/images/9cb924e8.jpg loading=lazy data-key data-hash=/images/9cb924e8.jpg></div><div class=article-details><h2 class=article-title>二分查找详解</h2></div></a></article><article class=has-image><a href=/p/%E5%8D%8F%E7%A8%8B%E5%BA%93%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B02/><div class=article-image><img src=/images/52a22a0c.jpg loading=lazy data-key data-hash=/images/52a22a0c.jpg></div><div class=article-details><h2 class=article-title>协程库项目实现2</h2></div></a></article><article class=has-image><a href=/p/%E5%90%8E%E7%AB%AF%E5%9B%9B%E7%A7%8D%E5%B1%82%E5%BC%8F%E7%BB%93%E6%9E%84/><div class=article-image><img src=/images/91b4adbf.jpg loading=lazy data-key data-hash=/images/91b4adbf.jpg></div><div class=article-details><h2 class=article-title>后端四种层式结构</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

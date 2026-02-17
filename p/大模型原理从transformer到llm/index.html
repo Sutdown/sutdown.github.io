@@ -1,0 +1,894 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="本文介绍从Transformer架构到大型语言模型(LLM)的发展历程和核心原理，包括注意力机制、预训练语言模型等关键概念。"><title>大模型原理：从transformer到llm</title><link rel=canonical href=https://sutdown.github.io/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="大模型原理：从transformer到llm"><meta property='og:description' content="本文介绍从Transformer架构到大型语言模型(LLM)的发展历程和核心原理，包括注意力机制、预训练语言模型等关键概念。"><meta property='og:url' content='https://sutdown.github.io/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-10-10T00:00:00+00:00'><meta property='article:modified_time' content='2025-10-10T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/9d46bfff.jpg'><meta name=twitter:title content="大模型原理：从transformer到llm"><meta name=twitter:description content="本文介绍从Transformer架构到大型语言模型(LLM)的发展历程和核心原理，包括注意力机制、预训练语言模型等关键概念。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/9d46bfff.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#0-前言>0 前言</a></li><li><a href=#1-基础概念>1 基础概念</a></li><li><a href=#2-transformer架构>2 Transformer架构</a><ul><li><a href=#注意力机制>注意力机制</a><ul><li><a href=#神经网络的核心架构>神经网络的核心架构</a></li><li><a href=#理解注意力机制>理解注意力机制</a></li><li><a href=#自注意力掩码自注意力多头注意力>自注意力，掩码自注意力，多头注意力</a></li></ul></li><li><a href=#encoder-decoder>Encoder-Decoder</a><ul><li><a href=#seq2seq模型>Seq2seq模型</a></li><li><a href=#前馈神经网络>前馈神经网络</a></li><li><a href=#层归一化>层归一化</a></li><li><a href=#残差连接>残差连接</a></li><li><a href=#encoder-decoder-1>Encoder, Decoder</a></li></ul></li><li><a href=#transformer构建>Transformer构建</a><ul><li><a href=#embedding---分词>Embedding - 分词</a></li><li><a href=#位置编码>位置编码</a></li><li><a href=#transformer-code>transformer code</a></li></ul></li></ul></li><li><a href=#3-预训练语言模型>3 预训练语言模型</a><ul><li><a href=#encoder-only-plm>Encoder-only PLM</a><ul><li><a href=#bert>Bert</a></li><li><a href=#roberta>RoBERTa</a></li><li><a href=#albert>ALBERT</a></li></ul></li><li><a href=#encoder-decoder-plm>Encoder-Decoder PLM</a><ul><li><a href=#t5>T5</a></li></ul></li><li><a href=#decoder-only-plm>Decoder-Only PLM</a><ul><li><a href=#gpt>GPT</a></li><li><a href=#llama>LLaMa</a></li><li><a href=#glm>GLM</a></li></ul></li></ul></li><li><a href=#4-大语言模型>4 大语言模型</a><ul><li><a href=#llm是什么>LLM是什么</a><ul><li><a href=#llm基础介绍>LLM基础介绍</a></li><li><a href=#llm的能力>LLM的能力</a></li><li><a href=#llm的特点>LLM的特点</a></li></ul></li><li><a href=#如何训练llm>如何训练llm</a><ul><li><a href=#pretrain>Pretrain</a></li><li><a href=#sft>SFT</a></li><li><a href=#rlhf>RLHF</a></li></ul></li></ul></li><li><a href=#5-动手搭建大模型>5 动手搭建大模型</a></li><li><a href=#--参考链接>- 参考链接</a></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/><img src=/images/9d46bfff.jpg loading=lazy alt="Featured image of post 大模型原理：从transformer到llm"></a></div><div class=article-details><header class=article-category><a href=/categories/ai/>AI
+</a><a href=/categories/transformer/>Transformer
+</a><a href=/categories/llm/>LLM</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/>大模型原理：从transformer到llm</a></h2><h3 class=article-subtitle>本文介绍从Transformer架构到大型语言模型(LLM)的发展历程和核心原理，包括注意力机制、预训练语言模型等关键概念。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-10-10T00:00:00Z>Oct 10, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 33 分钟</time></div></footer></div></header><section class=article-content><h2 id=0-前言><a href=#0-%e5%89%8d%e8%a8%80 class=header-anchor></a>0 前言</h2><p>这篇主要作用是学习笔记. 大部分都是来源于该项目<a class=link href=https://github.com/datawhalechina/happy-llm/tree/main target=_blank rel=noopener>datawhalechina/happy-llm: 从零开始的大语言模型原理与实践教程</a>.</p><p>该篇仅包括上述项目前四章的部分，主概念。 前四章主要讲述ai的发展, 从最初的transformer架构，到预训练语言模型,，到如今的大语言模型。后三章则侧重于实现，比如如何搭建一个大模型，模型如何训练微调，大模型的评测，大模型Agent等实际应用的发展。后三章目前搁置，等看完另一篇llm入门之后再返回看看。</p><p>前三章从比较通俗的角度介绍了相关概念，同时有部分代码和案例辅以说明，适合对ai了解不多的同学。transformer架构分为 embedding，位置编码，编码器和解码器四个部分。</p><p>编码器和解码器内部由前馈神经网络和注意力机制组成。</p><ul><li>embedding用于转化自然语言；</li><li>位置编码在于确认各个token的相对位置；</li><li>编码器的倾向在于理解输入序列，解码器的倾向在于根据编码器的输出和上下文如何给出正确的结果，因此在现代数据量过多的情况下为了提升效率简化结构，常见的比如gpt，GLM等其实都输入only-decoder结构；</li><li>编码器和解码器核心都是注意力机制和前馈神经网络，差别在于用的具体分类不同，比如编码器常用自注意力机制训练，解码器则用掩码注意力训练。</li><li>前馈神经网络是最基本的神经网络结构，数据从输入层到输出层中经过若干隐藏层，信息沿着一个方向传播，保证输入维度不变的情况下对输入特征进行非线性变化，从而提取更抽象的特征表示；注意力机制的核心在于比较两个序列中元素的相关度，基于相关度进行加权分配注意力，上文提到的掩码也就是遮掩数据的部分进行训练。</li><li>另外还有两个是层归一化和残差连接。这是由于多层网络在训练时会产生损失，归一化核心是为了让不同层输入的取值范围或者分布能够比较一致。残差连接，即下一层的输入不仅是上一层的输出，还包括上一层的输入。</li></ul><p>预训练语言模型中则是着重于 1 介绍数据集的作用，随着模型发展，越多的数据集有助于提示模型效果，起到量变导致的质变；2 预训练的方法，比如MLM掩码语言模型适用于文本理解，CLM自回归语言模型适用于文本生成，也有指令微调（区分任务或者区分文本），一些更细节的方案比如如何embedding和encoder拆开提升效率，多层神经网络设置共享变量减少内存等</p><p>最后就是介绍了llm的三个阶段，预训练，监督微调sft，强化学习和人类反馈RLHF。简单理解就是</p><ul><li>预训练在于提高整体的数据量期望达到量变引起质变的想过，</li><li>监督微调则是让模型从多种类型，多种风格的指令中获取泛化的指令遵循能力，也就是能够更好更准确的理解和回复用户的指令。同时模型的多轮对话能力也是由该层控制。</li><li>人类反馈强化学习则是更深层次的让llm和人类价值观对其，不仅是输出回答，还要能输出更符合用户视角，用户需要的满意回答。主要由奖励模型和近端策略优化算法实现，后者属于经典的强化学习算法。</li></ul><p>后三章其实更偏实践，且待我填坑。</p><h2 id=1-基础概念><a href=#1-%e5%9f%ba%e7%a1%80%e6%a6%82%e5%bf%b5 class=header-anchor></a>1 基础概念</h2><p>以 GPT、BERT 为代表的 PLM 是上一阶段 NLP 领域的核心研究成果，以注意力机制为模型架构，通过预训练-微调的阶段思想通过在海量无监督文本上进行自监督预训练，实现了强大的自然语言理解能力。</p><p>LLM 是在 PLM 的基础上，通过大量扩大模型参数、预训练数据规模，并引入指令微调、人类反馈强化学习等手段实现的突破性成果。相较于传统 PLM，LLM 具备涌现能力，具有强大的上下文学习能力、指令理解能力和文本生成能力。</p><p><strong>自然语言处理</strong>：</p><ul><li>模型：Word2Vec模型，Bert模型</li><li>任务：中文分词，子词切分，词性标注，文本分类，实体识别，关系抽取，文本摘要，机器翻译，自动问答，</li></ul><p><strong>N-gram 模型：</strong> NLP 领域中一种基于统计的语言模型，广泛应用于语音识别、手写识别、拼写纠错、机器翻译和搜索引擎等众多任务。N-gram模型的核心思想是基于马尔可夫假设，即一个词的出现概率仅依赖于它前面的N-1个词。</p><p><strong>Word2Vec：<strong>一种流行的词嵌入（Word Embedding）技术，由Tomas Mikolov等人在2013年提出。它是一种基于神经网络NNLM的语言模型，旨在通过学习词与词之间的</strong>上下文</strong>关系来生成词的密集向量表示。Word2Vec的核心思想是利用词在文本中的上下文信息来捕捉词之间的语义关系，从而使得语义相似或相关的词在向量空间中距离较近。</p><p><strong>ELMo：</strong>（Embeddings from Language Models）实现了一词多义、静态词向量到动态词向量的跨越式转变。首先在大型语料库上训练语言模型，得到词向量模型，然后在特定任务上对模型进行微调，得到更适合该任务的词向量，ELMo首次将预训练思想引入到词向量的生成中，使用双向LSTM结构，能够捕捉到词汇的上下文信息，生成更加丰富和准确的词向量表示。</p><h2 id=2-transformer架构><a href=#2-transformer%e6%9e%b6%e6%9e%84 class=header-anchor></a>2 Transformer架构</h2><h3 id=注意力机制><a href=#%e6%b3%a8%e6%84%8f%e5%8a%9b%e6%9c%ba%e5%88%b6 class=header-anchor></a>注意力机制</h3><h4 id=神经网络的核心架构><a href=#%e7%a5%9e%e7%bb%8f%e7%bd%91%e7%bb%9c%e7%9a%84%e6%a0%b8%e5%bf%83%e6%9e%b6%e6%9e%84 class=header-anchor></a>神经网络的核心架构</h4><ul><li>FNN（前馈神经网络）是最基本的神经网络结构，信息从输入层到输出层单向传递，常用于结构化数据建模，如分类和回归任务。</li><li>CNN（卷积神经网络）通过卷积和池化操作自动提取局部特征，特别适合处理图像、视频等具有空间结构的数据，在计算机视觉领域应用最广。</li><li>RNN（循环神经网络）通过循环结构保留时间依赖信息，适合处理序列数据，如自然语言、语音识别和时间序列预测。</li></ul><p>在注意力机制横空出世之前，RNN 以及 RNN 的衍生架构 LSTM 是 NLP 领域当之无愧的霸主。</p><h4 id=理解注意力机制><a href=#%e7%90%86%e8%a7%a3%e6%b3%a8%e6%84%8f%e5%8a%9b%e6%9c%ba%e5%88%b6 class=header-anchor></a>理解注意力机制</h4><p>注意力机制有三个核心变量：查询值 Query，键值 Key 和 真值 Value。</p><p>注意力机制的本质是对两段序列的元素依次进行相似度计算，寻找出一个序列的每个元素对另一个序列的每个元素的相关度，然后基于相关度进行加权，即分配注意力。</p>$$
+attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
+$$<div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=s1>&#39;&#39;&#39;注意力计算函数&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>attention</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>,</span> <span class=n>dropout</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>    args:
+</span></span></span><span class=line><span class=cl><span class=s1>    query: 查询值矩阵
+</span></span></span><span class=line><span class=cl><span class=s1>    key: 键值矩阵
+</span></span></span><span class=line><span class=cl><span class=s1>    value: 真值矩阵
+</span></span></span><span class=line><span class=cl><span class=s1>    &#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 获取键向量的维度，键向量的维度和值向量的维度相同</span>
+</span></span><span class=line><span class=cl>    <span class=n>d_k</span> <span class=o>=</span> <span class=n>query</span><span class=o>.</span><span class=n>size</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>    <span class=c1># 计算Q与K的内积并除以根号dk，transpose——相当于转置</span>
+</span></span><span class=line><span class=cl>    <span class=n>scores</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>matmul</span><span class=p>(</span><span class=n>query</span><span class=p>,</span> <span class=n>key</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=o>-</span><span class=mi>2</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>))</span> <span class=o>/</span> <span class=n>math</span><span class=o>.</span><span class=n>sqrt</span><span class=p>(</span><span class=n>d_k</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Softmax 将分数归一化为概率分布，使所有注意力权重之和为 1。</span>
+</span></span><span class=line><span class=cl>    <span class=n>p_attn</span> <span class=o>=</span> <span class=n>scores</span><span class=o>.</span><span class=n>softmax</span><span class=p>(</span><span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Dropout 是一种正则化手段，用来随机丢弃部分注意力权重</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>dropout</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span> 
+</span></span><span class=line><span class=cl>        <span class=n>p_attn</span> <span class=o>=</span> <span class=n>dropout</span><span class=p>(</span><span class=n>p_attn</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>     <span class=c1># 根据计算结果对value进行加权求和</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>torch</span><span class=o>.</span><span class=n>matmul</span><span class=p>(</span><span class=n>p_attn</span><span class=p>,</span> <span class=n>value</span><span class=p>),</span> <span class=n>p_attn</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=自注意力掩码自注意力多头注意力><a href=#%e8%87%aa%e6%b3%a8%e6%84%8f%e5%8a%9b%e6%8e%a9%e7%a0%81%e8%87%aa%e6%b3%a8%e6%84%8f%e5%8a%9b%e5%a4%9a%e5%a4%b4%e6%b3%a8%e6%84%8f%e5%8a%9b class=header-anchor></a>自注意力，掩码自注意力，多头注意力</h4><p>自注意力，即是计算本身序列中每个元素对其他元素的注意力分布，即在计算过程中，Q、K、V 都由同一个输入通过不同的参数矩阵计算得到。</p><p>掩码自注意力，即 Mask Self-Attention，是指使用注意力掩码的自注意力机制。掩码的作用是遮蔽一些特定位置的 token，模型在学习的过程中，会忽略掉被遮蔽的 token。使用注意力掩码的核心动机是让模型只能使用历史信息进行预测而不能看到未来信息。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 创建一个上三角矩阵，用于遮蔽未来信息。</span>
+</span></span><span class=line><span class=cl><span class=c1># 先通过 full 函数创建一个 1 * seq_len * seq_len 的矩阵</span>
+</span></span><span class=line><span class=cl><span class=n>mask</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>full</span><span class=p>((</span><span class=mi>1</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>max_seq_len</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>max_seq_len</span><span class=p>),</span> <span class=nb>float</span><span class=p>(</span><span class=s2>&#34;-inf&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=c1># triu 函数的功能是创建一个上三角矩阵</span>
+</span></span><span class=line><span class=cl><span class=n>mask</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>triu</span><span class=p>(</span><span class=n>mask</span><span class=p>,</span> <span class=n>diagonal</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 此处的 scores 为计算得到的注意力分数，mask 为上文生成的掩码矩阵</span>
+</span></span><span class=line><span class=cl><span class=n>scores</span> <span class=o>=</span> <span class=n>scores</span> <span class=o>+</span> <span class=n>mask</span><span class=p>[:,</span> <span class=p>:</span><span class=n>seqlen</span><span class=p>,</span> <span class=p>:</span><span class=n>seqlen</span><span class=p>]</span>
+</span></span><span class=line><span class=cl><span class=n>scores</span> <span class=o>=</span> <span class=n>F</span><span class=o>.</span><span class=n>softmax</span><span class=p>(</span><span class=n>scores</span><span class=o>.</span><span class=n>float</span><span class=p>(),</span> <span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>type_as</span><span class=p>(</span><span class=n>xq</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>多头注意力机制（Multi-Head Attention），即同时对一个语料进行多次注意力计算，每次注意力计算都能拟合不同的关系，将最后的多次结果拼接起来作为最后的输出，即可更全面深入地拟合语言信息。</p><h3 id=encoder-decoder><a href=#encoder-decoder class=header-anchor></a>Encoder-Decoder</h3><p>在 Transformer 中，使用注意力机制的是其两个核心组件——Encoder（编码器）和 Decoder（解码器）。事实上，后续基于 Transformer 架构而来的预训练语言模型基本都是对 Encoder-Decoder 部分进行改进来构建新的模型架构，例如只使用 Encoder 的 BERT、只使用 Decoder 的 GPT 等。</p><p>Encoder 和 Decoder 内部传统神经网络的经典结构为——前馈神经网络（FNN）、层归一化（Layer Norm）和残差连接（Residual Connection），然后进一步分析 Encoder 和 Decoder 的内部结构。</p><h4 id=seq2seq模型><a href=#seq2seq%e6%a8%a1%e5%9e%8b class=header-anchor></a>Seq2seq模型</h4><p>Seq2Seq，即序列到序列，是一种经典 NLP 任务。对于 Seq2Seq 任务，一般的思路是对自然语言序列进行编码再解码。具体而言，是指模型输入的是一个自然语言序列，</p>$$
+input = (x_1, x_2, x_3...x_n)
+$$<p>输出的是一个可能不等长的自然语言序列 。</p>$$
+output = (y_1, y_2, y_3...y_m)
+$$<p>事实上，Seq2Seq 是 NLP 最经典的任务，几乎所有的 NLP 任务都可以视为 Seq2Seq 任务。例如文本分类任务，可以视为输出长度为 1 的目标序列（如在上式中 m = 1）；词性标注任务，可以视为输出与输入序列等长的目标序列（如在上式中 m = n）。</p><h4 id=前馈神经网络><a href=#%e5%89%8d%e9%a6%88%e7%a5%9e%e7%bb%8f%e7%bd%91%e7%bb%9c class=header-anchor></a>前馈神经网络</h4><p>FNN 是最基础的神经网络结构，数据从输入层经过若干隐藏层，最后到达输出层，信息<strong>只沿一个方向传播</strong>，不会回传或循环。</p><p>在保持输入维度不变的情况下，对输入特征进行非线性变换和重新组合，从而提取更丰富、更抽象的特征表示。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>MLP</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;前馈神经网络&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>dim</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>hidden_dim</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>dropout</span><span class=p>:</span> <span class=nb>float</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义第一层线性变换，从输入维度到隐藏维度</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>w1</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>dim</span><span class=p>,</span> <span class=n>hidden_dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义第二层线性变换，从隐藏维度到输入维度</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>w2</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>hidden_dim</span><span class=p>,</span> <span class=n>dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义dropout层，用于防止过拟合</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>dropout</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Dropout</span><span class=p>(</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 前向传播函数</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 首先，输入x通过第一层线性变换和RELU激活函数</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 最后，通过第二层线性变换和dropout层</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>dropout</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>w2</span><span class=p>(</span><span class=n>F</span><span class=o>.</span><span class=n>relu</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>w1</span><span class=p>(</span><span class=n>x</span><span class=p>))))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>输入 x
+</span></span></span><span class=line><span class=cl><span class=s2> → 线性层 (dim → hidden_dim)  # 把输入特征从 dim 维映射到更高维的 hidden_dim 空间。
+</span></span></span><span class=line><span class=cl><span class=s2> → ReLU 激活					# 给网络引入非线性能力，让模型能学习复杂函数关系，而不仅仅是线性映射。
+</span></span></span><span class=line><span class=cl><span class=s2> → 线性层 (hidden_dim → dim)  # 再做一次线性变换，把高维特征重新压缩回原始维度 dim。
+</span></span></span><span class=line><span class=cl><span class=s2> → Dropout					 # 在训练时随机“丢弃”一部分神经元（置为 0），防止模型对特定神经元依赖过强，从而提升泛化能力。
+</span></span></span><span class=line><span class=cl><span class=s2> → 输出 y
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=层归一化><a href=#%e5%b1%82%e5%bd%92%e4%b8%80%e5%8c%96 class=header-anchor></a>层归一化</h4><p>归一化核心是为了让不同层输入的取值范围或者分布能够比较一致。</p><p>相较于 Batch Norm 在每一层统计所有样本的均值和方差，Layer Norm 在每个样本上计算其所有层的均值和方差，从而使每个样本的分布达到稳定。</p>$$
+\widetilde{Z_j} = \frac{Z_j - \mu_j}{\sqrt{\sigma^2 + \epsilon}}
+$$<h4 id=残差连接><a href=#%e6%ae%8b%e5%b7%ae%e8%bf%9e%e6%8e%a5 class=header-anchor></a>残差连接</h4><p>残差连接，即下一层的输入不仅是上一层的输出，还包括上一层的输入。</p><p>例如，在 Encoder 中，在第一个子层，输入进入多头自注意力层的同时会直接传递到该层的输出，然后该层的输出会与原输入相加，再进行标准化。在第二个子层也是一样。即：</p>$$
+x = x + MultiHeadSelfAttention(LayerNorm(x))
+$$$$
+output = x + FNN(LayerNorm(x))
+$$<h4 id=encoder-decoder-1><a href=#encoder-decoder-1 class=header-anchor></a>Encoder, Decoder</h4><p>Transformer 的 Encoder。Encoder 由 N 个 Encoder Layer 组成，每一个 Encoder Layer 包括一个注意力层和一个前馈神经网络。</p><p>Decoder 由两个注意力层和一个前馈神经网络组成。第一个注意力层是一个掩码自注意力层，即使用 Mask 的注意力计算，保证每一个 token 只能使用该 token 之前的注意力分数；第二个注意力层是一个多头注意力层，该层将使用第一个注意力层的输出作为 query，使用 Encoder 的输出作为 key 和 value，来计算注意力分数。最后，再经过前馈神经网络.</p><div class=table-wrapper><table><thead><tr><th>类型</th><th>信息可见性</th><th>特点</th><th>常用场景</th></tr></thead><tbody><tr><td><strong>注意力层 (Self-Attention)</strong></td><td>每个 token 可见整个序列</td><td>捕捉全局依赖</td><td>Transformer 编码器</td></tr><tr><td><strong>掩码注意力层 (Masked Self-Attention)</strong></td><td>只能看见前面 token，屏蔽未来</td><td>保证自回归生成</td><td>Transformer 解码器 / GPT</td></tr><tr><td><strong>多头注意力层 (Multi-Head Attention)</strong></td><td>并行多个注意力头，每头看不同特征子空间</td><td>增强模型表达能力</td><td>所有 Transformer 注意力模块</td></tr></tbody></table></div><h3 id=transformer构建><a href=#transformer%e6%9e%84%e5%bb%ba class=header-anchor></a>Transformer构建</h3><h4 id=embedding---分词><a href=#embedding---%e5%88%86%e8%af%8d class=header-anchor></a>Embedding - 分词</h4><p>将 Encoder、Decoder 拼接起来再加入 Embedding 层就可以搭建出完整的 Transformer 模型。</p><p>Embedding 层需要将自然语言的输入转化为机器可以处理的向量.</p><p>Embedding 层其实是一个存储固定大小的词典的嵌入向量查找表。也就是说，在输入神经网络之前，我们往往会先让自然语言输入通过分词器 tokenizer，分词器的作用是把自然语言输入切分成 token 并转化成一个固定的 index。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=bp>self</span><span class=o>.</span><span class=n>tok_embeddings</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Embedding</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>vocab_size</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=位置编码><a href=#%e4%bd%8d%e7%bd%ae%e7%bc%96%e7%a0%81 class=header-anchor></a>位置编码</h4><p>位置编码，即根据序列中 token 的相对位置对其进行编码，再将位置编码加入词向量编码中。位置编码的方式有很多，Transformer 使用了正余弦函数来进行位置编码（绝对位置编码Sinusoidal），其编码方式为：</p>$$
+PE(pos, 2i) = sin(pos/10000^{2i/d_{model}})\\
+PE(pos, 2i+1) = cos(pos/10000^{2i/d_{model}})
+$$<p>上式中，pos 为 token 在句子中的位置，2i 和 2i+1 则是指示了 token 是奇数位置还是偶数位置，从上式中我们可以看出对于奇数位置的 token 和偶数位置的 token，Transformer 采用了不同的函数进行编码。</p><h4 id=transformer-code><a href=#transformer-code class=header-anchor></a>transformer code</h4><p>整体流程:</p><p>输入文本 → Token Embedding → Positional Encoding → Encoder → Decoder → 输出层（lm_head）</p><ol><li><p>加载中文模型对词进行预处理；</p></li><li><p>对每个 token 进行词向量嵌入（Embedding）&mdash; 将每个token ID映射成一个高维向量；</p></li><li><p>加入位置编码（Positional Encoding）&mdash; 增加序列顺序感；</p></li><li><p>输入 Encoder（提取上下文特征）；</p><ul><li><p>前馈网络：一般由两层线性+激活函数，增强模型表达能力</p></li><li><p>多层自注意力：理解词和词之间的关系</p></li></ul></li><li><p>Decoder 根据 Encoder 输出 + 已生成的词预测下一个词；</p></li><li><p>输出层（线性+Softmax）将结果映射为词表概率。</p></li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span><span class=lnt>200
+</span><span class=lnt>201
+</span><span class=lnt>202
+</span><span class=lnt>203
+</span><span class=lnt>204
+</span><span class=lnt>205
+</span><span class=lnt>206
+</span><span class=lnt>207
+</span><span class=lnt>208
+</span><span class=lnt>209
+</span><span class=lnt>210
+</span><span class=lnt>211
+</span><span class=lnt>212
+</span><span class=lnt>213
+</span><span class=lnt>214
+</span><span class=lnt>215
+</span><span class=lnt>216
+</span><span class=lnt>217
+</span><span class=lnt>218
+</span><span class=lnt>219
+</span><span class=lnt>220
+</span><span class=lnt>221
+</span><span class=lnt>222
+</span><span class=lnt>223
+</span><span class=lnt>224
+</span><span class=lnt>225
+</span><span class=lnt>226
+</span><span class=lnt>227
+</span><span class=lnt>228
+</span><span class=lnt>229
+</span><span class=lnt>230
+</span><span class=lnt>231
+</span><span class=lnt>232
+</span><span class=lnt>233
+</span><span class=lnt>234
+</span><span class=lnt>235
+</span><span class=lnt>236
+</span><span class=lnt>237
+</span><span class=lnt>238
+</span><span class=lnt>239
+</span><span class=lnt>240
+</span><span class=lnt>241
+</span><span class=lnt>242
+</span><span class=lnt>243
+</span><span class=lnt>244
+</span><span class=lnt>245
+</span><span class=lnt>246
+</span><span class=lnt>247
+</span><span class=lnt>248
+</span><span class=lnt>249
+</span><span class=lnt>250
+</span><span class=lnt>251
+</span><span class=lnt>252
+</span><span class=lnt>253
+</span><span class=lnt>254
+</span><span class=lnt>255
+</span><span class=lnt>256
+</span><span class=lnt>257
+</span><span class=lnt>258
+</span><span class=lnt>259
+</span><span class=lnt>260
+</span><span class=lnt>261
+</span><span class=lnt>262
+</span><span class=lnt>263
+</span><span class=lnt>264
+</span><span class=lnt>265
+</span><span class=lnt>266
+</span><span class=lnt>267
+</span><span class=lnt>268
+</span><span class=lnt>269
+</span><span class=lnt>270
+</span><span class=lnt>271
+</span><span class=lnt>272
+</span><span class=lnt>273
+</span><span class=lnt>274
+</span><span class=lnt>275
+</span><span class=lnt>276
+</span><span class=lnt>277
+</span><span class=lnt>278
+</span><span class=lnt>279
+</span><span class=lnt>280
+</span><span class=lnt>281
+</span><span class=lnt>282
+</span><span class=lnt>283
+</span><span class=lnt>284
+</span><span class=lnt>285
+</span><span class=lnt>286
+</span><span class=lnt>287
+</span><span class=lnt>288
+</span><span class=lnt>289
+</span><span class=lnt>290
+</span><span class=lnt>291
+</span><span class=lnt>292
+</span><span class=lnt>293
+</span><span class=lnt>294
+</span><span class=lnt>295
+</span><span class=lnt>296
+</span><span class=lnt>297
+</span><span class=lnt>298
+</span><span class=lnt>299
+</span><span class=lnt>300
+</span><span class=lnt>301
+</span><span class=lnt>302
+</span><span class=lnt>303
+</span><span class=lnt>304
+</span><span class=lnt>305
+</span><span class=lnt>306
+</span><span class=lnt>307
+</span><span class=lnt>308
+</span><span class=lnt>309
+</span><span class=lnt>310
+</span><span class=lnt>311
+</span><span class=lnt>312
+</span><span class=lnt>313
+</span><span class=lnt>314
+</span><span class=lnt>315
+</span><span class=lnt>316
+</span><span class=lnt>317
+</span><span class=lnt>318
+</span><span class=lnt>319
+</span><span class=lnt>320
+</span><span class=lnt>321
+</span><span class=lnt>322
+</span><span class=lnt>323
+</span><span class=lnt>324
+</span><span class=lnt>325
+</span><span class=lnt>326
+</span><span class=lnt>327
+</span><span class=lnt>328
+</span><span class=lnt>329
+</span><span class=lnt>330
+</span><span class=lnt>331
+</span><span class=lnt>332
+</span><span class=lnt>333
+</span><span class=lnt>334
+</span><span class=lnt>335
+</span><span class=lnt>336
+</span><span class=lnt>337
+</span><span class=lnt>338
+</span><span class=lnt>339
+</span><span class=lnt>340
+</span><span class=lnt>341
+</span><span class=lnt>342
+</span><span class=lnt>343
+</span><span class=lnt>344
+</span><span class=lnt>345
+</span><span class=lnt>346
+</span><span class=lnt>347
+</span><span class=lnt>348
+</span><span class=lnt>349
+</span><span class=lnt>350
+</span><span class=lnt>351
+</span><span class=lnt>352
+</span><span class=lnt>353
+</span><span class=lnt>354
+</span><span class=lnt>355
+</span><span class=lnt>356
+</span><span class=lnt>357
+</span><span class=lnt>358
+</span><span class=lnt>359
+</span><span class=lnt>360
+</span><span class=lnt>361
+</span><span class=lnt>362
+</span><span class=lnt>363
+</span><span class=lnt>364
+</span><span class=lnt>365
+</span><span class=lnt>366
+</span><span class=lnt>367
+</span><span class=lnt>368
+</span><span class=lnt>369
+</span><span class=lnt>370
+</span><span class=lnt>371
+</span><span class=lnt>372
+</span><span class=lnt>373
+</span><span class=lnt>374
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>math</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>torch</span> <span class=kn>import</span> <span class=n>nn</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dataclasses</span> <span class=kn>import</span> <span class=n>dataclass</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>transformers</span> <span class=kn>import</span> <span class=n>BertTokenizer</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>torch.nn.functional</span> <span class=k>as</span> <span class=nn>F</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@dataclass</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ModelArgs</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>n_embd</span><span class=p>:</span> <span class=nb>int</span>  <span class=c1># 嵌入维度</span>
+</span></span><span class=line><span class=cl>    <span class=n>n_heads</span><span class=p>:</span> <span class=nb>int</span>  <span class=c1># 头数</span>
+</span></span><span class=line><span class=cl>    <span class=n>dim</span><span class=p>:</span> <span class=nb>int</span>  <span class=c1># 模型维度</span>
+</span></span><span class=line><span class=cl>    <span class=n>dropout</span><span class=p>:</span> <span class=nb>float</span>
+</span></span><span class=line><span class=cl>    <span class=n>max_seq_len</span><span class=p>:</span> <span class=nb>int</span>
+</span></span><span class=line><span class=cl>    <span class=n>vocab_size</span><span class=p>:</span> <span class=nb>int</span>
+</span></span><span class=line><span class=cl>    <span class=n>block_size</span><span class=p>:</span> <span class=nb>int</span>
+</span></span><span class=line><span class=cl>    <span class=n>n_layer</span><span class=p>:</span> <span class=nb>int</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34; 核心注意力机制 &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MultiHeadAttention</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>:</span> <span class=n>ModelArgs</span><span class=p>,</span> <span class=n>is_causal</span><span class=o>=</span><span class=kc>False</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 构造函数</span>
+</span></span><span class=line><span class=cl>        <span class=c1># args: 配置对象</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 隐藏层维度必须是头数的整数倍，因为后面我们会将输入拆成头数个矩阵</span>
+</span></span><span class=line><span class=cl>        <span class=k>assert</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span> <span class=o>%</span> <span class=n>args</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>==</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 每个头的维度，等于模型维度除以头的总数。</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span> <span class=o>=</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span> <span class=o>//</span> <span class=n>args</span><span class=o>.</span><span class=n>n_heads</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>=</span> <span class=n>args</span><span class=o>.</span><span class=n>n_heads</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># Wq, Wk, Wv 参数矩阵，每个参数矩阵为 n_embd x dim</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 这里通过三个组合矩阵来代替了n个参数矩阵的组合，其逻辑在于矩阵内积再拼接其实等同于拼接矩阵再内积，</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 不理解的读者可以自行模拟一下，每一个线性层其实相当于n个参数矩阵的拼接</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>wq</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>wk</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>wv</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 输出权重矩阵，维度为 dim x dim（head_dim = dim / n_heads）</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>wo</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span> <span class=o>*</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 注意力的 dropout</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attn_dropout</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Dropout</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 残差连接的 dropout</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>resid_dropout</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Dropout</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>is_causal</span> <span class=o>=</span> <span class=n>is_causal</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 创建一个上三角矩阵，用于遮蔽未来信息</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 注意，因为是多头注意力，Mask 矩阵比之前我们定义的多一个维度</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>is_causal</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>mask</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>full</span><span class=p>((</span><span class=mi>1</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>max_seq_len</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>max_seq_len</span><span class=p>),</span> <span class=nb>float</span><span class=p>(</span><span class=s2>&#34;-inf&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>            <span class=n>mask</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>triu</span><span class=p>(</span><span class=n>mask</span><span class=p>,</span> <span class=n>diagonal</span><span class=o>=</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 注册为模型的缓冲区</span>
+</span></span><span class=line><span class=cl>            <span class=bp>self</span><span class=o>.</span><span class=n>register_buffer</span><span class=p>(</span><span class=s2>&#34;mask&#34;</span><span class=p>,</span> <span class=n>mask</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>q</span><span class=p>:</span> <span class=n>torch</span><span class=o>.</span><span class=n>Tensor</span><span class=p>,</span> <span class=n>k</span><span class=p>:</span> <span class=n>torch</span><span class=o>.</span><span class=n>Tensor</span><span class=p>,</span> <span class=n>v</span><span class=p>:</span> <span class=n>torch</span><span class=o>.</span><span class=n>Tensor</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 获取批次大小和序列长度，[batch_size, seq_len, dim]</span>
+</span></span><span class=line><span class=cl>        <span class=n>bsz</span><span class=p>,</span> <span class=n>seqlen</span><span class=p>,</span> <span class=n>_</span> <span class=o>=</span> <span class=n>q</span><span class=o>.</span><span class=n>shape</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算查询（Q）、键（K）、值（V）,输入通过参数矩阵层，维度为 (B, T, n_embed) x (n_embed, dim) -&gt; (B, T, dim)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xq</span><span class=p>,</span> <span class=n>xk</span><span class=p>,</span> <span class=n>xv</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>wq</span><span class=p>(</span><span class=n>q</span><span class=p>),</span> <span class=bp>self</span><span class=o>.</span><span class=n>wk</span><span class=p>(</span><span class=n>k</span><span class=p>),</span> <span class=bp>self</span><span class=o>.</span><span class=n>wv</span><span class=p>(</span><span class=n>v</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 将 Q、K、V 拆分成多头，维度为 (B, T, n_head, dim // n_head)，然后交换维度，变成 (B, n_head, T, dim // n_head)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 因为在注意力计算中我们是取了后两个维度参与计算</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 为什么要先按B*T*n_head*C//n_head展开再互换1、2维度而不是直接按注意力输入展开，是因为view的展开方式是直接把输入全部排开，</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 然后按要求构造，可以发现只有上述操作能够实现我们将每个头对应部分取出来的目标</span>
+</span></span><span class=line><span class=cl>        <span class=n>xq</span> <span class=o>=</span> <span class=n>xq</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=n>bsz</span><span class=p>,</span> <span class=n>seqlen</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xk</span> <span class=o>=</span> <span class=n>xk</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=n>bsz</span><span class=p>,</span> <span class=n>seqlen</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xv</span> <span class=o>=</span> <span class=n>xv</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=n>bsz</span><span class=p>,</span> <span class=n>seqlen</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>n_heads</span><span class=p>,</span> <span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xq</span> <span class=o>=</span> <span class=n>xq</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xk</span> <span class=o>=</span> <span class=n>xk</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>xv</span> <span class=o>=</span> <span class=n>xv</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 注意力计算</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算 QK^T / sqrt(d_k)，维度为 (B, nh, T, hs) x (B, nh, hs, T) -&gt; (B, nh, T, T)</span>
+</span></span><span class=line><span class=cl>        <span class=n>scores</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>matmul</span><span class=p>(</span><span class=n>xq</span><span class=p>,</span> <span class=n>xk</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=mi>3</span><span class=p>))</span> <span class=o>/</span> <span class=n>math</span><span class=o>.</span><span class=n>sqrt</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>head_dim</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 掩码自注意力必须有注意力掩码</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=bp>self</span><span class=o>.</span><span class=n>is_causal</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>assert</span> <span class=nb>hasattr</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=s1>&#39;mask&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 这里截取到序列长度，因为有些序列可能比 max_seq_len 短</span>
+</span></span><span class=line><span class=cl>            <span class=n>scores</span> <span class=o>=</span> <span class=n>scores</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>mask</span><span class=p>[:,</span> <span class=p>:,</span> <span class=p>:</span><span class=n>seqlen</span><span class=p>,</span> <span class=p>:</span><span class=n>seqlen</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算 softmax，维度为 (B, nh, T, T)</span>
+</span></span><span class=line><span class=cl>        <span class=n>scores</span> <span class=o>=</span> <span class=n>F</span><span class=o>.</span><span class=n>softmax</span><span class=p>(</span><span class=n>scores</span><span class=o>.</span><span class=n>float</span><span class=p>(),</span> <span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>type_as</span><span class=p>(</span><span class=n>xq</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 做 Dropout</span>
+</span></span><span class=line><span class=cl>        <span class=n>scores</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>attn_dropout</span><span class=p>(</span><span class=n>scores</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># V * Score，维度为(B, nh, T, T) x (B, nh, T, hs) -&gt; (B, nh, T, hs)</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>matmul</span><span class=p>(</span><span class=n>scores</span><span class=p>,</span> <span class=n>xv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 恢复时间维度并合并头。</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 将多头的结果拼接起来, 先交换维度为 (B, T, n_head, dim // n_head)，再拼接成 (B, T, n_head * dim // n_head)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># contiguous 函数用于重新开辟一块新内存存储，因为Pytorch设置先transpose再view会报错，</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 因为view直接基于底层存储得到，然而transpose并不会改变底层存储，因此需要额外存储</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=n>output</span><span class=o>.</span><span class=n>transpose</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span><span class=o>.</span><span class=n>contiguous</span><span class=p>()</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=n>bsz</span><span class=p>,</span> <span class=n>seqlen</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 最终投影回残差流。</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>wo</span><span class=p>(</span><span class=n>output</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>output</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>resid_dropout</span><span class=p>(</span><span class=n>output</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>output</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LayerNorm</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39; Layer Norm 层&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>features</span><span class=p>,</span> <span class=n>eps</span><span class=o>=</span><span class=mf>1e-6</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 线性矩阵做映射</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>a_2</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Parameter</span><span class=p>(</span><span class=n>torch</span><span class=o>.</span><span class=n>ones</span><span class=p>(</span><span class=n>features</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>b_2</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Parameter</span><span class=p>(</span><span class=n>torch</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=n>features</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>eps</span> <span class=o>=</span> <span class=n>eps</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 在统计每个样本所有维度的值，求均值和方差</span>
+</span></span><span class=line><span class=cl>        <span class=n>mean</span> <span class=o>=</span> <span class=n>x</span><span class=o>.</span><span class=n>mean</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>keepdim</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>  <span class=c1># mean: [bsz, max_len, 1]</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span> <span class=o>=</span> <span class=n>x</span><span class=o>.</span><span class=n>std</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>keepdim</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>  <span class=c1># std: [bsz, max_len, 1]</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 注意这里也在最后一个维度发生了广播</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>a_2</span> <span class=o>*</span> <span class=p>(</span><span class=n>x</span> <span class=o>-</span> <span class=n>mean</span><span class=p>)</span> <span class=o>/</span> <span class=p>(</span><span class=n>std</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>eps</span><span class=p>)</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>b_2</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MLP</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;前馈神经网络&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>dim</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>hidden_dim</span><span class=p>:</span> <span class=nb>int</span><span class=p>,</span> <span class=n>dropout</span><span class=p>:</span> <span class=nb>float</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义第一层线性变换，从输入维度到隐藏维度</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>w1</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>dim</span><span class=p>,</span> <span class=n>hidden_dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义第二层线性变换，从隐藏维度到输入维度</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>w2</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>hidden_dim</span><span class=p>,</span> <span class=n>dim</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 定义dropout层，用于防止过拟合</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>dropout</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Dropout</span><span class=p>(</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 前向传播函数</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 首先，输入x通过第一层线性变换和RELU激活函数</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 最后，通过第二层线性变换和dropout层</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>dropout</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>w2</span><span class=p>(</span><span class=n>F</span><span class=o>.</span><span class=n>relu</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>w1</span><span class=p>(</span><span class=n>x</span><span class=p>))))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>EncoderLayer</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 一个 Layer 中有两个 LayerNorm，分别在 Attention 之前和 MLP 之前</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Encoder 不需要掩码，传入 is_causal=False</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attention</span> <span class=o>=</span> <span class=n>MultiHeadAttention</span><span class=p>(</span><span class=n>args</span><span class=p>,</span> <span class=n>is_causal</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>fnn_norm</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>feed_forward</span> <span class=o>=</span> <span class=n>MLP</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Layer Norm</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 自注意力</span>
+</span></span><span class=line><span class=cl>        <span class=n>h</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>attention</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 经过前馈神经网络</span>
+</span></span><span class=line><span class=cl>        <span class=n>out</span> <span class=o>=</span> <span class=n>h</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>feed_forward</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>fnn_norm</span><span class=p>(</span><span class=n>h</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>out</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Encoder</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;Encoder 块&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>(</span><span class=n>Encoder</span><span class=p>,</span> <span class=bp>self</span><span class=p>)</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 一个 Encoder 由 N 个 Encoder Layer 组成</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>layers</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>ModuleList</span><span class=p>([</span><span class=n>EncoderLayer</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_layer</span><span class=p>)])</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>norm</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;分别通过 N 层 Encoder Layer&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>layer</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>layers</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>x</span> <span class=o>=</span> <span class=n>layer</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>norm</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>DecoderLayer</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;Decoder 层&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 一个 Layer 中有三个 LayerNorm，分别在 Mask Attention 之前、Self Attention 之前和 MLP 之前</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm_1</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Decoder 的第一个部分是 Mask Attention，传入 is_causal=True</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>mask_attention</span> <span class=o>=</span> <span class=n>MultiHeadAttention</span><span class=p>(</span><span class=n>args</span><span class=p>,</span> <span class=n>is_causal</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm_2</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Decoder 的第二个部分是 类似于 Encoder 的 Attention，传入 is_causal=False</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>attention</span> <span class=o>=</span> <span class=n>MultiHeadAttention</span><span class=p>(</span><span class=n>args</span><span class=p>,</span> <span class=n>is_causal</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>ffn_norm</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 第三个部分是 MLP</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>feed_forward</span> <span class=o>=</span> <span class=n>MLP</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dim</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>dropout</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Layer Norm</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm_1</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 掩码自注意力</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>mask_attention</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 多头注意力</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>attention_norm_2</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>h</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>attention</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 经过前馈神经网络</span>
+</span></span><span class=line><span class=cl>        <span class=n>out</span> <span class=o>=</span> <span class=n>h</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>feed_forward</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>ffn_norm</span><span class=p>(</span><span class=n>h</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>out</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Decoder</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;解码器&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>(</span><span class=n>Decoder</span><span class=p>,</span> <span class=bp>self</span><span class=p>)</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 一个 Decoder 由 N 个 Decoder Layer 组成</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>layers</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>ModuleList</span><span class=p>([</span><span class=n>DecoderLayer</span><span class=p>(</span><span class=n>args</span><span class=p>)</span> <span class=k>for</span> <span class=n>_</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_layer</span><span class=p>)])</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>norm</span> <span class=o>=</span> <span class=n>LayerNorm</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;Pass the input (and mask) through each layer in turn.&#34;</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>layer</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>layers</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>x</span> <span class=o>=</span> <span class=n>layer</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span><span class=o>.</span><span class=n>norm</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>PositionalEncoding</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;位置编码模块&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>(</span><span class=n>PositionalEncoding</span><span class=p>,</span> <span class=bp>self</span><span class=p>)</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># Dropout 层</span>
+</span></span><span class=line><span class=cl>        <span class=c1># self.dropout = nn.Dropout(p=args.dropout)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># block size 是序列的最大长度</span>
+</span></span><span class=line><span class=cl>        <span class=n>pe</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>zeros</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>block_size</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>position</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>block_size</span><span class=p>)</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 计算 theta</span>
+</span></span><span class=line><span class=cl>        <span class=n>div_term</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>exp</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>torch</span><span class=o>.</span><span class=n>arange</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span> <span class=o>*</span> <span class=o>-</span><span class=p>(</span><span class=n>math</span><span class=o>.</span><span class=n>log</span><span class=p>(</span><span class=mf>10000.0</span><span class=p>)</span> <span class=o>/</span> <span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 分别计算 sin、cos 结果</span>
+</span></span><span class=line><span class=cl>        <span class=n>pe</span><span class=p>[:,</span> <span class=mi>0</span><span class=p>::</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>sin</span><span class=p>(</span><span class=n>position</span> <span class=o>*</span> <span class=n>div_term</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>pe</span><span class=p>[:,</span> <span class=mi>1</span><span class=p>::</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>cos</span><span class=p>(</span><span class=n>position</span> <span class=o>*</span> <span class=n>div_term</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>pe</span> <span class=o>=</span> <span class=n>pe</span><span class=o>.</span><span class=n>unsqueeze</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>register_buffer</span><span class=p>(</span><span class=s2>&#34;pe&#34;</span><span class=p>,</span> <span class=n>pe</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>x</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 将位置编码加到 Embedding 结果上</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=n>x</span> <span class=o>+</span> <span class=bp>self</span><span class=o>.</span><span class=n>pe</span><span class=p>[:,</span> <span class=p>:</span> <span class=n>x</span><span class=o>.</span><span class=n>size</span><span class=p>(</span><span class=mi>1</span><span class=p>)]</span><span class=o>.</span><span class=n>requires_grad_</span><span class=p>(</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>x</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Transformer</span><span class=p>(</span><span class=n>nn</span><span class=o>.</span><span class=n>Module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;整体模型&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>args</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=nb>super</span><span class=p>()</span><span class=o>.</span><span class=fm>__init__</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 必须输入词表大小和 block size</span>
+</span></span><span class=line><span class=cl>        <span class=k>assert</span> <span class=n>args</span><span class=o>.</span><span class=n>vocab_size</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=k>assert</span> <span class=n>args</span><span class=o>.</span><span class=n>block_size</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>args</span> <span class=o>=</span> <span class=n>args</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>ModuleDict</span><span class=p>(</span><span class=nb>dict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>            <span class=n>wte</span><span class=o>=</span><span class=n>nn</span><span class=o>.</span><span class=n>Embedding</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>vocab_size</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>),</span> <span class=c1># 词嵌入</span>
+</span></span><span class=line><span class=cl>            <span class=n>wpe</span><span class=o>=</span><span class=n>PositionalEncoding</span><span class=p>(</span><span class=n>args</span><span class=p>),</span> <span class=c1># 位置编码</span>
+</span></span><span class=line><span class=cl>            <span class=n>drop</span><span class=o>=</span><span class=n>nn</span><span class=o>.</span><span class=n>Dropout</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>dropout</span><span class=p>),</span> <span class=c1># dropout</span>
+</span></span><span class=line><span class=cl>            <span class=n>encoder</span><span class=o>=</span><span class=n>Encoder</span><span class=p>(</span><span class=n>args</span><span class=p>),</span> <span class=c1># 编码器</span>
+</span></span><span class=line><span class=cl>            <span class=n>decoder</span><span class=o>=</span><span class=n>Decoder</span><span class=p>(</span><span class=n>args</span><span class=p>),</span> <span class=c1># 解码器</span>
+</span></span><span class=line><span class=cl>        <span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 最后的线性层，输入是 n_embd，输出是词表大小</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>lm_head</span> <span class=o>=</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>(</span><span class=n>args</span><span class=o>.</span><span class=n>n_embd</span><span class=p>,</span> <span class=n>args</span><span class=o>.</span><span class=n>vocab_size</span><span class=p>,</span> <span class=n>bias</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 初始化所有的权重</span>
+</span></span><span class=line><span class=cl>        <span class=bp>self</span><span class=o>.</span><span class=n>apply</span><span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>_init_weights</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 查看所有参数的数量</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;number of parameters: </span><span class=si>%.2f</span><span class=s2>M&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=bp>self</span><span class=o>.</span><span class=n>get_num_params</span><span class=p>()</span> <span class=o>/</span> <span class=mf>1e6</span><span class=p>,))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;统计所有参数的数量&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>get_num_params</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>non_embedding</span><span class=o>=</span><span class=kc>False</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># non_embedding: 是否统计 embedding 的参数</span>
+</span></span><span class=line><span class=cl>        <span class=n>n_params</span> <span class=o>=</span> <span class=nb>sum</span><span class=p>(</span><span class=n>p</span><span class=o>.</span><span class=n>numel</span><span class=p>()</span> <span class=k>for</span> <span class=n>p</span> <span class=ow>in</span> <span class=bp>self</span><span class=o>.</span><span class=n>parameters</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 如果不统计 embedding 的参数，就减去</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>non_embedding</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>n_params</span> <span class=o>-=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>wte</span><span class=o>.</span><span class=n>weight</span><span class=o>.</span><span class=n>numel</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>n_params</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;初始化权重&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>_init_weights</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>module</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 线性层和 Embedding 层初始化为正则分布</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=n>nn</span><span class=o>.</span><span class=n>Linear</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>torch</span><span class=o>.</span><span class=n>nn</span><span class=o>.</span><span class=n>init</span><span class=o>.</span><span class=n>normal_</span><span class=p>(</span><span class=n>module</span><span class=o>.</span><span class=n>weight</span><span class=p>,</span> <span class=n>mean</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span> <span class=n>std</span><span class=o>=</span><span class=mf>0.02</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>module</span><span class=o>.</span><span class=n>bias</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>torch</span><span class=o>.</span><span class=n>nn</span><span class=o>.</span><span class=n>init</span><span class=o>.</span><span class=n>zeros_</span><span class=p>(</span><span class=n>module</span><span class=o>.</span><span class=n>bias</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>elif</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>module</span><span class=p>,</span> <span class=n>nn</span><span class=o>.</span><span class=n>Embedding</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>            <span class=n>torch</span><span class=o>.</span><span class=n>nn</span><span class=o>.</span><span class=n>init</span><span class=o>.</span><span class=n>normal_</span><span class=p>(</span><span class=n>module</span><span class=o>.</span><span class=n>weight</span><span class=p>,</span> <span class=n>mean</span><span class=o>=</span><span class=mf>0.0</span><span class=p>,</span> <span class=n>std</span><span class=o>=</span><span class=mf>0.02</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=s1>&#39;&#39;&#39;前向计算函数&#39;&#39;&#39;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>forward</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>idx</span><span class=p>,</span> <span class=n>targets</span><span class=o>=</span><span class=kc>None</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 输入为 idx，维度为 (batch size, sequence length, 1)；targets 为目标序列，用于计算 loss</span>
+</span></span><span class=line><span class=cl>        <span class=n>device</span> <span class=o>=</span> <span class=n>idx</span><span class=o>.</span><span class=n>device</span>
+</span></span><span class=line><span class=cl>        <span class=n>b</span><span class=p>,</span> <span class=n>t</span> <span class=o>=</span> <span class=n>idx</span><span class=o>.</span><span class=n>size</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>assert</span> <span class=n>t</span> <span class=o>&lt;=</span> <span class=bp>self</span><span class=o>.</span><span class=n>args</span><span class=o>.</span><span class=n>block_size</span><span class=p>,</span> <span class=sa>f</span><span class=s2>&#34;不能计算该序列，该序列长度为 </span><span class=si>{</span><span class=n>t</span><span class=si>}</span><span class=s2>, 最大序列长度只有 </span><span class=si>{</span><span class=bp>self</span><span class=o>.</span><span class=n>args</span><span class=o>.</span><span class=n>block_size</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=c1># 通过 self.transformer</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 首先将输入 idx 通过 Embedding 层，得到维度为 (batch size, sequence length, n_embd)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;idx：&#34;</span><span class=p>,</span> <span class=n>idx</span><span class=o>.</span><span class=n>size</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 通过 Embedding 层</span>
+</span></span><span class=line><span class=cl>        <span class=n>tok_emb</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>wte</span><span class=p>(</span><span class=n>idx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;tok_emb：&#34;</span><span class=p>,</span> <span class=n>tok_emb</span><span class=o>.</span><span class=n>size</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 然后通过位置编码</span>
+</span></span><span class=line><span class=cl>        <span class=n>pos_emb</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>wpe</span><span class=p>(</span><span class=n>tok_emb</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 再进行 Dropout</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>drop</span><span class=p>(</span><span class=n>pos_emb</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 然后通过 Encoder</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;x after wpe:&#34;</span><span class=p>,</span> <span class=n>x</span><span class=o>.</span><span class=n>size</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=n>enc_out</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>encoder</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;enc_out:&#34;</span><span class=p>,</span> <span class=n>enc_out</span><span class=o>.</span><span class=n>size</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 再通过 Decoder</span>
+</span></span><span class=line><span class=cl>        <span class=n>x</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>transformer</span><span class=o>.</span><span class=n>decoder</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>enc_out</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;x after decoder:&#34;</span><span class=p>,</span> <span class=n>x</span><span class=o>.</span><span class=n>size</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>targets</span> <span class=ow>is</span> <span class=ow>not</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 训练阶段，如果我们给了 targets，就计算 loss</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 先通过最后的 Linear 层，得到维度为 (batch size, sequence length, vocab size)</span>
+</span></span><span class=line><span class=cl>            <span class=n>logits</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>lm_head</span><span class=p>(</span><span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 再跟 targets 计算交叉熵</span>
+</span></span><span class=line><span class=cl>            <span class=n>loss</span> <span class=o>=</span> <span class=n>F</span><span class=o>.</span><span class=n>cross_entropy</span><span class=p>(</span><span class=n>logits</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=n>logits</span><span class=o>.</span><span class=n>size</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>)),</span> <span class=n>targets</span><span class=o>.</span><span class=n>view</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>),</span> <span class=n>ignore_index</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 推理阶段，我们只需要 logits，loss 为 None</span>
+</span></span><span class=line><span class=cl>            <span class=c1># 取 -1 是只取序列中的最后一个作为输出</span>
+</span></span><span class=line><span class=cl>            <span class=n>logits</span> <span class=o>=</span> <span class=bp>self</span><span class=o>.</span><span class=n>lm_head</span><span class=p>(</span><span class=n>x</span><span class=p>[:,</span> <span class=p>[</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span> <span class=p>:])</span>  <span class=c1># note: using list [-1] to preserve the time dim</span>
+</span></span><span class=line><span class=cl>            <span class=n>loss</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>logits</span><span class=p>,</span> <span class=n>loss</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>args</span> <span class=o>=</span> <span class=n>ModelArgs</span><span class=p>(</span><span class=mi>100</span><span class=p>,</span> <span class=mi>10</span><span class=p>,</span> <span class=mi>100</span><span class=p>,</span> <span class=mf>0.1</span><span class=p>,</span> <span class=mi>512</span><span class=p>,</span> <span class=mi>1000</span><span class=p>,</span> <span class=mi>1000</span><span class=p>,</span> <span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>text</span> <span class=o>=</span> <span class=s2>&#34;我喜欢快乐地学习大模型&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 加载中文模型，进行预处理</span>
+</span></span><span class=line><span class=cl>    <span class=n>tokenizer</span> <span class=o>=</span> <span class=n>BertTokenizer</span><span class=o>.</span><span class=n>from_pretrained</span><span class=p>(</span><span class=s1>&#39;bert-base-chinese&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># inputs_tokens 为字典，包含inputs_ids(词token id映射序列)和attention_mask</span>
+</span></span><span class=line><span class=cl>    <span class=n>inputs_token</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>text</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>return_tensors</span><span class=o>=</span><span class=s1>&#39;pt&#39;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>max_length</span><span class=o>=</span><span class=n>args</span><span class=o>.</span><span class=n>max_seq_len</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>truncation</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>padding</span><span class=o>=</span><span class=s1>&#39;max_length&#39;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 将词表大小写入模型参数中</span>
+</span></span><span class=line><span class=cl>    <span class=n>args</span><span class=o>.</span><span class=n>vocab_size</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>vocab_size</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 创建模型</span>
+</span></span><span class=line><span class=cl>    <span class=n>transformer</span> <span class=o>=</span> <span class=n>Transformer</span><span class=p>(</span><span class=n>args</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>inputs_id</span> <span class=o>=</span> <span class=n>inputs_token</span><span class=p>[</span><span class=s1>&#39;input_ids&#39;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    输入 token 
+</span></span></span><span class=line><span class=cl><span class=s2>    → 嵌入层 (Embedding)
+</span></span></span><span class=line><span class=cl><span class=s2>        --- 将每个token ID映射成一个高维向量
+</span></span></span><span class=line><span class=cl><span class=s2>    → 位置编码 (Positional Encoding)
+</span></span></span><span class=line><span class=cl><span class=s2>        --- 增加序列顺序感
+</span></span></span><span class=line><span class=cl><span class=s2>    → 多层自注意力 + 前馈网络 (Transformer Blocks) 
+</span></span></span><span class=line><span class=cl><span class=s2>        --- 多层自注意力：理解词和词之间的关系
+</span></span></span><span class=line><span class=cl><span class=s2>        --- 前馈网络：一般由两层线性+激活函数，增强模型表达能力
+</span></span></span><span class=line><span class=cl><span class=s2>    → 线性层映射到 vocab_size 维度
+</span></span></span><span class=line><span class=cl><span class=s2>        --- 映射回词表维度
+</span></span></span><span class=line><span class=cl><span class=s2>    → 输出 logits
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>logits</span><span class=p>,</span> <span class=n>loss</span> <span class=o>=</span> <span class=n>transformer</span><span class=o>.</span><span class=n>forward</span><span class=p>(</span><span class=n>inputs_id</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;logits: &#34;</span><span class=p>,</span> <span class=n>logits</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 取预测结果，解码</span>
+</span></span><span class=line><span class=cl>    <span class=n>predicted_ids</span> <span class=o>=</span> <span class=n>torch</span><span class=o>.</span><span class=n>argmax</span><span class=p>(</span><span class=n>logits</span><span class=p>,</span> <span class=n>dim</span><span class=o>=-</span><span class=mi>1</span><span class=p>)</span><span class=o>.</span><span class=n>item</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>output</span> <span class=o>=</span> <span class=n>tokenizer</span><span class=o>.</span><span class=n>decode</span><span class=p>(</span><span class=n>predicted_ids</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;outputs: &#34;</span><span class=p>,</span> <span class=n>output</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;开始&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=3-预训练语言模型><a href=#3-%e9%a2%84%e8%ae%ad%e7%bb%83%e8%af%ad%e8%a8%80%e6%a8%a1%e5%9e%8b class=header-anchor></a>3 预训练语言模型</h2><p>“PLM” 是 “Pre-trained Language Model” 的缩写</p><div class=table-wrapper><table><thead><tr><th>模块</th><th>主要输入</th><th>主要机制</th><th>主要输出</th><th>核心作用</th></tr></thead><tbody><tr><td><strong>编码器 (Encoder)</strong></td><td>输入序列（如英文句子）</td><td>自注意力（Self-Attention）</td><td>每个词的上下文语义表示</td><td>理解输入语义</td></tr><tr><td><strong>解码器 (Decoder)</strong></td><td>上下文表示 + 已生成的部分输出</td><td>Masked Self-Attention + Encoder-Decoder Attention</td><td>下一个词的概率分布</td><td>根据语义生成输出</td></tr></tbody></table></div><h3 id=encoder-only-plm><a href=#encoder-only-plm class=header-anchor></a>Encoder-only PLM</h3><h4 id=bert><a href=#bert class=header-anchor></a>Bert</h4><p>自 BERT 推出以来，预训练+微调的模式开始成为自然语言处理任务的主流.</p><ul><li>transformer架构: BERT 正沿承了 Transformer 的思想，在 Transformer 的模型基座上进行优化，通过将 Encoder 结构进行堆叠，扩大模型参数，打造了在 NLU 任务上独居天分的模型架构；</li><li>预训练+微调范式:</li></ul><p>模型整体既是由 Embedding、Encoder 加上 <strong>prediction_heads</strong> 组成; prediction_heads用于将多维度的隐藏状态通过线性层转换到分类维度, prediction_heads 其实就是线性层加上激活函数，一般而言，最后一个线性层的输出维度和任务的类别数相等.</p><p>相较于基本沿承 Transformer 的模型架构，BERT 更大的创新点在于其提出的两个新的预训练任务上——MLM 和 NSP（Next Sentence Prediction，下一句预测）。</p><p><strong>预训练-微调范式</strong>的核心优势在于，通过将预训练和微调分离，完成一次预训练的模型可以仅通过微调应用在几乎所有下游任务上，只要微调的成本较低，即使预训练成本是之前的数倍甚至数十倍，模型仍然有更大的应用价值。预训练数据的核心要求即是需要极大的数据规模（数亿 token）。</p><p>**MLM，也就是掩码语言模型作为新的预训练任务。**相较于模拟人类写作的 LM，MLM 模拟的是“完形填空”。MLM 的思路也很简单，在一个文本序列中随机遮蔽部分 token，然后将所有未被遮蔽的 token 输入模型，要求模型根据输入预测被遮蔽的 token。由于模型可以利用被遮蔽的 token 的上文和下文一起理解语义来预测被遮蔽的 token，因此通过这样的任务，模型可以拟合双向语义，也就能够更好地实现文本的理解。</p><p>**NSP，即下一个句子预测。**NSP 的核心思想是要求模型判断一个句对的两个句子是否是连续的上下文，例如问答匹配、自然语言推理等。这样的任务都需要模型在句级去拟合关系，判断两个句子之间的关系，而不仅是 MLM 在 token 级拟合的语义关系。</p><p>BERT 的一个重大意义就是正式确立了预训练-微调的两阶段思想，即在海量无监督语料上进行预训练来获得通用的文本理解与生成能力，再在对应的下游任务上进行微调。该种思想的一个重点在于，预训练得到的强大能力能否通过低成本的微调快速迁移到对应的下游任务上。</p><p>所谓微调，其实和训练时更新模型参数的策略一致，只不过在特定的任务、更少的训练数据、更小的 batch_size 上进行训练，更新参数的幅度更小。</p><h4 id=roberta><a href=#roberta class=header-anchor></a>RoBERTa</h4><p>优化一：<strong>去掉 NSP 预训练任务.</strong></p><p>去掉NSP, 为MLM从静态遮蔽改为动态遮蔽.</p><p>优化二：<strong>更大规模的预训练数据和预训练步长</strong></p><p>更大的预训练数据、更长的序列长度和更多的训练 Epoch，需要预训练阶段更多的算力资源。</p><p>优化三：<strong>更大的 bpe 词表</strong></p><p>与 BERT 使用的 WordPiece 算法不同，RoBERTa 使用了 BPE 作为 Tokenizer 的编码策略。BPE，即 Byte Pair Encoding，字节对编码，是指以子词对作为分词的单位。越大的词表也会带来模型参数的增加。</p><p>RoBERTa 成功地在 BERT 架构的基础上刷新了多个下游任务的 SOTA，也一度成为 BERT 系模型最热门的预训练模型。RoBERTa 的成功也证明了更大的预训练数据、更大的预训练步长的重要意义，这也是 LLM 诞生的基础之一。</p><h4 id=albert><a href=#albert class=header-anchor></a>ALBERT</h4><p>ALBERT 成功地以更小规模的参数实现了超越 BERT 的能力, 虽然 ALBERT 所提出的一些改进思想并没有在后续研究中被广泛采用，但其降低模型参数的方法及提出的新预训练任务 SOP 仍然对 NLP 领域提供了重要的参考意义。</p><p>优化一：<strong>将 Embedding 参数进行分解</strong></p><p>Embedding 层的参数矩阵维度为 V∗H，此处的 V 为词表大小 30K，H 即为隐藏层大小 1024，也就是 Embedding 层参数达到了 30M。</p><p>ALBERT 对 Embedding 层的参数矩阵进行了分解，让 Embedding 层的输出维度和隐藏层维度解绑，也就是在 Embedding 层的后面加入一个线性矩阵进行维度变换。ALBERT 设置了 Embedding 层的输出为 128，因此在 Embedding 层后面加入了一个 $128*1024$ 的线性矩阵来将 Embedding 层的输出再升维到隐藏层大小。也就是说，Embedding 层的参数从 $V*H$ 降低到了 $V*E + E*H$，当 E 的大小远小于 H 时，该方法对 Embedding 层参数的优化就会很明显。</p><p>优化二：<strong>跨层进行参数共享</strong></p><p>ALBERT 提出，可以让各个 Encoder 层共享模型参数，来减少模型的参数量。</p><p>将24个Encoder层变成1个Encoder层, 虽然各层共享权重，但计算时仍然要通过 24次 Encoder Layer 的计算，也就是说训练和推理时的速度相较 BERT 还会更慢, 训练效率也只略微优于 BERT.</p><p>优化三：<strong>提出 SOP 预训练任务</strong></p><p>在传统的 NSP 任务中，正例是由两个连续句子组成的句对，而负例则是从任意两篇文档中抽取出的句对，模型可以较容易地判断正负例，并不能很好地学习深度语义。而 SOP 任务提出的改进是，正例同样由两个连续句子组成，但负例是将这两个的顺序反过来。也就是说，模型不仅要拟合两个句子之间的关系，更要学习其顺序关系，这样就大大提升了预训练的难度。</p><p>ALBERT 通过实验证明，SOP 预训练任务对模型效果有显著提升。使用 MLM + SOP 预训练的模型效果优于仅使用 MLM 预训练的模型更优于使用 MLM + NSP 预训练的模型。</p><h3 id=encoder-decoder-plm><a href=#encoder-decoder-plm class=header-anchor></a>Encoder-Decoder PLM</h3><h4 id=t5><a href=#t5 class=header-anchor></a>T5</h4><p>T5 基于 Transformer 架构，包含编码器和解码器两个部分，使用自注意力机制和多头注意力捕捉全局依赖关系，利用相对位置编码处理长序列中的位置信息，并在每层中包含前馈神经网络进一步处理特征。</p><p>T5 模型的<strong>预训练任务</strong>是一个关键的组成部分，它能使模型能够学习到丰富的语言表示，语言表示能力可以在后续的微调过程中被迁移到各种下游任务。训练所使用的数据集是一个大规模的文本数据集，包含了各种各样的文本数据，如维基百科、新闻、书籍等等。其中包括多张输入格式,清洗数据,多任务与训练,微调等.</p><p>T5模型的一个核心理念是**“大一统思想”**，即所有的 NLP 任务都可以统一为文本到文本的任务，这一思想在自然语言处理领域具有深远的影响。其设计理念是将所有不同类型的NLP任务（如文本分类、翻译、文本生成、问答等）转换为一个统一的格式：输入和输出都是纯文本。</p><p>对于不同的NLP任务，每次输入前都会加上一个任务描述前缀，明确指定当前任务的类型。这不仅帮助模型在预训练阶段学习到不同任务之间的通用特征，也便于在微调阶段迅速适应具体任务。例如，任务前缀可以是“summarize: ”用于摘要任务，或“translate English to German: ”用于翻译任务。</p><h3 id=decoder-only-plm><a href=#decoder-only-plm class=header-anchor></a>Decoder-Only PLM</h3><h4 id=gpt><a href=#gpt class=header-anchor></a>GPT</h4><p>GPT，即 Generative Pre-Training Language Model，GPT 的整体结构和 BERT 是有一些类似的，只是相较于 BERT 的 Encoder，选择使用了 Decoder 来进行模型结构的堆叠。由于 Decoder-Only 结构也天生适用于文本生成任务，所以相较于更贴合 NLU 任务设计的 BERT，GPT 和 T5 的模型设计更契合于 NLG 任务和 Seq2Seq 任务。</p><p>**过程: **</p><p>输入的 input_ids 首先通过 Embedding 层，再经过 Positional Embedding 进行位置编码。不同于 BERT 选择了可训练的全连接层作为位置编码，GPT 沿用了 Transformer 的经典 <strong>Sinusoidal 位置编码</strong>，即通过三角函数进行绝对位置编码，通过 Embedding 层和 Positional Embedding 层编码成 hidden_states 之后，就可以进入到解码器（Decoder），第一代 GPT 模型和原始 Transformer 模型类似，选择了 12层解码器层，但是在解码器层的内部，相较于 Transformer 原始 Decoder 层的双注意力层设计，GPT 的 Decoder 层反而更像 Encoder 层一点。由于不再有 Encoder 的编码输入，Decoder 层<strong>仅保留了一个带掩码的注意力层</strong>，并且将 LayerNorm 层从 Transformer 的注意力层之后提到了注意力层之前。hidden_states 输入 Decoder 层之后，会先进行 LayerNorm，再进行掩码注意力计算，然后经过残差连接和再一次 LayerNorm 进入到 MLP 中并得到最后输出。</p><p>由于不存在 Encoder 的编码结果，Decoder 层中的掩码注意力也是自注意力计算。也就是对一个输入的 hidden_states，会通过三个参数矩阵来生成 query、key 和 value，而不再是像 Transformer 中的 Decoder 那样由 Encoder 输出作为 key 和 value。后续的注意力计算过程则和 BERT 类似，只是在计算得到注意力权重之后，通过掩码矩阵来遮蔽了未来 token 的注意力权重，从而限制每一个 token 只能关注到它之前 token 的注意力，来实现掩码自注意力的计算。</p><p><strong>CLM</strong></p><p>Decoder-Only 的模型结构往往更适合于文本生成任务，因此，Decoder-Only 模型往往选择了最传统也最直接的预训练任务——**因果语言模型，Casual Language Model，**下简称 CLM。</p><p>CLM 可以看作 N-gram 语言模型的一个直接扩展。N-gram 语言模型是基于前 N 个 token 来预测下一个 token，CLM 则是基于一个自然语言序列的前面所有 token 来预测下一个 token，通过不断重复该过程来实现目标文本序列的生成。也就是说，CLM 是一个经典的补全形式。</p><p>BERT 之所以可以采用预训练+微调的范式取得重大突破，正是因为其选择的 MLM、NSP 可以在海量无监督语料上直接训练——而很明显，CLM 是更直接的预训练任务，其天生和人类书写自然语言文本的习惯相契合，也和下游任务直接匹配，相对于 MLM 任务更加直接，可以在任何自然语言文本上直接应用。因此，CLM 也可以使用海量的自然语言语料进行大规模的预训练。</p><blockquote><p>GPT-1 是 GPT 系列的开山之作，也是第一个使用 Decoder-Only 的预训练模型。</p><p>GPT-2 的核心改进是大幅<strong>增加了预训练数据集和模型体量</strong>。GPT-2 的另一个重大突破是以 zero-**shot（零样本学习）**为主要目标，也就是不对模型进行微调，直接要求模型解决任务。</p><p>GPT-3 则是更进一步展示了 OpenAI“力大砖飞”的核心思路，也是 LLM 的开创之作。在 GPT-2 的基础上，OpenAI 进一步增大了模型体量和预训练数据量，整体参数量达 175B，是当之无愧的“大型语言模型”。在模型结构上，基本没有大的改进，只是由于巨大的模型体量使用了<strong>稀疏注意力</strong>机制来取代传统的注意力机制。之所以说 GPT-3 是 LLM 的开创之作，除去其巨大的体量带来了涌现能力的凸显外，还在于其提出了 <strong>few-shot</strong> 的重要思想。few-shot 是对 zero-shot 的一个折中，旨在提供给模型少样的示例来教会它完成任务。few-shot 一般会在 prompt（也就是模型的输入）中增加 3~5个示例，来帮助模型理解。</p></blockquote><h4 id=llama><a href=#llama class=header-anchor></a>LLaMa</h4><p>LLaMA 的全称是 Large Language Model Meta AI ，即大语言模型（Meta AI 研发 ).</p><p>LLaMA模型的整体结构与GPT系列模型类似，只是在模型规模和预训练数据集上有所不同。</p><p>GPT 追求商业级的通用智能与对齐安全，采用私有高质量数据、强化学习（RLHF）和多专家结构（MoE）以实现强泛化和稳健对话能力；而 LLaMA 注重研究开放与效率，依靠公开数据、自回归预训练与直接偏好优化（DPO）等方法，强调轻量化、可复现和开源生态。前者以“对齐人类价值”为核心，后者以“可被人类研究”为目标，因此 GPT 更像黑盒的工程奇迹，LLaMA 则是可验证的科研基石。</p><h4 id=glm><a href=#glm class=header-anchor></a>GLM</h4><p>GLM全称是General Language Model，即通用语言模型 ，是由清华大学的KEG实验室和智谱AI公司联合研发的预训练语言模型。核心思路是在传统 CLM 预训练任务基础上，加入 MLM 思想，从而构建一个在 NLG 和 NLU 任务上都具有良好表现的统一模型。</p><blockquote><p><strong>MLM</strong>：全称是 Masked Language Model，即掩码语言模型. 适用于编码器中的文本理解</p><p><strong>CLM</strong>：全称是 Causal Language Model，即自回归语言模型. 适用于解码器中的文本生成</p></blockquote><p>GLM系列模型融合了<strong>自回归和自编码器</strong>的训练目标，采用了独特的位置编码、旋转位置嵌入（RoPE ）等技术，具备文本生成、知识问答、阅读理解、代码生成等多种能力，在多个中文自然语言处理任务评估基准上表现出色。</p><p>所谓自编码思想，其实也就是 MLM 的任务学习思路，在输入文本中随机删除连续的 tokens，要求模型学习被删除的 tokens；所谓自回归思想，其实就是传统的 CLM 任务学习思路，也就是要求模型按顺序重建连续 tokens。</p><p>GLM 预训练任务更多的优势还是展现在预训练模型时代，迈入 LLM 时代后，针对于超大规模、体量的预训练，CLM 展现出远超 MLM 的优势。虽然从 LLM 的整体发展路径来看，GLM 预训练任务似乎是一个失败的尝试，但通过精巧的设计将 CLM 与 MLM 融合，并第一时间产出了中文开源的原生 LLM，其思路仍然存在较大的借鉴意义。</p><h2 id=4-大语言模型><a href=#4-%e5%a4%a7%e8%af%ad%e8%a8%80%e6%a8%a1%e5%9e%8b class=header-anchor></a>4 大语言模型</h2><p>从 NLP 的定义与主要任务出发，介绍了引发 NLP 领域重大变革的核心思想——<strong>注意力机制与 Transformer 架构</strong>。随着 Transformer 架构的横空出世，NLP 领域逐步进入<strong>预训练-微调</strong>范式，以 Transformer 为基础的、通过预训练获得强大文本表示能力的预训练语言模型层出不穷，将 NLP 的各种经典任务都推进到了一个新的高度。</p><p>随着2022年底 ChatGPT 再一次刷新 NLP 的能力上限，<strong>大语言模型</strong>（Large Language Model，LLM）开始接替传统的<strong>预训练语言模型</strong>（Pre-trained Language Model，PLM） 成为 NLP 的主流方向，基于 LLM 的全新研究范式也正在刷新被 BERT 发扬光大的预训练-微调范式，NLP 由此迎来又一次翻天覆地的变化。</p><h3 id=llm是什么><a href=#llm%e6%98%af%e4%bb%80%e4%b9%88 class=header-anchor></a>LLM是什么</h3><h4 id=llm基础介绍><a href=#llm%e5%9f%ba%e7%a1%80%e4%bb%8b%e7%bb%8d class=header-anchor></a>LLM基础介绍</h4><p>LLM，即 Large Language Model，中文名为大语言模型或大型语言模型，是一种相较传统语言模型参数量更多、在更大规模语料上进行预训练的语言模型。</p><p>一般认为，GPT-3（1750亿参数）是 LLM 的开端，基于 GPT-3 通过 **预训练（Pretraining）、监督微调（Supervised Fine-Tuning，SFT）、强化学习与人类反馈（Reinforcement Learning with Human Feedback，RLHF）**三阶段训练得到的 ChatGPT 更是主导了 LLM 时代的到来。</p><h4 id=llm的能力><a href=#llm%e7%9a%84%e8%83%bd%e5%8a%9b class=header-anchor></a>LLM的能力</h4><ol><li>涌现能力（Emergent Abilities） &mdash; 涌现能力是指同样的模型架构与预训练任务下，某些能力在小型模型中不明显，但在大型模型中特别突出。(可理解为量变产生之变)</li><li>上下文学习（In-context Learning）&mdash; 上下文学习是指允许语言模型在提供自然语言指令或多个任务示例的情况下，通过理解上下文并生成相应输出的方式来执行任务，而无需额外的训练或参数更新。</li><li>指令遵循（Instruction Following）&mdash; 经过指令微调的 LLM 能够理解并遵循未见过的指令，并根据任务指令执行任务，而无需事先见过具体示例，这展示了其强大的泛化能力。</li><li>逐步推理（Step by Step Reasoning）&mdash; LLM 通过采用思维链（Chain-of-Thought，CoT）推理策略，可以利用包含中间推理步骤的提示机制来解决这些任务</li></ol><h4 id=llm的特点><a href=#llm%e7%9a%84%e7%89%b9%e7%82%b9 class=header-anchor></a>LLM的特点</h4><ul><li><p>多语言支持 &mdash; 多语言、跨语言模型曾经是 NLP 的一个重要研究方向，但 LLM 由于需要使用到海量的语料进行预训练，训练语料往往本身就是多语言的，因此 LLM 天生即具有多语言、跨语言能力，只不过随着训练语料和指令微调的差异，在不同语言上的能力有所差异。</p></li><li><p>长文本处理 &mdash; 由于能够处理多长的上下文文本，在一定程度上决定了模型的部分能力上限，LLM 往往比传统 PLM 更看重长文本处理能力。</p><p>LLM 大部分采用了旋转位置编码（Rotary Positional Encoding，RoPE）（或者同样具有外推能力的 AliBi）作为位置编码，具有一定的长度外推能力，也就是在推理时能够处理显著长于训练长度的文本。</p></li><li><p>拓展多模态 &mdash; LLM 的强大能力也为其带来了跨模态的强大表现。随着 LLM 的不断改进，通过为 LLM 增加额外的参数来进行图像表示，从而利用 LLM 的强大能力打造支持文字、图像双模态的模型，已经是一个成功的方法。</p><p>通过引入 Adapter 层和图像编码器，并针对性地在图文数据上进行有监督微调，模型能够具备不错的图文问答甚至生成能力。</p></li><li><p>挥之不去的幻觉 &mdash; 幻觉，是指 LLM 根据 Prompt 杜撰生成虚假、错误信息的表现。</p><p>目前也有很多研究提供了削弱幻觉的一些方法，如 Prompt 里进行限制、通过 RAG（检索增强生成）来指导生成等，但都还只能一定程度减弱幻觉而无法彻底根除。</p></li></ul><h3 id=如何训练llm><a href=#%e5%a6%82%e4%bd%95%e8%ae%ad%e7%bb%83llm class=header-anchor></a>如何训练llm</h3><p>Q: 如何训练一个llm, 训练llm和训练传统预训练模型的区别是什么</p><h4 id=pretrain><a href=#pretrain class=header-anchor></a>Pretrain</h4><p>Pretrain，即预训练，是训练 LLM 最核心也是工程量最大的第一步。同样是使用海量无监督文本对随机初始化的模型参数进行训练。正如我们在第三章中所见，目前主流的 LLM 几乎都采用了 Decoder-Only 的类 GPT 架构（LLaMA 架构），它们的预训练任务也都沿承了 GPT 模型的经典预训练任务——因果语言模型（Causal Language Model，CLM）。</p><p>LLM 的核心特点即在于其具有远超传统预训练模型的参数量，同时在更海量的语料上进行预训练。</p><p>分布式训练框架的核心思路是数据并行和模型并行。所谓数据并行，是指训练模型的尺寸可以被单个 GPU 内存容纳，但是由于增大训练的 batch_size 会增大显存开销，无法使用较大的 batch_size 进行训练；同时，训练数据量非常大，使用单张 GPU 训练时长难以接受。</p><p>预训练数据的处理与清洗也是 LLM 预训练的一个重要环节。诸多研究证明，预训练数据的质量往往比体量更加重要。预训练数据处理一般包括以下流程：</p><ol><li>文档准备。由于海量预训练语料往往是从互联网上获得，一般需要从爬取的网站来获得自然语言文档。文档准备主要包括 URL 过滤（根据网页 URL 过滤掉有害内容）、文档提取（从 HTML 中提取纯文本）、语言选择（确定提取的文本的语种）等。</li><li>语料过滤。语料过滤的核心目的是去除低质量、无意义、有毒有害的内容，例如乱码、广告等。语料过滤一般有两种方法：基于模型的方法，即通过高质量语料库训练一个文本分类器进行过滤；基于启发式的方法，一般通过人工定义 web 内容的质量指标，计算语料的指标值来进行过滤。</li><li>语料去重。实验表示，大量重复文本会显著影响模型的泛化能力，因此，语料去重即删除训练语料中相似度非常高的文档，也是必不可少的一个步骤。去重一般基于 hash 算法计算数据集内部或跨数据集的文档相似性，将相似性大于指定阈值的文档去除；也可以基于子串在序列级进行精确匹配去重。</li></ol><h4 id=sft><a href=#sft class=header-anchor></a>SFT</h4><p>SFT（Supervised Fine-Tuning，有监督微调）。所谓有监督微调，其实就是我们在第三章中讲过的预训练-微调中的微调，稍有区别的是，对于能力有限的传统预训练模型，我们需要针对每一个下游任务单独对其进行微调以训练模型在该任务上的表现。而面对能力强大的 LLM，我们往往不再是在指定下游任务上构造有监督数据进行微调，而是选择训练模型的“通用指令遵循能力”，也就是一般通过<code>指令微调</code>的方式来进行 SFT。</p><p>SFT 的主要目标是让模型从多种类型、多种风格的指令中获得泛化的指令遵循能力，也就是能够理解并回复用户的指令。因此，类似于 Pretrain，SFT 的数据质量和数据配比也是决定模型指令遵循能力的重要因素。</p><p>首先是指令数据量及覆盖范围。为了使 LLM 能够获得泛化的指令遵循能力，即能够在未训练的指令上表现良好，需要收集大量类别各异的用户指令和对应回复对 LLM 进行训练。一般来说，在单个任务上 500~1000 的训练样本就可以获得不错的微调效果。但是，为了让 LLM 获得泛化的指令遵循能力，在多种任务指令上表现良好，需要在训练数据集中覆盖多种类型的任务指令，同时也需要相对较大的训练数据量，表现良好的开源 LLM SFT 数据量一般在数 B token 左右。</p><p><strong>指令微调</strong>本质上仍然是对模型进行 CLM 训练，只不过要求模型对指令进行理解和回复而不是简单地预测下一个 token，所以模型预测的结果不仅是 output，而应该是 input + output，只不过 input 部分不参与 loss 的计算，但回复指令本身还是以预测下一个 token 的形式来实现的。</p><p>模型是否支持多轮对话，与预训练是没有关系的。事实上，模型的<strong>多轮对话能力</strong>完全来自于 SFT 阶段。如果要使模型支持多轮对话，我们需要在 SFT 时将训练数据构造成多轮对话格式，让模型能够利用之前的知识来生成回答。</p><h4 id=rlhf><a href=#rlhf class=header-anchor></a>RLHF</h4><p>模型是否支持多轮对话，与预训练是没有关系的。事实上，模型的多轮对话能力完全来自于 SFT 阶段。如果要使模型支持多轮对话，我们需要在 SFT 时将训练数据构造成多轮对话格式，让模型能够利用之前的知识来生成回答。</p><p>RLHF，全称是 Reinforcement Learning from Human Feedback，即人类反馈强化学习，是利用强化学习来训练 LLM 的关键步骤。</p><p>从功能上出发，我们可以将 LLM 的训练过程分成预训练与对齐（alignment）两个阶段。预训练的核心作用是赋予模型海量的知识，而所谓对齐，其实就是让模型与人类价值观一致，从而输出人类希望其输出的内容。S<strong>FT 是让 LLM 和人类的指令对齐，从而具有指令遵循能力；而 RLHF 则是从更深层次令 LLM 和人类价值观对齐，令其达到安全、有用、无害的核心标准。</strong></p><p>RLHF 的思路是，引入强化学习的技术，通过实时的人类反馈令 LLM 能够给出更令人类满意的回复。RLHF 分为两个步骤：训练 RM 和 PPO 训练。</p><p>RM，Reward Model，即奖励模型。</p><p>PPO，Proximal Policy Optimization，近端策略优化算法，是一种经典的 RL 算法。</p><h2 id=5-动手搭建大模型><a href=#5-%e5%8a%a8%e6%89%8b%e6%90%ad%e5%bb%ba%e5%a4%a7%e6%a8%a1%e5%9e%8b class=header-anchor></a>5 动手搭建大模型</h2><p>Meta（原Facebook）于2023年2月发布第一款基于Transformer结构的大型语言模型LLaMA，并于同年7月发布同系列模型LLaMA2。</p><h2 id=--参考链接><a href=#--%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5 class=header-anchor></a>- 参考链接</h2><p><a class=link href=https://github.com/datawhalechina/happy-llm/tree/main target=_blank rel=noopener>datawhalechina/happy-llm: 从零开始的大语言模型原理与实践教程</a></p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/><div class=article-image><img src=/images/f874fc13.jpg loading=lazy data-key data-hash=/images/f874fc13.jpg></div><div class=article-details><h2 class=article-title>LLM_cookbook 面向开发者的大模型入门教程</h2></div></a></article><article class=has-image><a href=/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/><div class=article-image><img src=/images/d92d9921.jpg loading=lazy data-key data-hash=/images/d92d9921.jpg></div><div class=article-details><h2 class=article-title>Langchain到简单Agent</h2></div></a></article><article class=has-image><a href=/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/><div class=article-image><img src=/images/31b7298e.jpg loading=lazy data-key data-hash=/images/31b7298e.jpg></div><div class=article-details><h2 class=article-title>MCP详解指南</h2></div></a></article><article class=has-image><a href=/p/langgraph%E6%A6%82%E8%BF%B0/><div class=article-image><img src=/images/523b936a.jpg loading=lazy data-key data-hash=/images/523b936a.jpg></div><div class=article-details><h2 class=article-title>langgraph概述</h2></div></a></article><article class=has-image><a href=/p/%E5%9F%BA%E4%BA%8Elangchain%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E5%B8%B8%E8%A7%81%E7%94%A8%E6%B3%95/><div class=article-image><img src=/images/7d388d79.jpg loading=lazy data-key data-hash=/images/7d388d79.jpg></div><div class=article-details><h2 class=article-title>基于langchain源码剖析常见用法</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

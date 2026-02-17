@@ -1,0 +1,798 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="leveldb filesysytem 源码阅读，包括文件系统的实现、文件的读写操作、文件的压缩等。"><title>leveldb源码阅读3 filesysytem</title><link rel=canonical href=https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB3-filesysytem/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="leveldb源码阅读3 filesysytem"><meta property='og:description' content="leveldb filesysytem 源码阅读，包括文件系统的实现、文件的读写操作、文件的压缩等。"><meta property='og:url' content='https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB3-filesysytem/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2024-10-10T00:00:00+00:00'><meta property='article:modified_time' content='2024-10-10T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/d27cea14.jpg'><meta name=twitter:title content="leveldb源码阅读3 filesysytem"><meta name=twitter:description content="leveldb filesysytem 源码阅读，包括文件系统的实现、文件的读写操作、文件的压缩等。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/d27cea14.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#sstable>sstable</a><ul><li><a href=#21-hash-table数据结构>2.1 hash table数据结构</a></li><li><a href=#22-lru算法>2.2 LRU算法</a></li><li><a href=#23-分片lru缓存>2.3 分片LRU缓存</a></li></ul></li><li><a href=#前言>前言</a></li><li><a href=#sstable的作用>sstable的作用</a></li><li><a href=#level的层次结构>level的层次结构</a></li><li><a href=#正文>正文</a><ul><li><a href=#sstable-1>sstable</a></li><li><a href=#sstable格式>sstable格式</a><ul><li><a href=#物理结构>物理结构</a><ul><li><a href=#逻辑结构>逻辑结构</a></li></ul></li></ul></li><li><a href=#block格式>block格式</a></li><li><a href=#cache>cache</a><ul><li><a href=#includeleveldbcacheh>include/leveldb/cache.h</a></li><li><a href=#utilcachecc>util/cache.cc</a></li><li><a href=#dbtable_cacheh>db/table_cache.h</a></li><li><a href=#includeleveldbtableh>include/leveldb/table.h</a></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB3-filesysytem/><img src=/images/d27cea14.jpg loading=lazy alt="Featured image of post leveldb源码阅读3 filesysytem"></a></div><div class=article-details><header class=article-category><a href=/categories/leveldb/>LevelDB</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB3-filesysytem/>leveldb源码阅读3 filesysytem</a></h2><h3 class=article-subtitle>leveldb filesysytem 源码阅读，包括文件系统的实现、文件的读写操作、文件的压缩等。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-10-10T00:00:00Z>Oct 10, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 18 分钟</time></div></footer></div></header><section class=article-content><h2 id=sstable><a href=#sstable class=header-anchor></a>sstable</h2><p>感谢这个<a class=link href=https://blog.mrcroxx.com/ target=_blank rel=noopener>博主MrCroxx</a>，看了这么多对leveldb的讲解，他的文章是最为明了的！本文中由部分引用他的原文，在此先声明。</p><p>插入，对于以下部分内容的概览，有利于理解cache的实现。</p><p>来源：<a class=link href=https://www.myway5.com/ target=_blank rel=noopener>一只安静的猫</a></p><blockquote><h3 id=21-hash-table数据结构><a href=#21-hash-table%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84 class=header-anchor></a>2.1 hash table数据结构</h3><p>哈希表是一个很常见的结构了，存储的是key-value结构，一个key-value对常被称作entry，它最大的特点是查找快。在网上找了一张hash table的图
+<img src=/img/images/11.jpg loading=lazy alt="hash table"></p><p>首先它是一个长为len的数组，每个数组中的元素都是一个链表。如图所示，john Smith和Sandra Dee都被hash到152这个地方，所以在152这个地方使用链表来存储这两个entry.查找的时候Sandra Dee的时候，先找到152这个地方，在遍历链表，直到找到key是Sandra的entry。</p><h3 id=22-lru算法><a href=#22-lru%e7%ae%97%e6%b3%95 class=header-anchor></a>2.2 LRU算法</h3><p>在leveldb中,LRU算法的实现是使用两个双向环形链表，一个链表(in-use)存储当前正在使用的数据，另一个链表(lru)按照访问时间先后顺序存储缓存数据，每个数据都可以在in-use和lru之间切换。当我们需要使用LRU算法来淘汰数据时，只需要在lru上淘汰排序靠后的数据即可。</p><h3 id=23-分片lru缓存><a href=#23-%e5%88%86%e7%89%87lru%e7%bc%93%e5%ad%98 class=header-anchor></a>2.3 分片LRU缓存</h3><p>分片LRU缓存很简单，其实就是同时创建多个LRU缓存对象，然后使用hash将特定的缓存数据放置到相应的LRU缓存对象中。这个方式可以避免一个LRU缓存中存储过多的数据。</p></blockquote><h2 id=前言><a href=#%e5%89%8d%e8%a8%80 class=header-anchor></a>前言</h2><h2 id=sstable的作用><a href=#sstable%e7%9a%84%e4%bd%9c%e7%94%a8 class=header-anchor></a>sstable的作用</h2><p>对于redis，</p><ul><li><p><strong>内存存储</strong>：数据主要存储在内存中，确保快速的读写性能。</p></li><li><p><strong>持久化机制</strong>：可选择性地将数据写入磁盘，以防数据丢失。</p></li><li><p><strong>快速响应</strong>：由于使用内存和高效的数据结构，Redis 能够快速响应读写请求。</p></li></ul><p>但是对于<code>leveldb</code>，会先将写操作写入日志文件，其次将写操作应用在<code>memtablde</code>上，当<code>leveldb</code>到达checkpoint点时，<code>memtable</code>会被冻结成一个不可更改的内存数据库<code>immutable memory db</code>，同时创建一个新的<code>memtable</code>供系统继续使用。</p><p><code>immutable memory db</code>会在后台进行一次<code>minor compaction</code>，将内存数据库中的数据持久化到磁盘文件中。</p><p>对于<code>minor compaction</code>，会在后文具体讲解，这里简单阐述一下它的目的：</p><ol><li>有效降低内存的使用率</li><li>避免日志文件过大，系统回复时间过长</li></ol><p>当<code>memory db</code>的数据持久化到文件中时，<code>leveldb</code>会以一定的规则进行文件组织，文件格式变为<code>sstable</code>，本文详细介绍<code>sstable</code>的文件格式以及相关读写。</p><h2 id=level的层次结构><a href=#level%e7%9a%84%e5%b1%82%e6%ac%a1%e7%bb%93%e6%9e%84 class=header-anchor></a>level的层次结构</h2><p>这个在布隆过滤器中会详述，为了快速读取数据，采取了读放大的用法。</p><p><img src=/img/images/7.jpg loading=lazy alt=7></p><h2 id=正文><a href=#%e6%ad%a3%e6%96%87 class=header-anchor></a>正文</h2><blockquote><p>好多文章都说<code>sstable</code>是很重要的一个模块，但是代码中也没有<code>sstable.h</code>这个文件。不过这个和<code>file system</code>是属于同一类，因此把它们放在一起，先理清知识结构，再结合代码看细节。</p></blockquote><p>这个看的逻辑不可尽信，因为leveldb的版本会进行更新，memtable中的结构和代码结构就略有不同。</p><h3 id=sstable-1><a href=#sstable-1 class=header-anchor></a>sstable</h3><h3 id=sstable格式><a href=#sstable%e6%a0%bc%e5%bc%8f class=header-anchor></a>sstable格式</h3><h4 id=物理结构><a href=#%e7%89%a9%e7%90%86%e7%bb%93%e6%9e%84 class=header-anchor></a>物理结构</h4><p>每个sstable文件按照固定大小进行块划分，默认每个block大小4KiB，在每个块中，存储三个部分：</p><p>data，压缩类型（说明block中存储的数据是否进行数据压缩，如果压缩，默认未snappy算法），CRC校验码（循环冗余校验的校验码，校验范围包括数据以及压缩类型）。</p><h5 id=逻辑结构><a href=#%e9%80%bb%e8%be%91%e7%bb%93%e6%9e%84 class=header-anchor></a>逻辑结构</h5><p><img src=/img/images/8.jpg loading=lazy alt=8></p><h3 id=block格式><a href=#block%e6%a0%bc%e5%bc%8f class=header-anchor></a>block格式</h3><p>block格式中的<code>restart</code>可以对频繁出现的公共前缀进行压缩。Restart Entry的间隔<code>leveldb::Options.block_restart_interval</code>默认为16，以平衡缓存局部性。</p><p><img src=/img/images/9.jpg loading=lazy alt=9></p><p>sstable中各类block的保存数据，仅关注key/value.</p><p><img src=/img/images/10.jpg loading=lazy alt=10></p><h3 id=cache><a href=#cache class=header-anchor></a>cache</h3><p>无论是BlockCache还是TableCache，核心都是实现分片的LRU缓存，这个LRU缓存实现了<code>include/leveldb/cache.h</code>定义的缓存接口。</p><ul><li><p><strong><code>include/leveldb/cache.h</code></strong>：了解缓存接口和设计理念。</p><p>这是缓存的抽象层，提供了一个通用的接口，以便在不同实现之间进行替换或扩展。</p></li><li><p><strong><code>util/cache.cc</code></strong>：深入实现细节和逻辑。</p><p>这是实际的缓存实现，负责在内存中管理缓存对象并优化访问速度。</p></li><li><p><strong><code>db/table_cache.h</code></strong>：了解针对 SSTable 的具体缓存实现。</p><p>这是一个更高层次的缓存，专门用于缓存 SSTable 文件的内容，定义了用于缓存 SSTable 数据块的类和方法，提供了与 SSTable 相关的缓存操作，包括从缓存中读取数据块，以提高读取性能。</p></li></ul><h4 id=includeleveldbcacheh><a href=#includeleveldbcacheh class=header-anchor></a>include/leveldb/cache.h</h4><p>定义 LevelDB 的缓存接口。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*同步，回调函数，引用计数，深拷贝*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#ifndef STORAGE_LEVELDB_INCLUDE_CACHE_H_
+</span></span></span><span class=line><span class=cl><span class=cp>#define STORAGE_LEVELDB_INCLUDE_CACHE_H_
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;cstdint&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;leveldb/export.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;leveldb/slice.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>namespace</span> <span class=n>leveldb</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// cache的缓存接口
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LEVELDB_EXPORT</span> <span class=n>Cache</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>LEVELDB_EXPORT</span> <span class=n>Cache</span><span class=o>*</span> <span class=nf>NewLRUCache</span><span class=p>(</span><span class=n>size_t</span> <span class=n>capacity</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LEVELDB_EXPORT</span> <span class=n>Cache</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=n>Cache</span><span class=p>()</span> <span class=o>=</span> <span class=k>default</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Cache</span><span class=p>(</span><span class=k>const</span> <span class=n>Cache</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>Cache</span><span class=o>&amp;</span> <span class=k>operator</span><span class=o>=</span><span class=p>(</span><span class=k>const</span> <span class=n>Cache</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 回调函数销毁缓存的内容
+</span></span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=o>~</span><span class=n>Cache</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 指向cache中的一个缓存项
+</span></span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=nc>Handle</span> <span class=p>{};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=n>Handle</span><span class=o>*</span> <span class=nf>Insert</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>value</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>charge</span><span class=p>,</span> <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>deleter</span><span class=p>)(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>value</span><span class=p>))</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=n>Handle</span><span class=o>*</span> <span class=nf>Lookup</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>void</span> <span class=nf>Release</span><span class=p>(</span><span class=n>Handle</span><span class=o>*</span> <span class=n>handle</span><span class=p>)</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>void</span><span class=o>*</span> <span class=nf>Value</span><span class=p>(</span><span class=n>Handle</span><span class=o>*</span> <span class=n>handle</span><span class=p>)</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;.</span>
+</span></span><span class=line><span class=cl>      
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>void</span> <span class=n>Erase</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=o>=</span> <span class=mi>0</span>
+</span></span><span class=line><span class=cl>      
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>uint64_t</span> <span class=n>NewId</span><span class=p>()</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>void</span> <span class=nf>Prune</span><span class=p>()</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=n>size_t</span> <span class=nf>TotalCharge</span><span class=p>()</span> <span class=k>const</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>}</span>  <span class=c1>// namespace leveldb
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif  </span><span class=c1>// STORAGE_LEVELDB_INCLUDE_CACHE_H_
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=utilcachecc><a href=#utilcachecc class=header-anchor></a>util/cache.cc</h4><p>leveldb中有一个内建的Cache接口。其中有两个保存缓存项LRUHandle的链表：</p><ul><li><strong>in-use链表</strong>：无序保存着在LRUCache中且正在被client使用的LRUHandle，链表配合引用计数确保了缓存项的有效管理，避免了因多个引用导致的内存泄漏或访问无效内存。</li><li><strong>LRU链表</strong>：按照最近使用的顺序保存当前在LRUCache中但是目前没有被用户使用的LRUHandle。LRU 链表允许快速定位需要被淘汰的项。</li></ul><p>LRUHandle在两个链表中的切换由Ref和UnRef实现。</p><p>####### LRUHandle</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// 缓存项的结构体
+</span></span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>LRUHandle</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span><span class=o>*</span> <span class=n>value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>deleter</span><span class=p>)(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>next_hash</span><span class=p>;</span> <span class=c1>// 哈希表handleTable为了解决哈希冲突采用拉链法的链指针
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>next</span><span class=p>;</span> <span class=c1>// 双向链表
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>prev</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>charge</span><span class=p>;</span>  <span class=c1>// TODO(opt): Only allow uint32_t?
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>key_length</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=n>in_cache</span><span class=p>;</span>     <span class=c1>// Whether entry is in the cache. 
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>refs</span><span class=p>;</span>     <span class=c1>// References, including cache reference, if present.引用计数
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>hash</span><span class=p>;</span>     <span class=c1>// Hash of key(); used for fast sharding and comparisons
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span> <span class=n>key_data</span><span class=p>[</span><span class=mi>1</span><span class=p>];</span>  <span class=c1>// Beginning of key
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Slice</span> <span class=nf>key</span><span class=p>()</span> <span class=k>const</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// next is only equal to this if the LRU handle is the list head of an
+</span></span></span><span class=line><span class=cl>    <span class=c1>// empty list. List heads never have meaningful keys.
+</span></span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>next</span> <span class=o>!=</span> <span class=k>this</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>Slice</span><span class=p>(</span><span class=n>key_data</span><span class=p>,</span> <span class=n>key_length</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>LRUCache为了能够快速根据key来找到相应的LRUHandle，而不需要遍历链表，其还组装了一个<strong>哈希表<code>HandleTable</code></strong>。LevelDB的哈希表与哈希函数都使用了自己的实现。</p><p>####### HandleTable</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// 可扩展哈希表
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HandleTable</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=n>HandleTable</span><span class=p>()</span> <span class=o>:</span> <span class=n>length_</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span> <span class=n>elems_</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span> <span class=n>list_</span><span class=p>(</span><span class=k>nullptr</span><span class=p>)</span> <span class=p>{</span> <span class=n>Resize</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=o>~</span><span class=n>HandleTable</span><span class=p>()</span> <span class=p>{</span> <span class=k>delete</span><span class=p>[]</span> <span class=n>list_</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=nf>Lookup</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>hash</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>*</span><span class=n>FindPointer</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>hash</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// ptr为空时，新缓存项作为头部，同时elem++检查是否需要扩充空间
+</span></span></span><span class=line><span class=cl>  <span class=c1>// ptr不为空时，采用头插法
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=nf>Insert</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>h</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>ptr</span> <span class=o>=</span> <span class=n>FindPointer</span><span class=p>(</span><span class=n>h</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>(),</span> <span class=n>h</span><span class=o>-&gt;</span><span class=n>hash</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>old</span> <span class=o>=</span> <span class=o>*</span><span class=n>ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>h</span><span class=o>-&gt;</span><span class=n>next_hash</span> <span class=o>=</span> <span class=p>(</span><span class=n>old</span> <span class=o>==</span> <span class=k>nullptr</span> <span class=o>?</span> <span class=k>nullptr</span> <span class=o>:</span> <span class=n>old</span><span class=o>-&gt;</span><span class=n>next_hash</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=o>*</span><span class=n>ptr</span> <span class=o>=</span> <span class=n>h</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>old</span> <span class=o>==</span> <span class=k>nullptr</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=o>++</span><span class=n>elems_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span><span class=n>elems_</span> <span class=o>&gt;</span> <span class=n>length_</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// Since each cache entry is fairly large, we aim for a small
+</span></span></span><span class=line><span class=cl>        <span class=c1>// average linked list length (&lt;= 1).
+</span></span></span><span class=line><span class=cl>        <span class=n>Resize</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>old</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>*</span> <span class=nf>Remove</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>hash</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 理解二重*的链表
+</span></span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>ptr</span> <span class=o>=</span> <span class=n>FindPointer</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>hash</span><span class=p>);</span> <span class=c1>// ptr为当前结点地址
+</span></span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>result</span> <span class=o>=</span> <span class=o>*</span><span class=n>ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>result</span> <span class=o>!=</span> <span class=k>nullptr</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// *ptr就是当前结点的前一个结点，ptr为当前结点地址
+</span></span></span><span class=line><span class=cl>      <span class=c1>// 将当前节点的前一个节点的 next_hash 更新为要删除节点的下一个节点。
+</span></span></span><span class=line><span class=cl>      <span class=o>*</span><span class=n>ptr</span> <span class=o>=</span> <span class=n>result</span><span class=o>-&gt;</span><span class=n>next_hash</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>      <span class=o>--</span><span class=n>elems_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// The table consists of an array of buckets where each bucket is
+</span></span></span><span class=line><span class=cl>  <span class=c1>// a linked list of cache entries that hash into the bucket.
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>length_</span><span class=p>;</span> <span class=c1>// slot的数量
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>elems_</span><span class=p>;</span> <span class=c1>// 已经使用的slot数量
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>list_</span><span class=p>;</span> <span class=c1>// handleTable的bucket数组
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Return a pointer to slot that points to a cache entry that
+</span></span></span><span class=line><span class=cl>  <span class=c1>// matches key/hash.  If there is no such cache entry, return a
+</span></span></span><span class=line><span class=cl>  <span class=c1>// pointer to the trailing slot in the corresponding linked list. 正常的查找操作
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span><span class=o>**</span> <span class=nf>FindPointer</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>hash</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>ptr</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>list_</span><span class=p>[</span><span class=n>hash</span> <span class=o>&amp;</span> <span class=p>(</span><span class=n>length_</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)];</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 这里要求找到hash和key都相同的位置，然后建立链表
+</span></span></span><span class=line><span class=cl>    <span class=c1>// hash是因为哈希冲突，jey则可能因为版本不同的缓存或者缓存项被频繁更新
+</span></span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=o>*</span><span class=n>ptr</span> <span class=o>!=</span> <span class=k>nullptr</span> <span class=o>&amp;&amp;</span> <span class=p>((</span><span class=o>*</span><span class=n>ptr</span><span class=p>)</span><span class=o>-&gt;</span><span class=n>hash</span> <span class=o>!=</span> <span class=n>hash</span> <span class=o>||</span> <span class=n>key</span> <span class=o>!=</span> <span class=p>(</span><span class=o>*</span><span class=n>ptr</span><span class=p>)</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>()))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>ptr</span> <span class=o>=</span> <span class=o>&amp;</span><span class=p>(</span><span class=o>*</span><span class=n>ptr</span><span class=p>)</span><span class=o>-&gt;</span><span class=n>next_hash</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 确立新空间
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 将旧的哈希表数据重新计算复制到新的哈希表中
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Resize</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>new_length</span> <span class=o>=</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>new_length</span> <span class=o>&lt;</span> <span class=n>elems_</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>new_length</span> <span class=o>*=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>new_list</span> <span class=o>=</span> <span class=k>new</span> <span class=n>LRUHandle</span><span class=o>*</span><span class=p>[</span><span class=n>new_length</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=n>memset</span><span class=p>(</span><span class=n>new_list</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>new_list</span><span class=p>[</span><span class=mi>0</span><span class=p>])</span> <span class=o>*</span> <span class=n>new_length</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>count</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 这里使用头插法时，二重链表中的数据反了，但是并不影响LRU的使用，因为有另外的链表实现LRU机制
+</span></span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>uint32_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>length_</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>h</span> <span class=o>=</span> <span class=n>list_</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>      <span class=k>while</span> <span class=p>(</span><span class=n>h</span> <span class=o>!=</span> <span class=k>nullptr</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 保存下一个元素地址
+</span></span></span><span class=line><span class=cl>        <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>next</span> <span class=o>=</span> <span class=n>h</span><span class=o>-&gt;</span><span class=n>next_hash</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=kt>uint32_t</span> <span class=n>hash</span> <span class=o>=</span> <span class=n>h</span><span class=o>-&gt;</span><span class=n>hash</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 取模，找一个位置
+</span></span></span><span class=line><span class=cl>        <span class=n>LRUHandle</span><span class=o>**</span> <span class=n>ptr</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>new_list</span><span class=p>[</span><span class=n>hash</span> <span class=o>&amp;</span> <span class=p>(</span><span class=n>new_length</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)];</span>
+</span></span><span class=line><span class=cl>        <span class=n>h</span><span class=o>-&gt;</span><span class=n>next_hash</span> <span class=o>=</span> <span class=o>*</span><span class=n>ptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=o>*</span><span class=n>ptr</span> <span class=o>=</span> <span class=n>h</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>h</span> <span class=o>=</span> <span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>count</span><span class=o>++</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>elems_</span> <span class=o>==</span> <span class=n>count</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>delete</span><span class=p>[]</span> <span class=n>list_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>list_</span> <span class=o>=</span> <span class=n>new_list</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>length_</span> <span class=o>=</span> <span class=n>new_length</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>**list硬控我一个小时）。。基础不行应该是。</p><p>####### LRUCache</p><p>在<strong>LRUCache</strong>的实现中，</p><p>在Inset方法插入<strong>LRUHandle</strong>时，只会从LRU链表中逐出LRUHandle。也就是说，对于LRUCache中的每个LRUHandle，其只有如下几种状态：</p><ul><li>对于还没存入LRUCache的LRUHandle，不在任一链表上（显然）。</li><li>当前在LRUCache中，且正在被client使用的LRUHandle，在<em>in-use</em>链表上无序保存。</li><li>当前在LRUCache中，当前未被client使用的LRUHandle，在<em>LRU</em>链表上按LRU顺序保存。</li><li>之前在LRUCache中，但①被用户通过<code>Erase</code>方法从LRUCache中删除，或②用户通过<code>Insert</code>方法更新了该key的LRUHandle，或③LRUCache被销毁时，LRUHandle既不在<em>in-use</em>链表上也不在<em>LRU</em>链表上。此时，该LRUHandle在等待client通过<code>Release</code>方法释放引用计数以销毁。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>LRUCache</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 删除结点，添加结点
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=n>LRU_Remove</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>e</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>LRU_Append</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>list</span><span class=p>,</span> <span class=n>LRUHandle</span><span class=o>*</span> <span class=n>e</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Ref</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>e</span><span class=p>);</span> <span class=c1>// 引用结点，从lru list转移到in use list
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Unref</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>e</span><span class=p>);</span> <span class=c1>// 解引用，变为0时删掉，变为1则放进lru中便于以后变成0删掉
+</span></span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=nf>FinishErase</span><span class=p>(</span><span class=n>LRUHandle</span><span class=o>*</span> <span class=n>e</span><span class=p>)</span> <span class=n>EXCLUSIVE_LOCKS_REQUIRED</span><span class=p>(</span><span class=n>mutex_</span><span class=p>);</span> <span class=c1>// 完全移除e，在此之前已经从哈希表中移除
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Initialized before use. 容量
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>capacity_</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// mutex_ protects the following state.
+</span></span></span><span class=line><span class=cl>  <span class=k>mutable</span> <span class=n>port</span><span class=o>::</span><span class=n>Mutex</span> <span class=n>mutex_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>usage_</span> <span class=nf>GUARDED_BY</span><span class=p>(</span><span class=n>mutex_</span><span class=p>);</span> <span class=c1>// 当前用量
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Dummy head of LRU list.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// lru.prev is newest entry, lru.next is oldest entry.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// Entries have refs==1 and in_cache==true.
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span> <span class=n>lru_</span> <span class=nf>GUARDED_BY</span><span class=p>(</span><span class=n>mutex_</span><span class=p>);</span> <span class=c1>// lru链表 ，缓存项
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Dummy head of in-use list.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// Entries are in use by clients, and have refs &gt;= 2 and in_cache==true.
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUHandle</span> <span class=n>in_use_</span> <span class=nf>GUARDED_BY</span><span class=p>(</span><span class=n>mutex_</span><span class=p>);</span> <span class=c1>// in-use链表，无序保存着在LRUCache中且正在被client使用的LRUHandle
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>HandleTable</span> <span class=n>table_</span> <span class=nf>GUARDED_BY</span><span class=p>(</span><span class=n>mutex_</span><span class=p>);</span> <span class=c1>// 哈希表，按照最近使用的顺序保存当前在LRUCache中但是目前没有被用户使用的LRUHandl
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>####### ShardedLRUCache</p><p>最终实现cache的接口。SharedLRUCache中保存了若干个LRUCache，根据插入的key的哈希分配到相应的LRUCache中，每个LRUCache都有独立的锁，因此可以减少锁的争用，优化程序性能。</p><p><code>ShardedLRUCache</code>通过<code>HashSlice</code>方法对key进行一次哈希，并通过<code>Shard</code>方法为其分配shard。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 实现分片的LRU缓存
+</span></span></span><span class=line><span class=cl>  <span class=n>LRUCache</span> <span class=n>shard_</span><span class=p>[</span><span class=n>kNumShards</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>  <span class=n>port</span><span class=o>::</span><span class=n>Mutex</span> <span class=n>id_mutex_</span><span class=p>;</span> <span class=c1>// 保护对共享资源的访问，确保线程安全
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint64_t</span> <span class=n>last_id_</span><span class=p>;</span>     <span class=c1>// 管理缓存项的唯一标识
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>static</span> <span class=kr>inline</span> <span class=kt>uint32_t</span> <span class=nf>HashSlice</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>s</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 计算给定对象的哈希值
+</span></span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>Hash</span><span class=p>(</span><span class=n>s</span><span class=p>.</span><span class=n>data</span><span class=p>(),</span> <span class=n>s</span><span class=p>.</span><span class=n>size</span><span class=p>(),</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 分片，位数为KNumShardBits时，hash二进制右移32-kNumShardBits能得到0---2^kNumShardBits-1的值，类似于提取前kNumShardBits位数。
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 分片能让多线程访问不同分片，减少竞争；
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 同时每个分片的数据减少，减少锁的竞争；数据分布均匀，也可以避免某个分片过于繁忙，实现负载均衡
+</span></span></span><span class=line><span class=cl>  <span class=k>static</span> <span class=kt>uint32_t</span> <span class=nf>Shard</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>hash</span><span class=p>)</span> <span class=p>{</span> <span class=k>return</span> <span class=n>hash</span> <span class=o>&gt;&gt;</span> <span class=p>(</span><span class=mi>32</span> <span class=o>-</span> <span class=n>kNumShardBits</span><span class=p>);</span> <span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p><code>override</code> 是 C++11 引入的一个关键字，用于在派生类中显式地标记一个虚拟函数，表示它重写了基类中的虚拟函数。使用 <code>override</code> 可以提高代码的可读性，并在编译时提供更强的类型检查。</p></blockquote><p>public就是对之前class LRUCache和自己的私有函数的简单封装。</p><h4 id=dbtable_cacheh><a href=#dbtable_cacheh class=header-anchor></a>db/table_cache.h</h4><p>为了减少热点数据访问磁盘IO频繁导致的效率问题。leveldb在访问sstable时加上了缓存。leveldb中的缓存功能上分为两种：</p><ul><li><code>BlockCache</code>：缓存最近使用的<strong>SSTable中的DataBlock</strong>数据</li><li><code>TableCache</code>：<strong>TableCache可以认为是一个双层cache</strong>。<ul><li>第一层缓存最近打开的sstable中的部分元数据，减少频繁的磁盘访问</li><li>第二层即是BlockCache，缓存了当前SSTable中的DataBlock数据。TableCache提供的Get接口能够同时查询两层缓存。</li></ul></li></ul><p>tableCache对sharedLRUCache又进行了一次封装，二者的区别主要在于key/value的类型以及cache的大小</p><ul><li><p><strong>BlockCache</strong>：用户通过Options.block_cache配置自定义BlockCache的实现，其默认实现为8MB的SharedLRUCache。其中key/value为(table.cache_id,block.offset)->(Block*)。</p></li><li><p><strong>TableCache</strong>：用户可通过OptionTable.max_open_file配置来自定义TableCache的大小，其默认可以保存1000个Table的信息。其key/value为(SSTable.file_number)->(TableAndFile*)。</p></li></ul><blockquote><p>云里雾里，在此提出问题，blockcache和tablecache在整个leveldb中起到什么样子的作用，和我们最刚开始画出的磁盘和内存交换时，磁盘中的level1level2level0有关吗。</p></blockquote><p><code>Answer：</code></p><p><strong>SStable</strong>中使用LSM树存储sstable文件，位于<strong>写入过程</strong>。</p><p><strong>Level 0</strong>：</p><ul><li>通常用于存储新写入的 SSTable 文件。</li><li>Level 0 中的文件不一定是有序的，可能存在重叠，需要在合并时进行整理（即“压缩”）。</li></ul><p><strong>Level 1 及以上</strong>：</p><ul><li>每个更高的层级（Level 1、Level 2 等）通常包含经过合并和排序的 SSTable 文件。</li><li>在这些层级中，文件通常是非重叠的，每个层级的大小和数量都有一定的限制。</li></ul><p>同时，<strong>内存中的 <code>BlockCache</code> 和 <code>TableCache</code></strong> 提供快速的数据访问和元数据管理，旨在提高<strong>读取过程</strong>性能，加速读取操作，减少对磁盘的访问。</p><p>当然leveldb中不止blockcache和tablecache这两种缓存系统，还有writer buffer，布隆过滤器，快照等都属于缓存系统。</p><p>最终整体过程是：</p><ul><li><p>写入：将Immutable Memtable从内存中写入磁盘，形成sstable，然后访问level0，此后也会通过compaction到level1和level2中。</p></li><li><p>读取：</p><ul><li>接收读取请求，查询Memtable和Immutable Memtable</li><li>查询blockcache（blockcache中存储了从sstable中读取的data数据块）</li><li>如果此时还没找到，就会进入磁盘中，通过布隆过滤器定位sstable文件</li><li>如果找到，读取sstable中的datablock，否则返回没有找到。</li></ul></li></ul><p>在<code>tablecache</code>中</p><p>####### tablecache.h</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 通过filename找到sstable文件，filesize可以用于验证或者缓存的查找，handle**用于返回找到的缓存项
+</span></span></span><span class=line><span class=cl>  <span class=n>Status</span> <span class=n>FindTable</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>file_number</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>file_size</span><span class=p>,</span> <span class=n>Cache</span><span class=o>::</span><span class=n>Handle</span><span class=o>**</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Env</span><span class=o>*</span> <span class=k>const</span> <span class=n>env_</span><span class=p>;</span> <span class=c1>// 指向环境对象的指针
+</span></span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>dbname_</span><span class=p>;</span> <span class=c1>// 存储数据库的名称或路径
+</span></span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=n>Options</span><span class=o>&amp;</span> <span class=n>options_</span><span class=p>;</span> <span class=c1>// 对于leveldb的配置选项的引用
+</span></span></span><span class=line><span class=cl>  <span class=n>Cache</span><span class=o>*</span> <span class=n>cache_</span><span class=p>;</span> <span class=c1>// 指向缓存对象的指针
+</span></span></span></code></pre></td></tr></table></div></div><p>在它的创建迭代器中，涉及阅读模式的选择，leveldb提供snapshot和read-only两种模式。快照的代码等这部分看完再去看。</p><p>####### tablecache.cc</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>struct</span> <span class=nc>TableAndFile</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=n>RandomAccessFile</span><span class=o>*</span> <span class=n>file</span><span class=p>;</span> <span class=c1>// 将数据以sstable的格式持久化存储到磁盘上。
+</span></span></span><span class=line><span class=cl>  <span class=n>Table</span><span class=o>*</span> <span class=n>table</span><span class=p>;</span> <span class=c1>// 作为一个数据结构，封装了与sstable相关的逻辑，比如读取，查找，迭代等
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>另外主要关注两个函数，findtable和get</p><blockquote><p>findtable会先构造key在tablecache中查找是否已经缓存了该sstable，</p><ul><li>如果有，直接返回缓存结构；</li><li>否则根据传入的filename和filesize通过Table::open在磁盘中找到相应大sstable，将file和table写入tableandfile结构体，放入自己的sharedLRUCache缓存中。</li></ul></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 实现了查找sstable的功能
+</span></span></span><span class=line><span class=cl><span class=cm>* 缓存中查找如果失败，
+</span></span></span><span class=line><span class=cl><span class=cm>* 会动态打开文件创建表对象，同时插入缓存
+</span></span></span><span class=line><span class=cl><span class=cm>* 最终返回状态
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=n>Status</span> <span class=n>TableCache</span><span class=o>::</span><span class=n>FindTable</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>file_number</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>file_size</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                             <span class=n>Cache</span><span class=o>::</span><span class=n>Handle</span><span class=o>**</span> <span class=n>handle</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 初始化
+</span></span></span><span class=line><span class=cl>  <span class=n>Status</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span> <span class=n>buf</span><span class=p>[</span><span class=k>sizeof</span><span class=p>(</span><span class=n>file_number</span><span class=p>)];</span>
+</span></span><span class=line><span class=cl>  <span class=n>EncodeFixed64</span><span class=p>(</span><span class=n>buf</span><span class=p>,</span> <span class=n>file_number</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>Slice</span> <span class=nf>key</span><span class=p>(</span><span class=n>buf</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>buf</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 查找
+</span></span></span><span class=line><span class=cl>  <span class=o>*</span><span class=n>handle</span> <span class=o>=</span> <span class=n>cache_</span><span class=o>-&gt;</span><span class=n>Lookup</span><span class=p>(</span><span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=o>*</span><span class=n>handle</span> <span class=o>==</span> <span class=k>nullptr</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// 检查缓存结果，从文件中查找
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>fname</span> <span class=o>=</span> <span class=n>TableFileName</span><span class=p>(</span><span class=n>dbname_</span><span class=p>,</span> <span class=n>file_number</span><span class=p>);</span> <span class=c1>// 构造文件名
+</span></span></span><span class=line><span class=cl>    <span class=n>RandomAccessFile</span><span class=o>*</span> <span class=n>file</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span> <span class=c1>// 初始化指针
+</span></span></span><span class=line><span class=cl>    <span class=n>Table</span><span class=o>*</span> <span class=n>table</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>s</span> <span class=o>=</span> <span class=n>env_</span><span class=o>-&gt;</span><span class=n>NewRandomAccessFile</span><span class=p>(</span><span class=n>fname</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>file</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>s</span><span class=p>.</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span> <span class=c1>// 打开文件失败的错误处理
+</span></span></span><span class=line><span class=cl>      <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>old_fname</span> <span class=o>=</span> <span class=n>SSTTableFileName</span><span class=p>(</span><span class=n>dbname_</span><span class=p>,</span> <span class=n>file_number</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span><span class=n>env_</span><span class=o>-&gt;</span><span class=n>NewRandomAccessFile</span><span class=p>(</span><span class=n>old_fname</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>file</span><span class=p>).</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>s</span> <span class=o>=</span> <span class=n>Status</span><span class=o>::</span><span class=n>OK</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>s</span><span class=p>.</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>s</span> <span class=o>=</span> <span class=n>Table</span><span class=o>::</span><span class=n>Open</span><span class=p>(</span><span class=n>options_</span><span class=p>,</span> <span class=n>file</span><span class=p>,</span> <span class=n>file_size</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>table</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>s</span><span class=p>.</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span> <span class=c1>// 错误处理
+</span></span></span><span class=line><span class=cl>      <span class=n>assert</span><span class=p>(</span><span class=n>table</span> <span class=o>==</span> <span class=k>nullptr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>delete</span> <span class=n>file</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// We do not cache error results so that if the error is transient,
+</span></span></span><span class=line><span class=cl>      <span class=c1>// or somebody repairs the file, we recover automatically.
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span> <span class=c1>// 创建新对象插入缓存
+</span></span></span><span class=line><span class=cl>      <span class=n>TableAndFile</span><span class=o>*</span> <span class=n>tf</span> <span class=o>=</span> <span class=k>new</span> <span class=n>TableAndFile</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=n>tf</span><span class=o>-&gt;</span><span class=n>file</span> <span class=o>=</span> <span class=n>file</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=n>tf</span><span class=o>-&gt;</span><span class=n>table</span> <span class=o>=</span> <span class=n>table</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=o>*</span><span class=n>handle</span> <span class=o>=</span> <span class=n>cache_</span><span class=o>-&gt;</span><span class=n>Insert</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>tf</span><span class=p>,</span> <span class=mi>1</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>DeleteEntry</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>get中则是Tablecache暴露给caller的外部方法，</p><p>首先通过findtable打开需要的sstable，然后通过table结构体的InternalGet结构获取给定key的value。<strong>table.h</strong>是实现tablecache的关键，因此接下来会介绍<strong>table.h</strong>.</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*从缓存中获取指定键的值*/</span>
+</span></span><span class=line><span class=cl><span class=n>Status</span> <span class=n>TableCache</span><span class=o>::</span><span class=n>Get</span><span class=p>(</span><span class=k>const</span> <span class=n>ReadOptions</span><span class=o>&amp;</span> <span class=n>options</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>file_number</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                       <span class=kt>uint64_t</span> <span class=n>file_size</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>k</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>arg</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                       <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>handle_result</span><span class=p>)(</span><span class=kt>void</span><span class=o>*</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                             <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=n>Cache</span><span class=o>::</span><span class=n>Handle</span><span class=o>*</span> <span class=n>handle</span> <span class=o>=</span> <span class=k>nullptr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>Status</span> <span class=n>s</span> <span class=o>=</span> <span class=n>FindTable</span><span class=p>(</span><span class=n>file_number</span><span class=p>,</span> <span class=n>file_size</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>handle</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*TableCache 的 Get 方法能够同时查询这两层缓存。
+</span></span></span><span class=line><span class=cl><span class=cm>    首先，它会查找第一层缓存（元数据），获取所需的 SSTable 信息。
+</span></span></span><span class=line><span class=cl><span class=cm>    如果该信息存在，接着会使用这些信息查询第二层缓存（BlockCache），获取实际的数据块。
+</span></span></span><span class=line><span class=cl><span class=cm>    */</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>s</span><span class=p>.</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 查找成功时，从缓存句柄中获取TableAndFile对象，通过类型转换获取内部的table指针
+</span></span></span><span class=line><span class=cl>    <span class=n>Table</span><span class=o>*</span> <span class=n>t</span> <span class=o>=</span> <span class=k>reinterpret_cast</span><span class=o>&lt;</span><span class=n>TableAndFile</span><span class=o>*&gt;</span><span class=p>(</span><span class=n>cache_</span><span class=o>-&gt;</span><span class=n>Value</span><span class=p>(</span><span class=n>handle</span><span class=p>))</span><span class=o>-&gt;</span><span class=n>table</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 切片，参数，回调函数
+</span></span></span><span class=line><span class=cl>    <span class=n>s</span> <span class=o>=</span> <span class=n>t</span><span class=o>-&gt;</span><span class=n>InternalGet</span><span class=p>(</span><span class=n>options</span><span class=p>,</span> <span class=n>k</span><span class=p>,</span> <span class=n>arg</span><span class=p>,</span> <span class=n>handle_result</span><span class=p>);</span> <span class=c1>// 获取键值对，同时调用回调函数
+</span></span></span><span class=line><span class=cl>    <span class=n>cache_</span><span class=o>-&gt;</span><span class=n>Release</span><span class=p>(</span><span class=n>handle</span><span class=p>);</span> <span class=c1>// 释放缓存句柄，减少引用计数
+</span></span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/*驱逐指定的sstable*/</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>TableCache</span><span class=o>::</span><span class=n>Evict</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>file_number</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 创建字符数组，为文件编号编码
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span> <span class=n>buf</span><span class=p>[</span><span class=k>sizeof</span><span class=p>(</span><span class=n>file_number</span><span class=p>)];</span>
+</span></span><span class=line><span class=cl>  <span class=n>EncodeFixed64</span><span class=p>(</span><span class=n>buf</span><span class=p>,</span> <span class=n>file_number</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 从缓存中删除
+</span></span></span><span class=line><span class=cl>  <span class=n>cache_</span><span class=o>-&gt;</span><span class=n>Erase</span><span class=p>(</span><span class=n>Slice</span><span class=p>(</span><span class=n>buf</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>buf</span><span class=p>)));</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=includeleveldbtableh><a href=#includeleveldbtableh class=header-anchor></a>include/leveldb/table.h</h4><p>####### table.h</p><p>leveldb的用户可以通过这个接口中的open方法打开sstable并且通过迭代器访问其中的数据，或者估算key在sstable中的位置等。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=k>friend</span> <span class=k>class</span> <span class=nc>TableCache</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=nc>Rep</span><span class=p>;</span> <span class=c1>// 内部实现结构体，封装table的具体实现细节
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>static</span> <span class=n>Iterator</span><span class=o>*</span> <span class=nf>BlockReader</span><span class=p>(</span><span class=kt>void</span><span class=o>*</span><span class=p>,</span> <span class=k>const</span> <span class=n>ReadOptions</span><span class=o>&amp;</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=cm>/*私有构造函数，接收一个指向 Rep 结构体的指针，初始化 rep_ 成员*/</span>
+</span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=nf>Table</span><span class=p>(</span><span class=n>Rep</span><span class=o>*</span> <span class=n>rep</span><span class=p>)</span> <span class=o>:</span> <span class=n>rep_</span><span class=p>(</span><span class=n>rep</span><span class=p>)</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Calls (*handle_result)(arg, ...) with the entry found after a call
+</span></span></span><span class=line><span class=cl>  <span class=c1>// to Seek(key).  May not make such a call if filter policy says
+</span></span></span><span class=line><span class=cl>  <span class=c1>// that key is not present.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 在表中查找给定键的条目。如果找到了，将调用 handle_result 函数处理结果
+</span></span></span><span class=line><span class=cl>  <span class=n>Status</span> <span class=nf>InternalGet</span><span class=p>(</span><span class=k>const</span> <span class=n>ReadOptions</span><span class=o>&amp;</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>arg</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>handle_result</span><span class=p>)(</span><span class=kt>void</span><span class=o>*</span> <span class=n>arg</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>k</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                           <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>v</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 读取元数据和过滤器的相关函数
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>ReadMeta</span><span class=p>(</span><span class=k>const</span> <span class=n>Footer</span><span class=o>&amp;</span> <span class=n>footer</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>ReadFilter</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>filter_handle_value</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Rep</span><span class=o>*</span> <span class=k>const</span> <span class=n>rep_</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>####### table.cc</p><p>在<code>InternalGet</code>函数中，大致过程如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=n>Status</span> <span class=n>Table</span><span class=o>::</span><span class=n>InternalGet</span><span class=p>(</span><span class=k>const</span> <span class=n>ReadOptions</span><span class=o>&amp;</span> <span class=n>options</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>k</span><span class=p>,</span> <span class=kt>void</span><span class=o>*</span> <span class=n>arg</span><span class=p>,</span> <span class=n>oid</span> <span class=p>(</span><span class=o>*</span><span class=n>handle_result</span><span class=p>)(</span><span class=kt>void</span><span class=o>*</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 获取indexblock的iterator
+</span></span></span><span class=line><span class=cl>    <span class=n>Iterator</span><span class=o>*</span> <span class=n>iiter</span> <span class=o>=</span> <span class=n>rep_</span><span class=o>-&gt;</span><span class=n>index_block</span><span class=o>-&gt;</span><span class=n>NewIterator</span><span class=p>(</span><span class=n>rep_</span><span class=o>-&gt;</span><span class=n>options</span><span class=p>.</span><span class=n>comparator</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>iiter</span><span class=o>-&gt;</span><span class=n>Seek</span><span class=p>(</span><span class=n>k</span><span class=p>);</span> <span class=cm>/*1.键的查找*/</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>iiter</span><span class=o>-&gt;</span><span class=n>Valid</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>Slice</span> <span class=n>handle_value</span> <span class=o>=</span> <span class=n>iiter</span><span class=o>-&gt;</span><span class=n>value</span><span class=p>();</span> <span class=cm>/*2.获取与键关联的值，这个值中存储了datablock的位置，datablock存在磁盘中，减少io次数*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>FilterBlockReader</span><span class=o>*</span> <span class=n>filter</span> <span class=o>=</span> <span class=n>rep_</span><span class=o>-&gt;</span><span class=n>filter</span><span class=p>;</span> <span class=cm>/*3.获取过滤器，过滤器中可以查看数据是否存在*/</span>
+</span></span><span class=line><span class=cl>        <span class=n>BlockHandle</span> <span class=n>handle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>filter</span> <span class=o>!=</span> <span class=k>nullptr</span> <span class=o>&amp;&amp;</span> <span class=n>handle</span><span class=p>.</span><span class=n>DecodeFrom</span><span class=p>(</span><span class=o>&amp;</span><span class=n>handle_value</span><span class=p>).</span><span class=n>ok</span><span class=p>()</span> <span class=o>&amp;&amp;</span>
+</span></span><span class=line><span class=cl>        <span class=o>!</span><span class=n>filter</span><span class=o>-&gt;</span><span class=n>KeyMayMatch</span><span class=p>(</span><span class=n>handle</span><span class=p>.</span><span class=n>offset</span><span class=p>(),</span> <span class=n>k</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 过滤器为空且键可能不匹配
+</span></span></span><span class=line><span class=cl>        <span class=c1>// not found
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=cm>/*4.过滤器顺利找到，根据value查找相应的数据块中的迭代器*/</span>
+</span></span><span class=line><span class=cl>      <span class=n>Iterator</span><span class=o>*</span> <span class=n>block_iter</span> <span class=o>=</span> <span class=n>BlockReader</span><span class=p>(</span><span class=k>this</span><span class=p>,</span> <span class=n>options</span><span class=p>,</span> <span class=n>iiter</span><span class=o>-&gt;</span><span class=n>value</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>      <span class=n>block_iter</span><span class=o>-&gt;</span><span class=n>Seek</span><span class=p>(</span><span class=n>k</span><span class=p>);</span> <span class=cm>/* 5.在数据块中查找key*/</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span><span class=n>block_iter</span><span class=o>-&gt;</span><span class=n>Valid</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=c1>// 找到时采用handle_result 处理结果
+</span></span></span><span class=line><span class=cl>        <span class=p>(</span><span class=o>*</span><span class=n>handle_result</span><span class=p>)(</span><span class=n>arg</span><span class=p>,</span> <span class=n>block_iter</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>(),</span> <span class=n>block_iter</span><span class=o>-&gt;</span><span class=n>value</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 更新状态
+</span></span></span><span class=line><span class=cl>      <span class=n>s</span> <span class=o>=</span> <span class=n>block_iter</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>      <span class=k>delete</span> <span class=n>block_iter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>s</span><span class=p>.</span><span class=n>ok</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>s</span> <span class=o>=</span> <span class=n>iiter</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>delete</span> <span class=n>iiter</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>在上面的第4步中，我们看看<code>BlockReader</code>的具体过程</p><p><img src=/img/images/12.jpg loading=lazy alt=12></p><p>在<code>open</code>方法中,</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 读取sstable中的footer，加载其filter block和index block的数据到内存
+</span></span></span><span class=line><span class=cl><span class=cm>* 为table分配一个cache_id
+</span></span></span><span class=line><span class=cl><span class=cm>* 在通过Table读取其中DataBlock的数据时，
+</span></span></span><span class=line><span class=cl><span class=cm>* 会拼接cache_id与Block的offset拼接作为BlockCache的key。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=n>Status</span> <span class=n>Table</span><span class=o>::</span><span class=n>Open</span><span class=p>(</span><span class=k>const</span> <span class=n>Options</span><span class=o>&amp;</span> <span class=n>options</span><span class=p>,</span> <span class=n>RandomAccessFile</span><span class=o>*</span> <span class=n>file</span><span class=p>,</span>  <span class=kt>uint64_t</span> <span class=n>size</span><span class=p>,</span> <span class=n>Table</span><span class=o>**</span> <span class=n>table</span><span class=p>)</span> <span class=p>{...}</span>
+</span></span></code></pre></td></tr></table></div></div><p>####### option.h</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-apl data-lang=apl><span class=line><span class=cl><span class=err>在你提供的代码中，</span><span class=nv>LevelDB</span> <span class=err>定义了几个关键的结构体，主要包括</span> <span class=err>`</span><span class=nv>Options</span><span class=err>`、`</span><span class=nv>ReadOptions</span><span class=err>`</span> <span class=err>和</span> <span class=err>`</span><span class=nv>WriteOptions</span><span class=err>`。以下是对这些结构体的详细介绍：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 1. `Options`</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>`</span><span class=nv>Options</span><span class=err>`</span> <span class=err>结构体用于控制数据库的行为，包含多个参数，影响数据库的打开、性能和数据存储等。主要字段包括：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>comparator</span><span class=err>`</span><span class=o>**</span><span class=err>：用于定义键的顺序的比较器。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>create_if_missing</span><span class=err>`</span><span class=o>**</span><span class=err>：如果数据库不存在，是否创建新的数据库。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>error_if_exists</span><span class=err>`</span><span class=o>**</span><span class=err>：如果数据库已经存在，是否报错。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>paranoid_checks</span><span class=err>`</span><span class=o>**</span><span class=err>：是否进行严格的数据完整性检查。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>env</span><span class=err>`</span><span class=o>**</span><span class=err>：与环境交互的对象（如读写文件等）。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>info_log</span><span class=err>`</span><span class=o>**</span><span class=err>：用于记录信息和错误的日志记录器。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>write_buffer_size</span><span class=err>`</span><span class=o>**</span><span class=err>：内存中写缓冲区的大小。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>max_open_files</span><span class=err>`</span><span class=o>**</span><span class=err>：数据库可以打开的最大文件数量。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>block_cache</span><span class=err>`</span><span class=o>**</span><span class=err>：用于缓存块的对象。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>block_size</span><span class=err>`</span><span class=o>**</span><span class=err>：每个块的近似大小。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>block_restart_interval</span><span class=err>`</span><span class=o>**</span><span class=err>：用于键的增量编码的重启点之间的键数量。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>max_file_size</span><span class=err>`</span><span class=o>**</span><span class=err>：写入文件的最大字节数。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>compression</span><span class=err>`</span><span class=o>**</span><span class=err>：用于块的压缩算法。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>zstd_compression_level</span><span class=err>`</span><span class=o>**</span><span class=err>：</span><span class=nv>zstd</span> <span class=err>压缩的压缩级别。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>reuse_logs</span><span class=err>`</span><span class=o>**</span><span class=err>：是否在打开数据库时追加到现有的</span> <span class=nv>MANIFEST</span> <span class=err>和日志文件。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>filter_policy</span><span class=err>`</span><span class=o>**</span><span class=err>：用于减少磁盘读取的过滤策略。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 2. `ReadOptions`</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>`</span><span class=nv>ReadOptions</span><span class=err>`</span> <span class=err>结构体控制读取操作的行为，包含以下字段：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>verify_checksums</span><span class=err>`</span><span class=o>**</span><span class=err>：是否在读取时验证校验和。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>fill_cache</span><span class=err>`</span><span class=o>**</span><span class=err>：读取的数据是否应被缓存。</span>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>snapshot</span><span class=err>`</span><span class=o>**</span><span class=err>：用于读取的快照对象。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>### 3. `WriteOptions`</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>`</span><span class=nv>WriteOptions</span><span class=err>`</span> <span class=err>结构体控制写入操作的行为，包含以下字段：</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=o>-</span> <span class=o>**</span><span class=err>`</span><span class=nv>sync</span><span class=err>`</span><span class=o>**</span><span class=err>：是否在写入完成前将数据刷新到操作系统的缓冲区。设置为</span> <span class=err>`</span><span class=nv>true</span><span class=err>`</span> <span class=err>会使写入变慢，但可以确保写入数据的持久性。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>这些结构体的设计使得</span> <span class=nv>LevelDB</span> <span class=err>能够灵活配置数据库的行为，以适应不同的使用场景和性能需求。</span>
+</span></span></code></pre></td></tr></table></div></div><p>snapshot下一节再讲。</p><p>该文先暂时这样子。</p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/%E8%AF%A6%E8%B0%88leveldb%E4%B8%AD%E7%9A%84sstable/><div class=article-image><img src=/images/dfcceaca.jpg loading=lazy data-key data-hash=/images/dfcceaca.jpg></div><div class=article-details><h2 class=article-title>详谈leveldb中的sstable</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB8-orient%E9%9D%A2%E8%AF%95/><div class=article-image><img src=/images/fee4263f.jpg loading=lazy data-key data-hash=/images/fee4263f.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读8 Orient面试</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB7-question/><div class=article-image><img src=/images/9b9f137c.jpg loading=lazy data-key data-hash=/images/9b9f137c.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读7 Question</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB6-wirteread-and-log/><div class=article-image><img src=/images/9ca73f67.jpg loading=lazy data-key data-hash=/images/9ca73f67.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读6 wirte&amp;read and log</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB5-compaction-and-version/><div class=article-image><img src=/images/62c77b63.jpg loading=lazy data-key data-hash=/images/62c77b63.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读5 Compaction And Version</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

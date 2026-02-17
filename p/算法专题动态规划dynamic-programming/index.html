@@ -1,0 +1,750 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="本文详细介绍了动态规划算法的核心概念、特性、解题方法以及递归与递推的应用对比。"><title>算法专题：动态规划（Dynamic Programming）</title><link rel=canonical href=https://sutdown.github.io/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92dynamic-programming/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="算法专题：动态规划（Dynamic Programming）"><meta property='og:description' content="本文详细介绍了动态规划算法的核心概念、特性、解题方法以及递归与递推的应用对比。"><meta property='og:url' content='https://sutdown.github.io/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92dynamic-programming/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2023-03-12T00:00:00+00:00'><meta property='article:modified_time' content='2023-03-12T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/a5694f98.jpg'><meta name=twitter:title content="算法专题：动态规划（Dynamic Programming）"><meta name=twitter:description content="本文详细介绍了动态规划算法的核心概念、特性、解题方法以及递归与递推的应用对比。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/a5694f98.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#一前言>一：前言</a><ul><li><a href=#使用情况>使用情况：</a></li><li><a href=#递归和递推>递归和递推：</a></li><li><a href=#优缺点>优缺点：</a></li><li><a href=#解题步骤>解题步骤：</a></li><li><a href=#解题思路>解题思路：</a></li><li><a href=#动态规划和静态规划>动态规划和静态规划：</a></li></ul></li><li><a href=#二经典题型>二：经典题型</a><ul><li><a href=#1线性dp>1.线性DP</a><ul><li><a href=#11最大连续子序列和>1.1最大连续子序列和</a></li><li><a href=#12最长上升子序列>1.2最长上升子序列</a></li><li><a href=#13最长公共子序列>1.3最长公共子序列</a></li></ul></li><li><a href=#2背包问题>2.背包问题</a><ul><li><a href=#21-01背包问题>2.1 01背包问题</a><ul><li><a href=#滚动数组为其优化>滚动数组为其优化</a></li><li><a href=#元组法>元组法</a></li></ul></li><li><a href=#22完全背包问题>2.2完全背包问题</a></li><li><a href=#23多重背包问题>2.3多重背包问题</a></li><li><a href=#24分组背包问题>2.4分组背包问题</a></li></ul></li><li><a href=#3区间dp>3.区间DP</a></li><li><a href=#4计数类dp>4.计数类DP</a><ul><li><a href=#完全背包><strong>完全背包：</strong></a></li><li><a href=#拆分法><strong>拆分法：</strong></a></li></ul></li><li><a href=#5矩阵乘法链>5.矩阵乘法链</a></li><li><a href=#6数位统计dp>6.数位统计DP</a></li><li><a href=#7all-pair最短路问题>7.all-pair最短路问题</a></li><li><a href=#8旅行商问题>8.旅行商问题</a></li><li><a href=#9网络的无交叉子集>9.网络的无交叉子集</a></li><li><a href=#10子集和数问题>10.子集和数问题</a></li></ul></li><li><a href=#附>附：</a></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92dynamic-programming/><img src=/images/a5694f98.jpg loading=lazy alt="Featured image of post 算法专题：动态规划（Dynamic Programming）"></a></div><div class=article-details><header class=article-category><a href=/categories/algorithm/>Algorithm
+</a><a href=/categories/c++/>C++</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92dynamic-programming/>算法专题：动态规划（Dynamic Programming）</a></h2><h3 class=article-subtitle>本文详细介绍了动态规划算法的核心概念、特性、解题方法以及递归与递推的应用对比。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2023-03-12T00:00:00Z>Mar 12, 2023</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><h2 id=一前言><a href=#%e4%b8%80%e5%89%8d%e8%a8%80 class=header-anchor></a>一：前言</h2><p>学习基础：数据结构与算法。文章中少部分涉及数据结构的知识不作讲解。</p><h3 id=使用情况><a href=#%e4%bd%bf%e7%94%a8%e6%83%85%e5%86%b5 class=header-anchor></a>使用情况：</h3><p>在动态规划中，一个问题必须拥有重叠子问题和最优子结构，才能用动态规划解决。</p><p><strong>重叠子问题</strong>：一个问题可以被分解为若干个子问题，且这些子问题会重复出现。比如求斐波那契数列时，递归（自顶而下Top-down Approach）会产生大量重叠子问题，此时可以采用<strong>记忆化搜索</strong>记住那些重叠子问题，避免多次计算从而降低时间复杂度。</p><p><strong>最优子结构</strong>：如果一个问题的最优解可以由子问题的最优解有效的构造出来，那么称这个问题有最优子结构。比如树塔问题自下而上（Bottom-up Approach）进行递推得到最终结果。</p><p>比如在常见的最短路问题中，可以采取从目标点向前推和起始点向后推两种策略。</p><h3 id=递归和递推><a href=#%e9%80%92%e5%bd%92%e5%92%8c%e9%80%92%e6%8e%a8 class=header-anchor></a>递归和递推：</h3><p><strong>递归（自顶向下）：</strong></p><p>递归是一种自然而然的思考方式，它将一个大问题分解成一个或多个子问题，并通过递归调用来解决子问题。</p><p>比如斐波那契数列、汉诺塔问题等。此外，递归可以使代码更加清晰，更接近问题的数学描述。</p><p><strong>递推（自底向上）：</strong></p><p>递推是从最小的子问题开始，逐步构建问题的解决方案，直到解决整个问题，通常使用迭代或循环来实现。</p><p>递推通常更有效率，因为它避免了递归调用的开销，并且可以避免潜在的堆栈溢出问题。递推<strong>适合处理具有重叠子问题性质</strong>的问题，其中子问题的解可以存储并复用。典型的例子包括计算斐波那契数列、求解动态规划问题、计算组合数等。</p><p><strong>因此</strong>，可以首先尝试使用递推来解决动态规划问题，因为它更容易优化并且通常具有更好的性能。但是，有些问题可能更容易用递归来思考和表达，因此适用递归方法也是有意义的。有时候，甚至可以将两者结合使用，使用递归来理解问题和定义状态转移方程，然后使用递推来实际计算结果，这种方法称为"记忆化搜索"，具体情况一般具体考虑。</p><h3 id=优缺点><a href=#%e4%bc%98%e7%bc%ba%e7%82%b9 class=header-anchor></a>优缺点：</h3><p><strong>时间和空间</strong>：动态规划中，采用递归或者递推的算法会使时间复杂度递增，所以往往我们会采取迭代的方案以空间记录其中的数据换取时间复杂度的降低。问题规模的大小往往对应该事件的时间复杂度。</p><h3 id=解题步骤><a href=#%e8%a7%a3%e9%a2%98%e6%ad%a5%e9%aa%a4 class=header-anchor></a>解题步骤：</h3><p>1.审题观察具有<strong>重叠子问题</strong>和<strong>最优子结构</strong>，判断是否为动态规划问题。</p><p>2.找出题中的<strong>状态转移方程</strong>，即如何把大问题分解为小问题。</p><p>3.找到<strong>边界</strong>，编写代码具体实现，得出结果。（也可继续分析算法的时间和空间复杂度，对此加强。</p><p>4.<strong>回溯</strong>找出问题的答案。</p><h3 id=解题思路><a href=#%e8%a7%a3%e9%a2%98%e6%80%9d%e8%b7%af class=header-anchor></a>解题思路：</h3><p>以下介绍中，一般会先根 据人的本能去思考暴力做法，因为即使是动态规划也会与普通的暴力做法有共通的地方，再去观察这个题目的特点，如何联想到动态规划，再使用寻找状态转移方程写代码求解验证。</p><h3 id=动态规划和静态规划><a href=#%e5%8a%a8%e6%80%81%e8%a7%84%e5%88%92%e5%92%8c%e9%9d%99%e6%80%81%e8%a7%84%e5%88%92 class=header-anchor></a>动态规划和静态规划：</h3><p>动态规划和静态规划都是优化问题，且二者可以相互转换。</p><p>动态规划</p><p>• 优点：DP表使得求解过程清晰，更容易获得最优解。</p><p>• 缺点：设计DP表难度大；状态空间可能呈指数增长。</p><p>静态规划</p><p>静态规划也是一种优化问题，包括线性规划和非线性规划。静态规划是从一个或者多个可行解开始，通过不断迭代对现有的可行解进行优化，最后得到最优解。</p><p>优点：始终保持一个可行解或近优解，思路相对简单。</p><p>缺点：当问题规模较大时，可能面临庞大的计算量。</p><h2 id=二经典题型><a href=#%e4%ba%8c%e7%bb%8f%e5%85%b8%e9%a2%98%e5%9e%8b class=header-anchor></a>二：经典题型</h2><h3 id=1线性dp><a href=#1%e7%ba%bf%e6%80%a7dp class=header-anchor></a>1.线性DP</h3><h4 id=11最大连续子序列和><a href=#11%e6%9c%80%e5%a4%a7%e8%bf%9e%e7%bb%ad%e5%ad%90%e5%ba%8f%e5%88%97%e5%92%8c class=header-anchor></a>1.1最大连续子序列和</h4><blockquote><p>题目：给定一个数字序列A1，A2，A3…An，求i，j（1&lt;=i&lt;=j&lt;=n)，使Ai+…+Aj最大，输出这个最大和。</p></blockquote><p>对于该题，首先我们想到的是暴力做法，可以采用前缀和。</p><p>从A1开始，把A1，A1+A2,A1+A2+A3…；然后再从A2开始，A2，A2+A3…;一直到从An开始，可以用双重for实现，时间复杂度O(n^2)，同时采用一个大小为n*（n+1）/2的数组保存其中的所有数据，再求值。但明显，这样的方法过于繁琐。</p><p>再重新观察该题，我们要如何降低O(n^2)的时间复杂度，我们将其拆分为子问题，前1个数的最大连续和，前2个数的最大连续和，前3个数的最大连续和……可知，在求多一个数的连续子序列和时，结合此题，要么就是当前数最大，要么就是加上前几个数的序列，因此我们得到状态转移方程</p>$$
+dp[i]=max(A[i],dp[i-1]+A[i])
+$$<p>然后我们再比较dp[0],dp[1]…dp[n-1]的最大值即可。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=mi>10010</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>A</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>n</span><span class=p>;</span><span class=c1>//输入数组长度和数组中的数
+</span></span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>dp</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=n>A</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=c1>//状态转移方程
+</span></span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=c1>//标准库函数max_element，它能够返回数组中的最大元素的迭代器，也就是地址，需要*解引用得到该地址的值。
+</span></span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=o>*</span><span class=n>max_element</span><span class=p>(</span><span class=n>dp</span><span class=p>,</span> <span class=n>dp</span> <span class=o>+</span> <span class=n>n</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=12最长上升子序列><a href=#12%e6%9c%80%e9%95%bf%e4%b8%8a%e5%8d%87%e5%ad%90%e5%ba%8f%e5%88%97 class=header-anchor></a>1.2最长上升子序列</h4><blockquote><p>给定一个长度为n的数列，求数值严格单调递增的子序列的长度最长是多少。</p></blockquote><p>该题和上一题虽然都是线性序列，但是上一题要求的是连续，因此可以从头到尾一个一个来，但是该题的子序列不连续，可以是跳跃状态，因此方法不同。</p><p>先思考暴力做法，序列中的每个元素有取和不取两种状态，如果全部考虑，对应2^n种，明显时间复杂度过高。所以考虑其它思路。</p><p>其实当前问题在于如何找到该问题的子问题，当然还有，每个上升子序列之间如何比较。1.1中是每个子问题中只有<strong>一个</strong>连续的解答，但是1.2中每个子问题会有<strong>多个上升子序列</strong>，在不到最后时无法确认最长序列。</p><p><strong>重点来了，解决方案</strong>：这个多个上升子序列的解决方案就是开启第二重循环，对前面的每个dp[i]（dp[i]指的是0-i个种的最长子序列）都进行一次比较，然后取得最大上升子序列的个数。状态转移方程为</p>$$
+dp[i]=max(1,dp[j]+1);(j=1,2,3...i-1,A[j]<a[i]) $$<div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;climits&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>maxn</span> <span class=o>=</span> <span class=mi>10010</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>A</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>maxn</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>n</span><span class=p>;</span><span class=c1>//输入数组长度和数组中的数
+</span></span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>dp</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span><span class=c1>//状态转移方程
+</span></span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>ans</span> <span class=o>=</span> <span class=n>INT_MIN</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>i</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=n>ans</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>ans</span><span class=p>,</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>ans</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=13最长公共子序列><a href=#13%e6%9c%80%e9%95%bf%e5%85%ac%e5%85%b1%e5%ad%90%e5%ba%8f%e5%88%97 class=header-anchor></a>1.3最长公共子序列</h4><blockquote><p>给定两个长度分别为 N和 M 的字符串 A 和 B，求既是 A 的子序列又是 B 的子序列的字符串长度最长是多少。</p></blockquote><p>有一说一，第一反应，双指针算法，哦不对，没有连续啊，那就不太行了。。那还是回归这个题，我们先看暴力做法，把所有A和B的子序列求出来然后比较，大概（N+M）*2^max（N，M），这样子，时间上肯定太过长了的。</p><p>1.3和前两个的最大不同就是现在是两个子序列和子序列多个如何找最长。</p><p>针对两个子序列我们可以采取二维数组的形式，dp(i)(j)指的是A的前i个和B的前j个的最长公共子序列；多个子序列可以直接采用在循环时比较出最大的方式。可以得到状态转移方程：</p>$$
+dp[i][j]=\begin{cases}dp[i-1][j-1]+1,&A[i]==A[j]\\max(dp[i-1][j],dp[i][j-1]), &A[i]!=A[j]\end{cases}
+$$<p>两个数组同时进行比较，如果相等说明子序列+1，如果不相等取上下两前一个中的最大值即可。</p><p><strong>注意：</strong></p><p><strong>1）对于你要循环对两个字符串进行处理时，一定不能把某个字符拿出来单独处理，这样就无法参与到循环的变化之中导致结果出错。</strong></p><p><strong>2）对于string，STL中的一些容器等，要注意在使用时为其分配一定空间的内存，若要加上其它空间需要重新说明，比如STL中的resize（）等</strong>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAX</span> <span class=o>=</span> <span class=mi>1010</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAX</span><span class=p>][</span><span class=n>MAX</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span> <span class=o>&gt;&gt;</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>string</span> <span class=n>A</span><span class=p>,</span> <span class=n>B</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>A</span> <span class=o>&gt;&gt;</span> <span class=n>B</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=c1>//  这里不能直接后移，因为string中的内存空间只分配了n个m个，多加一个是溢出	
+</span></span></span><span class=line><span class=cl><span class=c1>//	for(int i=n;i&gt;=1;i--)A[n]=A[n-1];
+</span></span></span><span class=line><span class=cl><span class=c1>//	for(int i=m;i&gt;=1;i--)B[m]=B[m-1];
+</span></span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>m</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>//状态转移方程
+</span></span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>==</span> <span class=n>B</span><span class=p>[</span><span class=n>j</span><span class=o>-</span><span class=mi>1</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span> <span class=o>!=</span> <span class=n>B</span><span class=p>[</span><span class=n>j</span><span class=o>-</span><span class=mi>1</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>n</span><span class=p>][</span><span class=n>m</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=2背包问题><a href=#2%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98 class=header-anchor></a>2.背包问题</h3><h4 id=21-01背包问题><a href=#21-01%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98 class=header-anchor></a>2.1 01背包问题</h4><blockquote><p>有 N件物品和一个容量是 V的背包。每件物品只能使用一次。第 i件物品的体积是 vi，价值是 wi。求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大，输出最大价值。</p></blockquote><p>首先思考暴力做法，由于对于每件物品都具有选择和不选择也就是0和1两个特性，因此时间复杂度在O(2^n)，因此考虑其它方法，这个问题其实很明显是可以分解为一个个子问题的，然后我们再寻找大问题和小问题的解决方案。若dp(i)(j)指的是在容量为j时有i件物品的最好价值，那可以得到以下状态转移方程：</p>$$
+dp[i][j]=max(dp[i-1][j],dp[i-1][j-v[i]]+w[i])
+$$<p>这个是根据第i个物品在0和1的状态中所得到的方程，如果第i个没有被选择，那么它与i-1时的结果相同，如果它被选择了，我们取一个刚好完全将背包放满的情况的i-1时的值加上当前值的结果，这是在求dp(i)(j)时的方法。所以在求最终结果时，需要求i=5,1&lt;=j&lt;=V时数组dp中的最大值。</p><p>不知道有没有人和我一样，在做题分析时陷入误区，将各种j的范围在对不同i时进行分段，然后代码出现很多个if，这其实是没有注意到各种不同段之间的联系，没有按照动态规划中大问题和子问题的思路思考。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span><span class=o>=</span><span class=mi>1010</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAXN</span><span class=p>][</span><span class=n>MAXN</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>N</span><span class=p>,</span><span class=n>V</span><span class=p>;</span><span class=c1>//物品数量，总容量
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>v</span><span class=p>[</span><span class=n>MAXN</span><span class=p>],</span><span class=n>w</span><span class=p>[</span><span class=n>MAXN</span><span class=p>];</span><span class=c1>//单件体积，单件价值
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span><span class=o>&gt;&gt;</span><span class=n>N</span><span class=o>&gt;&gt;</span><span class=n>V</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>1</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>N</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>		<span class=n>cin</span><span class=o>&gt;&gt;</span><span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>&gt;&gt;</span><span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span><span class=o>=</span><span class=mi>1</span><span class=p>;</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>N</span><span class=p>;</span><span class=n>i</span><span class=o>++</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>j</span><span class=o>=</span><span class=mi>1</span><span class=p>;</span><span class=n>j</span><span class=o>&lt;=</span><span class=n>V</span><span class=p>;</span><span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		    <span class=k>if</span><span class=p>(</span><span class=n>j</span><span class=o>&gt;=</span><span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span><span class=o>=</span><span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=n>j</span><span class=p>],</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=n>j</span><span class=o>-</span><span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span><span class=o>+</span><span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>			<span class=k>else</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span><span class=o>=</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>	
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=o>*</span><span class=n>max_element</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>N</span><span class=p>]</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=n>dp</span><span class=p>[</span><span class=n>N</span><span class=p>]</span><span class=o>+</span><span class=n>V</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=滚动数组为其优化><a href=#%e6%bb%9a%e5%8a%a8%e6%95%b0%e7%bb%84%e4%b8%ba%e5%85%b6%e4%bc%98%e5%8c%96 class=header-anchor></a>滚动数组为其优化</h5><p>时间上已经达到O(n^2)，已经优化过，但是我们还能从空间上尝试进行优化。</p><p>大家观察上述方法中的状态转移方程，有没有发现第i行的dp数组都是由i-1行中的数据得到的。那么我们是不是可以不用第一维度也就是[i]的维度，在i-1中，已经得到了i-1行的数据，然后接着i行，i行刚好能用i-1行的数据，同时采用一维时也覆盖了上一行，这不就二维变成一维了。运行，啪，出错。</p><p>所以再观察j，j也是从小到大的，所以在求dp(j)的时候，已经把第i-1行的dp(j)更新了，求dp(j+w(i))的数据时必然出错了，它得到的是i行的dp(j)而不是i-1行，那怎么办呢，逆序即可，让j从大往小就没有这个后顾之忧了，j变小也不会有前面数据在用到后面的数据了（dp(i)(j)的求法是在上面和左上，不会用到右侧的数据）。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span> <span class=o>=</span> <span class=mi>1010</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAXN</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>N</span><span class=p>,</span> <span class=n>V</span><span class=p>;</span> <span class=c1>//物品数量，总容量
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>v</span><span class=p>[</span><span class=n>MAXN</span><span class=p>],</span> <span class=n>w</span><span class=p>[</span><span class=n>MAXN</span><span class=p>];</span> <span class=c1>//单件体积，单件价值
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>N</span> <span class=o>&gt;&gt;</span> <span class=n>V</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>N</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&gt;&gt;</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>N</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>V</span><span class=p>;</span> <span class=n>j</span> <span class=o>&gt;=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=p>(</span><span class=n>j</span> <span class=o>&gt;=</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span> <span class=o>-</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>+</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>V</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=元组法><a href=#%e5%85%83%e7%bb%84%e6%b3%95 class=header-anchor></a>元组法</h5><p>如该图所示，元组法指的是在每选择是否放入一个物品时，在1-V的容量的情况下，能放就更新相应对应的容量，不能放就不更新。如上图中每个物品的每个容量都会存储，但再次观察，在每行出现了连续的值，这些值的意思是在这个容量范围内从前到后刚好都能存放，所以实际上只需要存储连续的数的第一个也就是关键数据即可。最后得到的dp[N]也就是最好的结果。</p><p>这也相当于遍历了每一种可能性。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>N</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>	<span class=k>for</span><span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>V</span><span class=p>;</span> <span class=n>j</span> <span class=o>&gt;=</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>];</span> <span class=n>j</span><span class=o>--</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>		<span class=k>if</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=o>-</span><span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>+</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>])</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=o>-</span><span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>+</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>			<span class=n>choice</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>时间复杂度为O(nV)。</p><h4 id=22完全背包问题><a href=#22%e5%ae%8c%e5%85%a8%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98 class=header-anchor></a>2.2完全背包问题</h4><blockquote><p>有 N种物品和一个容量是 V的背包，每种物品都有无限件可用。第 i种物品的体积是 vi，价值是 wi。求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大，输出最大价值。</p></blockquote><p>和2.1不同的是，这个是无限件，看似无限，但也不能超过最大容量的，可以尝试把数组扩充，也就是对每件物品背包最多能出现的次数，把那些次数对应的加到数组v和w中，转化成01背包问题，不过在空间复杂度上看来就不是那么快乐了。但是，可以把数组扩充改成在循环里面处理。我们根据2.1中的二维数组的状态转移方程，对无限次进行处理。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span> <span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>N</span> <span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span> <span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>V</span> <span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span> <span class=p>;</span> <span class=n>k</span> <span class=o>*</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>j</span> <span class=p>;</span> <span class=n>k</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				<span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=n>k</span> <span class=o>*</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>+</span> <span class=n>k</span> <span class=o>*</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span><span class=c1>//无限次的处理
+</span></span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>运行，啪，TLE（Time Limit Exceeded）这是我见过最常见的错误，毕竟时间复杂度是O(n^2)，所以接下来优化一下，先找到他的状态转移方程，再同样采用滚动数组的思想。由于是无限次，状态转移方程为：</p>$$
+dp[i][j]=max(dp[i-1][j],dp[i][j-v[i]]+w[i])
+$$<p>由于无限次，在放了第i件时，不需要在i-1次去找，而是仍然在i件处，j从w[i]开始变化。</p><p>同样，状态转移方程降维</p>$$
+dp[j]=max(dp[j],dp[j-v[i]]+w[i])
+$$<div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span> <span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>N</span> <span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>V</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span> <span class=o>-</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>]]</span> <span class=o>+</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=23多重背包问题><a href=#23%e5%a4%9a%e9%87%8d%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98 class=header-anchor></a>2.3多重背包问题</h4><p><a class=link href=https://www.acwing.com/problem/content/4/ target=_blank rel=noopener>4. 多重背包问题 I - AcWing题库</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=cp>#include&lt;algorithm&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>N</span> <span class=o>=</span> <span class=mi>1005</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>N</span><span class=p>],</span> <span class=n>n</span><span class=p>,</span> <span class=n>V</span><span class=p>,</span> <span class=n>v</span><span class=p>,</span> <span class=n>w</span><span class=p>,</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span> <span class=o>&gt;&gt;</span> <span class=n>V</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>n</span><span class=o>--</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>v</span> <span class=o>&gt;&gt;</span> <span class=n>w</span> <span class=o>&gt;&gt;</span> <span class=n>s</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=k>while</span> <span class=p>(</span><span class=n>s</span><span class=o>--</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>V</span><span class=p>;</span> <span class=n>j</span> <span class=o>&gt;=</span> <span class=n>v</span><span class=p>;</span> <span class=n>j</span><span class=o>--</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				<span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span> <span class=o>-</span> <span class=n>v</span><span class=p>]</span> <span class=o>+</span> <span class=n>w</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>V</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=24分组背包问题><a href=#24%e5%88%86%e7%bb%84%e8%83%8c%e5%8c%85%e9%97%ae%e9%a2%98 class=header-anchor></a>2.4分组背包问题</h4><p><a class=link href=https://www.acwing.com/problem/content/9/ target=_blank rel=noopener>9. 分组背包问题 - AcWing题库</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;bits/stdc++.h&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>N</span> <span class=o>=</span> <span class=mi>110</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>N</span><span class=p>][</span><span class=n>N</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>v</span><span class=p>[</span><span class=n>N</span><span class=p>][</span><span class=n>N</span><span class=p>],</span> <span class=n>w</span><span class=p>[</span><span class=n>N</span><span class=p>][</span><span class=n>N</span><span class=p>],</span> <span class=n>s</span><span class=p>[</span><span class=n>N</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span> <span class=o>&gt;&gt;</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>];</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>&gt;&gt;</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>m</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>k</span> <span class=o>&lt;</span> <span class=n>s</span><span class=p>[</span><span class=n>i</span><span class=p>];</span> <span class=n>k</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>				<span class=k>if</span> <span class=p>(</span><span class=n>j</span> <span class=o>&gt;=</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>k</span><span class=p>])</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>max</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=n>v</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>k</span><span class=p>]]</span> <span class=o>+</span> <span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>k</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>			<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>n</span><span class=p>][</span><span class=n>m</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=3区间dp><a href=#3%e5%8c%ba%e9%97%b4dp class=header-anchor></a>3.区间DP</h3><blockquote><p>设有N堆石子排成一排，其编号为 1,2,3,…,N。每堆石子有一定的质量，可以用一个整数来描述，现在将这 N 堆石子合并成为一堆。每次只能合并<strong>相邻的两堆</strong>，合并的代价为这两堆石子的质量之和，合并后与这两堆石子相邻的石子将和新堆相邻，合并时由于选择的顺序不同，合并的总代价也不相同。</p><p>例如有4堆石子分别为1 3 5 2，我们先合并1 2堆，代价为 4，得到 4 5 2， 又合并1 2 堆，代价为 9，得到9 2 ，再合并得到1堆，总代价为 4+9+11=24；如果第二步是先合并2 3堆，则代价为 7，得到 4 7，最后一次合并代价为11，总代价为 4+7+11=22。</p><p>问题是：找出一种合理的方法，使总的代价最小，输出最小代价。</p></blockquote><p>先是以为是树，每次找到两个最小的相加成一个结点，得到一个树把结点和相加，不过题中说相邻两堆，这个思路不行。</p><p>每次找到相邻和的最小值（需要找和保存数据，需要第一次循环找最小，第二次保存数据），还有一个整体循环保证得到一堆，再将每次求的值相加，时间复杂度O(n^3)，但是寻找数据，保存数据的过程很繁琐，难以实现。可以开辟一个二维数组，第二行是第一行的相邻和，再加上其它数据，很复杂。</p><p>对于区间DP，它的子问题的错误思路是两堆石子，三堆，四堆···这样子思考。最终结果一定是左边一堆加上右边一堆，左边的那堆也一定由两堆相加，这才是真正的子问题。那子问题如何求解呢，一堆分为左堆右堆相加，左堆可以由两个数，也可以是三个，四个···，两个就是两个数相加的和，所以这样子可以得到动态转移方程：我们用dp(i)(j)表示i到j所需要的代价</p>$$
+dp[i][j]=min(dp[i][j],dp[i][k]+dp[k+1][j]+f[j]-f[i-1])
+$$<p>f数组是前缀和，得到两堆相加的和，也就是i到j所有数的和，因此得到代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include&lt;iostream&gt;
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span> <span class=o>=</span> <span class=mi>310</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>stone</span><span class=p>[</span><span class=n>MAXN</span><span class=p>],</span> <span class=n>f</span><span class=p>[</span><span class=n>MAXN</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAXN</span><span class=p>][</span><span class=n>MAXN</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>stone</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=n>f</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>f</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>stone</span><span class=p>[</span><span class=n>i</span><span class=p>];</span> <span class=c1>//前缀和
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>len</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span> <span class=n>len</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>len</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span> <span class=c1>//先长度后端点
+</span></span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>+</span> <span class=n>len</span> <span class=o>-</span> <span class=mi>1</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span> <span class=c1>//前两个区间包含所有端点
+</span></span></span><span class=line><span class=cl>			<span class=kt>int</span> <span class=n>l</span> <span class=o>=</span> <span class=n>j</span><span class=p>,</span> <span class=n>r</span> <span class=o>=</span> <span class=n>j</span> <span class=o>+</span> <span class=n>len</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>][</span><span class=n>r</span><span class=p>]</span> <span class=o>=</span> <span class=mf>1e8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>k</span> <span class=o>&lt;</span> <span class=n>r</span><span class=p>;</span> <span class=n>k</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>				<span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>][</span><span class=n>r</span><span class=p>]</span> <span class=o>=</span> <span class=n>min</span><span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>][</span><span class=n>r</span><span class=p>],</span> <span class=n>dp</span><span class=p>[</span><span class=n>l</span><span class=p>][</span><span class=n>k</span><span class=p>]</span> <span class=o>+</span> <span class=n>dp</span><span class=p>[</span><span class=n>k</span> <span class=o>+</span> <span class=mi>1</span><span class=p>][</span><span class=n>r</span><span class=p>]</span> <span class=o>+</span> <span class=n>f</span><span class=p>[</span><span class=n>r</span><span class=p>]</span> <span class=o>-</span> <span class=n>f</span><span class=p>[</span><span class=n>l</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>			<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=n>n</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=4计数类dp><a href=#4%e8%ae%a1%e6%95%b0%e7%b1%bbdp class=header-anchor></a>4.计数类DP</h3><blockquote><p>一个正整数n可以表示成若干个正整数之和，形如：n=n1+n2+…+nk，其中 n1≥n2≥…≥nk,k≥1。我们将这样的一种表示称为正整数 n的一种划分。现在给定一个正整数n，请你求出n共有多少种不同的划分方法。</p></blockquote><p>该题有两个思路，一是当成完全背包问题，将体积为1-n的n个物品刚好放入背包中。第二个是数学中拆分法的数学思想。</p><h4 id=完全背包><a href=#%e5%ae%8c%e5%85%a8%e8%83%8c%e5%8c%85 class=header-anchor></a><strong>完全背包：</strong></h4><p>dp(i)(j)指在前i个物品中选择i个物品体积为j。它的状态转移方程应为：</p>$$
+dp[i][j]=dp[i-1][j]+dp[i-1][j-i]+dp[i-1][j-2*i]···dp[i-1][j-s*i];\\
+dp[i][j-i]= dp[i-1][j-i]+dp[i-1][j-2*i]···dp[i-1][j-s*i];\\
+因此：dp[i][j]=dp[i-1][j]+dp[i][j-i];
+$$<p>优化空间可以得到：</p>$$
+dp[j]=dp[j]+dp[j-i];
+$$<p>问题一：完全背包中的体积是可以小于j的，但是这个题只能恰好为j，为什么还是完全背包？</p><p>答：这个题中的每个物品的体积是连续的数，所以得带的最优解一定刚好为j。假设最优解不为j，多了s个空间，那这个空间一定能再放物品，此时有多余空间的放法就不为最优解了。</p><p>问题二：优化空间的原理？</p><p>答：在你求第i行时，你所需要的第j列的数据第i行还没有进行更新，所以得到的仍然是第i-1行的数据；你所需要的j-i列的数据只要j是从小到大循环，就可以得到第i行j-i列的数据。</p><p>见代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;algorithm&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span> <span class=o>=</span> <span class=mi>1010</span><span class=p>,</span> <span class=n>mod</span> <span class=o>=</span> <span class=mf>1e9</span> <span class=o>+</span> <span class=mi>7</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAXN</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>dp</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> 
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=n>i</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>+</span> <span class=n>dp</span><span class=p>[</span><span class=n>j</span> <span class=o>-</span> <span class=n>i</span><span class=p>])</span> <span class=o>%</span> <span class=n>mod</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>dp</span><span class=p>[</span><span class=n>n</span><span class=p>]</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=拆分法><a href=#%e6%8b%86%e5%88%86%e6%b3%95 class=header-anchor></a><strong>拆分法：</strong></h4><p>充分展示了什么叫做数学思想。在拆分一个数时，将其分为一定有1和一定没有1的两种情况，</p><p>dp(i)(j)表示总个数为j，总和为i的个数</p>$$
+dp[i][j]=dp[i-1][j-1]+dp[i-j][j]
+$$<p>其中，dp(i-1)(j-1)指的是在（一定有1）总个数少1，总和少1的情况下的总个数；dp(i-j)(j)指的是（一定没有1）在总和少j也就是这个数组得到的划分结果中的每个数加1才是真正划分结果，所以一定没有1；</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;algorithm&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>MAXN</span> <span class=o>=</span> <span class=mi>1010</span><span class=p>,</span> <span class=n>mod</span> <span class=o>=</span> <span class=mf>1e9</span> <span class=o>+</span> <span class=mi>7</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>dp</span><span class=p>[</span><span class=n>MAXN</span><span class=p>][</span><span class=n>MAXN</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>dp</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>i</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=p>(</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>+</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=n>j</span><span class=p>][</span><span class=n>j</span><span class=p>])</span> <span class=o>%</span> <span class=n>mod</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>res</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span><span class=n>res</span> <span class=o>=</span> <span class=p>(</span><span class=n>res</span><span class=o>+</span><span class=n>dp</span><span class=p>[</span><span class=n>n</span><span class=p>][</span><span class=n>i</span><span class=p>])</span><span class=o>%</span><span class=n>mod</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>res</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=5矩阵乘法链><a href=#5%e7%9f%a9%e9%98%b5%e4%b9%98%e6%b3%95%e9%93%be class=header-anchor></a>5.矩阵乘法链</h3><blockquote><p>对于M1×M2×···×Mq，Mi的为维数为ri×ri+1。对优化的乘法顺序，使得计算该乘法链所用的乘法数最少。</p></blockquote><p>难度不大，就类似于一个上楼梯的问题，自底而上。</p><p>就举个例子来讲：</p><blockquote><p>（3×6）×（6×2）×（2×8）——（M1×M2×M3）</p><p>r=（3，6，2，8）</p></blockquote><p>状态转移方程为：</p>$$
+c(i,j)=min (c(i,k)+c(k+1,j)+ri×r(k+1)×r(j+1))（i<=k<j）; $$<p>
+这里的i，j，k指的是M1，M2···的下标。</p><p>这个同样是找出所有情况，但是数组的方式以至于在找到相同问题时不用重复计算。同样它的子问题的最优解和大问题的最优解一致，满足最优子结构和重叠子问题的特征。</p><h3 id=6数位统计dp><a href=#6%e6%95%b0%e4%bd%8d%e7%bb%9f%e8%ae%a1dp class=header-anchor></a>6.数位统计DP</h3><blockquote><p>给定两个整数a和b，求a和b之间的所有数字中0∼9的出现次数。例如，a=1024，b=1032，则a和b之间共有 9 个数如下：1024 1025 1026 1027 1028 1029 1030 1031 1032，其中0出现10次，1 出现10次，2 出现7次，3 出现3次等等…</p></blockquote><p>看分类讨论，情况有点多，也并不像标准的动态规划，可以跳过这个。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;iostream&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>using</span> <span class=k>namespace</span> <span class=n>std</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;algorithm&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;vector&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=k>const</span> <span class=kt>int</span> <span class=n>N</span> <span class=o>=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=c1>//对求某个位数上其中的x（0~9）出现的次数
+</span></span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>  abc[i]efg
+</span></span></span><span class=line><span class=cl><span class=cm>  num[i] &lt; x,0
+</span></span></span><span class=line><span class=cl><span class=cm>  num[i] == x,0~efg(efg+1)
+</span></span></span><span class=line><span class=cl><span class=cm>  num[i] &gt; x,0~999(1e3)
+</span></span></span><span class=line><span class=cl><span class=cm> */</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>get</span><span class=p>(</span><span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>num</span><span class=p>,</span> <span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>res</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=c1>//便于在求第l位到r位的数值
+</span></span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>;</span> <span class=n>i</span> <span class=o>&gt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span><span class=n>res</span> <span class=o>=</span> <span class=n>res</span> <span class=o>*</span> <span class=mi>10</span> <span class=o>+</span> <span class=n>num</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=n>res</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>power10</span><span class=p>(</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>res</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>x</span><span class=o>--</span><span class=p>)</span><span class=n>res</span> <span class=o>*=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=n>res</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>//x在1~n上中出现的总次数
+</span></span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>count</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=kt>int</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>n</span><span class=p>)</span><span class=k>return</span> <span class=mi>0</span><span class=p>;</span> <span class=c1>//排除n为0的情况
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>vector</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span><span class=n>num</span><span class=p>;</span><span class=c1>//存储n中的每位数
+</span></span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>num</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>n</span> <span class=o>%</span> <span class=mi>10</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=n>n</span> <span class=o>/=</span> <span class=mi>10</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=n>n</span> <span class=o>=</span> <span class=n>num</span><span class=p>.</span><span class=n>size</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>res</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span> <span class=o>-</span> <span class=o>!</span><span class=n>x</span><span class=p>;</span> <span class=n>i</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span><span class=o>--</span><span class=p>)</span> <span class=p>{</span> <span class=c1>//x==0时直接从最高位的下一位开始计数，最高位一定没有0
+</span></span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)</span> <span class=p>{</span> <span class=c1>//不是最高位时的算法
+</span></span></span><span class=line><span class=cl>			<span class=c1>//处理abc
+</span></span></span><span class=line><span class=cl>			<span class=n>res</span> <span class=o>+=</span> <span class=n>get</span><span class=p>(</span><span class=n>num</span><span class=p>,</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>)</span> <span class=o>*</span> <span class=n>power10</span><span class=p>(</span><span class=n>i</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>			<span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>x</span><span class=p>)</span><span class=n>res</span> <span class=o>-=</span> <span class=n>power10</span><span class=p>(</span><span class=n>i</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=p>(</span><span class=n>num</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>==</span> <span class=n>x</span><span class=p>)</span><span class=n>res</span> <span class=o>+=</span> <span class=n>get</span><span class=p>(</span><span class=n>num</span><span class=p>,</span> <span class=n>i</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=n>num</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>x</span><span class=p>)</span><span class=n>res</span> <span class=o>+=</span> <span class=n>power10</span><span class=p>(</span><span class=n>i</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=n>res</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>cin</span> <span class=o>&gt;&gt;</span> <span class=n>a</span> <span class=o>&gt;&gt;</span> <span class=n>b</span><span class=p>,</span> <span class=n>a</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=p>(</span><span class=n>a</span> <span class=o>&gt;</span> <span class=n>b</span><span class=p>)</span><span class=n>swap</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>b</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=mi>9</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>count</span><span class=p>(</span><span class=n>b</span><span class=p>,</span> <span class=n>i</span><span class=p>)</span> <span class=o>-</span> <span class=n>count</span><span class=p>(</span><span class=n>a</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>i</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=sc>&#39; &#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=7all-pair最短路问题><a href=#7all-pair%e6%9c%80%e7%9f%ad%e8%b7%af%e9%97%ae%e9%a2%98 class=header-anchor></a>7.all-pair最短路问题</h3><blockquote><p>现有一张有向带权图，请求一个初始节点到最终结点的最短路径。</p><p>（每两个结点的路径就是两个结点之间边的权重）。权重可为正可为负。</p></blockquote><p>注意和单源最短路径区分开来。</p><p>单源最短路可以用dijkstra算法求解，求出一个顶点到其它所有顶点的最短路径是O(n^2)。</p><p>但是allpair最短路问题加上了负的权重，dijkstra算法不再适用。</p><p>针对此题的解法：
+Cij(k)表示节点i到j的中间节点编号不超过k的最短路长度。</p><p>按照最短路包不包括节点k得到状态转移方程：</p>$$
+Cij(k)=min({ Cij(k-1) , Cik(k-1)+Ckj(k-1) });
+$$<p>边界为</p><p>Cii(k)=0 for all k； Cij(0)=Wij 或者∞；</p><p><strong>方程其实好理解，有个关键点在于为什么all pair最短路问题能够想到以包不包括k为切入点思考到这个状态转移方程的？</strong></p><p>先放一下伪代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=c1>//Floyd-Warshall算法
+</span></span></span><span class=line><span class=cl><span class=n>n</span><span class=o>=|</span><span class=n>V</span><span class=o>|</span>
+</span></span><span class=line><span class=cl><span class=n>C</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>=</span><span class=n>W</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>k</span><span class=o>=</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>    <span class=n>let</span> <span class=n>C</span><span class=p>(</span><span class=n>k</span><span class=p>)</span><span class=o>=</span><span class=p>[</span><span class=n>Cij</span><span class=p>(</span><span class=n>k</span><span class=p>)]</span> <span class=n>be</span> <span class=n>a</span> <span class=k>new</span> <span class=n>martrix</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span><span class=o>=</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>j</span><span class=o>=</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>            <span class=n>Cij</span><span class=p>(</span><span class=n>k</span><span class=p>)</span><span class=o>=</span><span class=n>min</span><span class=p>{</span> <span class=n>Cij</span><span class=p>(</span><span class=n>k</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>,</span> <span class=n>Cik</span><span class=p>(</span><span class=n>k</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>+</span><span class=n>Ckj</span><span class=p>(</span><span class=n>k</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>};</span><span class=err>`</span>
+</span></span><span class=line><span class=cl><span class=k>return</span> <span class=n>C</span><span class=p>(</span><span class=n>n</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=c1>//C(0),C(1)···都是一系列矩阵，后面的矩阵由前面的矩阵得到
+</span></span></span><span class=line><span class=cl><span class=c1>//最后一个矩阵就可以得到各店之间的最短路径
+</span></span></span><span class=line><span class=cl><span class=c1>//C(0)指的基本上就是一个点到达另一个点，如果这两个点直接相连时的长度，不直接相连就是无穷
+</span></span></span><span class=line><span class=cl><span class=c1>//C(1)指的在前面的基础上，可能经过1的路线
+</span></span></span><span class=line><span class=cl><span class=c1>//C(2)...C(n),指在前面所有的基础上，可能经过n的路线
+</span></span></span><span class=line><span class=cl><span class=c1>//到达最后时相当于把可能经过所有点的路线都走了一遍
+</span></span></span><span class=line><span class=cl><span class=c1>//这就是这个方法可行的原因。
+</span></span></span><span class=line><span class=cl><span class=c1>//巧妙地运用了每条路径之间的特点，从而不用像dijkstra限制在正权重之中。
+</span></span></span></code></pre></td></tr></table></div></div><p>当然，单单一个C矩阵是无法找到它的准确路径的，因此我们需要同时以一个矩阵记录每个过程中的前驱节点，利用回溯的思想。</p><p>这个和dijkstra算法中的矩阵记录路径的回溯是思想相似的。</p><p>这里的回溯利用前驱矩阵Pij(k)，记录每时每刻的前驱节点。</p><p>要是模拟一下floyd算法其实也不难，就是去年数据结构学的对最短路的两种求法，dijkstra和floyd算法。不过去年学的时候没有加上动态规划的状态转移方程。</p><h3 id=8旅行商问题><a href=#8%e6%97%85%e8%a1%8c%e5%95%86%e9%97%ae%e9%a2%98 class=header-anchor></a>8.旅行商问题</h3><blockquote><p>从起始城市出发，花费最小的总权重经过每个城市后回到初始城市的路径和最小花费。</p></blockquote><p><strong>前置：</strong></p><p>欧拉路：给定孤立节点图G，若存在一条路，经过图中每边一次且仅一次，该条路称为欧拉路。</p><p>欧拉回路：若存在一条回路，经过图中每条边一次且仅一次，该回路称为欧拉回路。</p><p>欧拉定理：1.凡是由偶点组成的连通图一定可以一笔画成。2.凡是只有两个奇点的连通图，一定可以一笔画成。</p><p>状态转移方程：dp(i,S)指的是i经过S图然后回到初始节点。</p>$$
+dp(i,S)=min [w(i,j) + dp(j , S-(sj))](j属于S)
+$$<p>状态转移方程的含义是dp（i经过S图回到初始节点）等于i先到某个节点j的距离，加上j节点经过剩余节点回到初始节点，的距离之和。</p><p>其中图可以用二进制表示。或者用索引序号表示。<strong>（标记一下，这个二进制还真没怎么看懂）</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=kt>int</span> <span class=nf>TSP</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span><span class=o>&lt;-</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span> 
+</span></span><span class=line><span class=cl>        <span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>]</span><span class=o>=</span><span class=n>w</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>0</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>j</span><span class=o>&lt;-</span><span class=mi>1</span> <span class=n>to</span> <span class=mi>2</span><span class=o>^</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span> 
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>i</span><span class=o>&lt;-</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>I不属于S</span>
+</span></span><span class=line><span class=cl>                <span class=k>for</span> <span class=n>each</span> <span class=n>k属于Si</span><span class=err>，</span><span class=n>d</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>Si</span><span class=p>]</span><span class=o>=</span><span class=n>min</span><span class=p>(</span><span class=n>c</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>k</span><span class=p>]</span><span class=o>+</span><span class=n>d</span><span class=p>[</span><span class=n>k</span><span class=p>](</span><span class=n>Si</span><span class=o>-</span><span class=n>k</span><span class=p>)</span><span class=o>|</span><span class=n>k属于Si</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>each</span> <span class=n>k属于V</span><span class=p>[</span><span class=mi>2</span><span class=o>^</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span><span class=n>d</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>2</span><span class=o>^</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>=</span><span class=n>min</span><span class=p>(</span><span class=n>c</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=n>k</span><span class=p>]</span><span class=o>+</span><span class=n>d</span><span class=p>[</span><span class=n>k</span><span class=p>][</span><span class=mi>2</span><span class=o>^</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>-</span><span class=mi>2</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>d</span><span class=p>[</span><span class=mi>0</span><span class=p>][</span><span class=mi>2</span><span class=o>^</span><span class=p>(</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>//时间复杂度为：T(n)=O(n*2^n);
+</span></span></span><span class=line><span class=cl><span class=c1>// |s|=k时，需要比较k-1次，时间复杂度的和是k取从1到n-2的组合的和.
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=9网络的无交叉子集><a href=#9%e7%bd%91%e7%bb%9c%e7%9a%84%e6%97%a0%e4%ba%a4%e5%8f%89%e5%ad%90%e9%9b%86 class=header-anchor></a>9.网络的无交叉子集</h3><blockquote><p>简单介绍一个例题，第一二层都是1-10，第一层会跟第二层有一个数对应并且连线记为（i，Ci)，i的范围在1-10。</p><p>求一个最大的无交叉子集。</p></blockquote><p>dp的思想。</p><p>关键点在于，状态转移方程和回溯找结果</p><p><strong>状态转移方程：</strong></p>$$
+dp[i][j]=max(dp[i-1][j],dp[i-1][ci-1]+1);(i>1,j>=ci);
+$$<p>新加上一个节点要么不放入跟上一层一样，要么加上限制条件再加上当前这条线。</p><p>​ 边界：</p>$$
+dp[i][j]=0;(1.j=0;2.i=1,j<c1;) $$<p>
+<strong>回溯找具体的无交叉子集：</strong></p><p>呼，果然不能乱看，还是要逆向推导，也配合一下回溯的思想。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl> <span class=err>首先看</span><span class=n>dp</span><span class=p>[</span><span class=mi>10</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span><span class=err>，在第二层不动的情况下，第一层递减</span>
+</span></span><span class=line><span class=cl> <span class=k>if</span> <span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span><span class=o>!=</span><span class=n>dp</span><span class=p>[[</span><span class=n>i</span><span class=o>-</span><span class=mi>1</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span><span class=err>！</span><span class=o>=</span><span class=n>dp</span><span class=p>[</span><span class=mi>10</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span> <span class=err>就可以知道（</span><span class=n>i</span><span class=err>，</span><span class=n>Ci</span><span class=err>）必在结果中</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl> <span class=err>找下一个点时</span><span class=p>,</span><span class=err>在第二层为</span><span class=n>ci</span><span class=o>-</span><span class=mi>1</span><span class=err>的那一列寻找，自底而上直到发现</span><span class=n>dp</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>Ci</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>!=</span><span class=n>dp</span><span class=p>[</span><span class=mi>10</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span><span class=o>-</span><span class=mi>1</span><span class=err>，此时的</span><span class=n>i</span><span class=o>+</span><span class=mi>1</span><span class=err>就一定在结果中。</span>
+</span></span><span class=line><span class=cl>                  
+</span></span><span class=line><span class=cl><span class=err>一直这样子遍历，直到找到</span><span class=n>dp</span><span class=p>[</span><span class=mi>10</span><span class=p>][</span><span class=mi>10</span><span class=p>]</span><span class=err>个时停止。</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=10子集和数问题><a href=#10%e5%ad%90%e9%9b%86%e5%92%8c%e6%95%b0%e9%97%ae%e9%a2%98 class=header-anchor></a>10.子集和数问题</h3><blockquote><p>设S={s1,s2,…,sn}为n个正数的集合。试找出满足以下条件的和数最大的子集J：si的总和大于c，si的子集的和小于c，其中c是给定的任意常数。该题属于NP-hard问题。</p><p>如集合S={1，3，4，5}，c=7，如何找出子集J，使得J中的元素和最接近于c。</p></blockquote><p>类似于0/1背包问题？</p><p>就是类似01背包问题，还有货箱装载问题都是属于0/1背包问题。</p><h2 id=附><a href=#%e9%99%84 class=header-anchor></a>附：</h2><p>1.内容参考</p><p>佟鑫宇老师 天津大学智能与计算学部 2023秋 算法设计与分析 ppt</p><p>《算法笔记》胡凡 曾磊主编 第十一章</p><p>Acwing算法基础课 第五讲<a class=link href=https://www.acwing.com/activity/content/11/ target=_blank rel=noopener>活动 - AcWing</a></p><ol start=2><li></li></ol><p>考试考察重点：背包问题，矩阵乘法链，最短路问题，旅行商问题，多段图。</p><ol start=3><li></li></ol><p>全文同样包含个人的主观理解，如有错误，欢迎访问<a class=link href=https://feyxiang.top/index.php/category/%e4%b8%93%e9%a2%98/ target=_blank rel=noopener>原文链接</a>指正。</p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E8%AF%A6%E8%A7%A3/><div class=article-image><img src=/images/9cb924e8.jpg loading=lazy data-key data-hash=/images/9cb924e8.jpg></div><div class=article-details><h2 class=article-title>二分查找详解</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E7%BB%AA%E8%AE%BA-%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/><div class=article-image><img src=/images/16f0389d.jpg loading=lazy data-key data-hash=/images/16f0389d.jpg></div><div class=article-details><h2 class=article-title>算法专题：绪论+算法分析</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E8%B4%AA%E5%BF%83%E6%B3%95/><div class=article-image><img src=/images/5180abbd.jpg loading=lazy data-key data-hash=/images/5180abbd.jpg></div><div class=article-details><h2 class=article-title>算法专题：贪心法</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E7%AE%97%E6%B3%95%E5%92%8C%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86/><div class=article-image><img src=/images/28a3c037.jpg loading=lazy data-key data-hash=/images/28a3c037.jpg></div><div class=article-details><h2 class=article-title>算法专题：算法和数学知识</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%9B%9E%E6%BA%AF%E5%92%8C%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C/><div class=article-image><img src=/images/fe6815bb.jpg loading=lazy data-key data-hash=/images/fe6815bb.jpg></div><div class=article-details><h2 class=article-title>算法专题：回溯和分支定界</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

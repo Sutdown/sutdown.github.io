@@ -1,0 +1,271 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Gin框架路由详解，中间件详解，连接MySQL/Redis，搭建Go Web开发脚手架，仿Reddit论坛项目。"><title>Gin源码解析</title><link rel=canonical href=https://sutdown.github.io/p/gin%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="Gin源码解析"><meta property='og:description' content="Gin框架路由详解，中间件详解，连接MySQL/Redis，搭建Go Web开发脚手架，仿Reddit论坛项目。"><meta property='og:url' content='https://sutdown.github.io/p/gin%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-02-15T00:00:00+00:00'><meta property='article:modified_time' content='2025-02-15T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/56af4d46.jpg'><meta name=twitter:title content="Gin源码解析"><meta name=twitter:description content="Gin框架路由详解，中间件详解，连接MySQL/Redis，搭建Go Web开发脚手架，仿Reddit论坛项目。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/56af4d46.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#gin源码解析>Gin源码解析</a><ul><li><ul><li><a href=#11-gin框架路由详解>1.1 Gin框架路由详解</a><ul><li><a href=#radix树介绍>Radix树介绍</a></li><li><a href=#请求处理>请求处理</a></li><li><a href=#路由方法树>路由方法树</a></li><li><a href=#路由注册与路由匹配>路由注册与路由匹配</a></li></ul></li><li><a href=#12-gin框架中间件详解>1.2 Gin框架中间件详解</a></li><li><a href=#总结>总结</a></li><li><a href=#参考资料>参考资料</a></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/gin%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/><img src=/images/56af4d46.jpg loading=lazy alt="Featured image of post Gin源码解析"></a></div><div class=article-details><header class=article-category><a href=/categories/go/>Go</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/gin%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/>Gin源码解析</a></h2><h3 class=article-subtitle>Gin框架路由详解，中间件详解，连接MySQL/Redis，搭建Go Web开发脚手架，仿Reddit论坛项目。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-02-15T00:00:00Z>Feb 15, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><blockquote><p><strong>1 Gin源码解析</strong></p><p>1.1 Gin框架路由详解</p><p>1.2 Gin框架中间件详解</p><p><strong>2 Go连接MySQL/Redis</strong></p><p>2.1 database/sql以及sqlx使用</p><p>2.2 go-redis库使用</p><p><strong>3 搭建Go Web开发脚手架</strong></p><p>3.1 zap日志库使用</p><p>3.2 Viper配置管理库使用</p><p>3.3 优雅关机与平滑重启</p><p>3.4 CLD代码分层</p><p><strong>4 仿Reddit论坛项目</strong></p><p>4.1 分布式ID生成</p><p>4.2 JWT认证</p><p>4.3 基于MySQL实现主业务</p><p>4.4 基于Redis实现投票业务</p><p>4.5 基于Docker搭建开发环境</p><p>4.6 代码发布与项目部署</p><p>4.5 实战经验与技巧</p></blockquote><h2 id=gin源码解析><a href=#gin%e6%ba%90%e7%a0%81%e8%a7%a3%e6%9e%90 class=header-anchor></a>Gin源码解析</h2><p>|| 主要是<a class=link href=https://study.163.com/course/introduction/1210171207.htm target=_blank rel=noopener>Go Web开发进阶实战（gin框架） - 网易云课堂</a>第一部分的笔记。</p><p>Gin作为web框架的原因在于</p><ul><li>支持中间件操作（ handlersChain 机制 ）</li><li>更方便的使用（ gin.Context ）</li><li>更强大的路由解析能力（ radix tree 路由树 ）</li></ul><h4 id=11-gin框架路由详解><a href=#11-gin%e6%a1%86%e6%9e%b6%e8%b7%af%e7%94%b1%e8%af%a6%e8%a7%a3 class=header-anchor></a>1.1 Gin框架路由详解</h4><h5 id=radix树介绍><a href=#radix%e6%a0%91%e4%bb%8b%e7%bb%8d class=header-anchor></a>Radix树介绍</h5><p>radix树可以认为是一种更节省空间的前缀树。</p><blockquote><p>为什么使用前缀树而不是哈希或者map？</p></blockquote><p>路由器为每个请求方法管理一个单独的树，为每个结点设置一个优先级。</p><ol><li>优先匹配被大多数路由路径包含的结点，让尽可能多的路由被快速定位。</li><li>类似于成本补偿，最长的路径被优先匹配，补偿体现在最长的路径需要更多的时间定位。</li></ol><h5 id=请求处理><a href=#%e8%af%b7%e6%b1%82%e5%a4%84%e7%90%86 class=header-anchor></a>请求处理</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=w> </span><span class=k>go</span><span class=w> </span><span class=nx>mod</span><span class=w> </span><span class=nx>tidy</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><blockquote><p>Gin框架底层基于HTTP标准库开发，如何理解这句话</p><p>接口和方法</p></blockquote><h5 id=路由方法树><a href=#%e8%b7%af%e7%94%b1%e6%96%b9%e6%b3%95%e6%a0%91 class=header-anchor></a>路由方法树</h5><p>路由树是由一个个节点构成的，gin框架路由树的节点由<code>node</code>结构体表示，它有以下字段：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// tree.go</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>node</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>   </span><span class=c1>// 节点路径，比如上面的s，earch，和upport</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>path</span><span class=w>      </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 和children字段对应, 保存的是分裂的分支的第一个字符</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 例如search和support, 那么s节点的indices对应的&#34;eu&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 代表有两个分支, 分支的首字母分别是e和u</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>indices</span><span class=w>   </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 儿子节点</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>children</span><span class=w>  </span><span class=p>[]</span><span class=o>*</span><span class=nx>node</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 处理函数链条（切片）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>handlers</span><span class=w>  </span><span class=nx>HandlersChain</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 优先级，子节点、子子节点等注册的handler数量</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>priority</span><span class=w>  </span><span class=kt>uint32</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 节点类型，包括static, root, param, catchAll</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// static: 静态节点（默认），比如上面的s，earch等节点</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// root: 树的根节点</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// catchAll: 有*匹配的节点</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// param: 参数节点</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>nType</span><span class=w>     </span><span class=nx>nodeType</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 路径上最大参数个数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>maxParams</span><span class=w> </span><span class=kt>uint8</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 节点是否是参数节点，比如上面的:post</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>wildChild</span><span class=w> </span><span class=kt>bool</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 完整路径</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fullPath</span><span class=w>  </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h5 id=路由注册与路由匹配><a href=#%e8%b7%af%e7%94%b1%e6%b3%a8%e5%86%8c%e4%b8%8e%e8%b7%af%e7%94%b1%e5%8c%b9%e9%85%8d class=header-anchor></a>路由注册与路由匹配</h5><p>注册路由</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// gin.go gin框架会为每一个请求方法创建一棵对应的树。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>engine</span><span class=w> </span><span class=o>*</span><span class=nx>Engine</span><span class=p>)</span><span class=w> </span><span class=nf>addRoute</span><span class=p>(</span><span class=nx>method</span><span class=p>,</span><span class=w> </span><span class=nx>path</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>handlers</span><span class=w> </span><span class=nx>HandlersChain</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>   </span><span class=c1>// liwenzhou.com...</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>   
+</span></span></span><span class=line><span class=cl><span class=w>   </span><span class=c1>// 获取请求方法对应的树</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>root</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>engine</span><span class=p>.</span><span class=nx>trees</span><span class=p>.</span><span class=nf>get</span><span class=p>(</span><span class=nx>method</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>root</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	
+</span></span></span><span class=line><span class=cl><span class=w>	   </span><span class=c1>// 如果没有就创建一个</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>root</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>new</span><span class=p>(</span><span class=nx>node</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>root</span><span class=p>.</span><span class=nx>fullPath</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=s>&#34;/&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>engine</span><span class=p>.</span><span class=nx>trees</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>engine</span><span class=p>.</span><span class=nx>trees</span><span class=p>,</span><span class=w> </span><span class=nx>methodTree</span><span class=p>{</span><span class=nx>method</span><span class=p>:</span><span class=w> </span><span class=nx>method</span><span class=p>,</span><span class=w> </span><span class=nx>root</span><span class=p>:</span><span class=w> </span><span class=nx>root</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>root</span><span class=p>.</span><span class=nf>addRoute</span><span class=p>(</span><span class=nx>path</span><span class=p>,</span><span class=w> </span><span class=nx>handlers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// engine.trees</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>methodTree</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>method</span><span class=w> </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>root</span><span class=w>   </span><span class=o>*</span><span class=nx>node</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>methodTrees</span><span class=w> </span><span class=p>[]</span><span class=nx>methodTree</span><span class=w>  </span><span class=c1>// slice</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 获取请求方法对应树的get方法</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>trees</span><span class=w> </span><span class=nx>methodTrees</span><span class=p>)</span><span class=w> </span><span class=nf>get</span><span class=p>(</span><span class=nx>method</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=nx>node</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>tree</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>trees</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>tree</span><span class=p>.</span><span class=nx>method</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=nx>method</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=nx>tree</span><span class=p>.</span><span class=nx>root</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>注册路由的逻辑主要有<code>addRoute</code>函数和<code>insertChild</code>方法。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-txt data-lang=txt><span class=line><span class=cl>addRoute
+</span></span><span class=line><span class=cl>1. 第一次注册路由，例如注册search
+</span></span><span class=line><span class=cl>2. 继续注册一条没有公共前缀的路由，例如blog
+</span></span><span class=line><span class=cl>3. 注册一条与先前注册的路由有公共前缀的路由，例如support
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>insertChild
+</span></span><span class=line><span class=cl>根据path本身进行分割，将/分开的部分分别作为节点保存，形成一棵树结构。参数匹配中的:和*的区别是，前者是匹配一个字段而后者是匹配后面所有的路径。
+</span></span></code></pre></td></tr></table></div></div><p>路由匹配</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// gin框架处理请求的入口函数ServeHTTP</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// gin.go</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>engine</span><span class=w> </span><span class=o>*</span><span class=nx>Engine</span><span class=p>)</span><span class=w> </span><span class=nf>ServeHTTP</span><span class=p>(</span><span class=nx>w</span><span class=w> </span><span class=nx>http</span><span class=p>.</span><span class=nx>ResponseWriter</span><span class=p>,</span><span class=w> </span><span class=nx>req</span><span class=w> </span><span class=o>*</span><span class=nx>http</span><span class=p>.</span><span class=nx>Request</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c1>// 这里使用了对象池</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>engine</span><span class=p>.</span><span class=nx>pool</span><span class=p>.</span><span class=nf>Get</span><span class=p>().(</span><span class=o>*</span><span class=nx>Context</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=c1>// 这里有一个细节就是Get对象后做初始化</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=p>.</span><span class=nx>writermem</span><span class=p>.</span><span class=nf>reset</span><span class=p>(</span><span class=nx>w</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=p>.</span><span class=nx>Request</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>req</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=p>.</span><span class=nf>reset</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>engine</span><span class=p>.</span><span class=nf>handleHTTPRequest</span><span class=p>(</span><span class=nx>c</span><span class=p>)</span><span class=w>  </span><span class=c1>// 我们要找的处理HTTP请求的函数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>engine</span><span class=p>.</span><span class=nx>pool</span><span class=p>.</span><span class=nf>Put</span><span class=p>(</span><span class=nx>c</span><span class=p>)</span><span class=w>  </span><span class=c1>// 处理完请求后将对象放回池子</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 路由匹配是由节点的 getValue方法实现的。getValue根据给定的路径(键)返回nodeValue值，保存注册的处理函数和匹配到的路径参数数据。如果找不到任何处理函数，则会尝试TSR(尾随斜杠重定向)。可以借助注释看一下路由查找及参数匹配的逻辑。</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=12-gin框架中间件详解><a href=#12-gin%e6%a1%86%e6%9e%b6%e4%b8%ad%e9%97%b4%e4%bb%b6%e8%af%a6%e8%a7%a3 class=header-anchor></a>1.2 Gin框架中间件详解</h4><p>gin框架涉及中间件相关有4个常用的方法，它们分别是<code>c.Next()</code>、<code>c.Abort()</code>、<code>c.Set()</code>、<code>c.Get()</code></p><p>Default函数内部构造一个新的engine之后通过Use()函数注册Logger中间件和Recovery中间件。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>r</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>gin</span><span class=p>.</span><span class=nf>Default</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 注册中间件其实就是将中间件函数追加到group.Handlers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>group</span><span class=w> </span><span class=o>*</span><span class=nx>RouterGroup</span><span class=p>)</span><span class=w> </span><span class=nf>Use</span><span class=p>(</span><span class=nx>middleware</span><span class=w> </span><span class=o>...</span><span class=nx>HandlerFunc</span><span class=p>)</span><span class=w> </span><span class=nx>IRoutes</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>group</span><span class=p>.</span><span class=nx>Handlers</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>group</span><span class=p>.</span><span class=nx>Handlers</span><span class=p>,</span><span class=w> </span><span class=nx>middleware</span><span class=o>...</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>group</span><span class=p>.</span><span class=nf>returnObj</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 注册路由时会将对应路由的函数和之前的中间件函数结合到一起</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>group</span><span class=w> </span><span class=o>*</span><span class=nx>RouterGroup</span><span class=p>)</span><span class=w> </span><span class=nf>handle</span><span class=p>(</span><span class=nx>httpMethod</span><span class=p>,</span><span class=w> </span><span class=nx>relativePath</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>handlers</span><span class=w> </span><span class=nx>HandlersChain</span><span class=p>)</span><span class=w> </span><span class=nx>IRoutes</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>absolutePath</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>group</span><span class=p>.</span><span class=nf>calculateAbsolutePath</span><span class=p>(</span><span class=nx>relativePath</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>handlers</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>group</span><span class=p>.</span><span class=nf>combineHandlers</span><span class=p>(</span><span class=nx>handlers</span><span class=p>)</span><span class=w>  </span><span class=c1>// 将处理请求的函数与中间件函数结合</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>group</span><span class=p>.</span><span class=nx>engine</span><span class=p>.</span><span class=nf>addRoute</span><span class=p>(</span><span class=nx>httpMethod</span><span class=p>,</span><span class=w> </span><span class=nx>absolutePath</span><span class=p>,</span><span class=w> </span><span class=nx>handlers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>group</span><span class=p>.</span><span class=nf>returnObj</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>const</span><span class=w> </span><span class=nx>abortIndex</span><span class=w> </span><span class=kt>int8</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>math</span><span class=p>.</span><span class=nx>MaxInt8</span><span class=w> </span><span class=o>/</span><span class=w> </span><span class=mi>2</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>group</span><span class=w> </span><span class=o>*</span><span class=nx>RouterGroup</span><span class=p>)</span><span class=w> </span><span class=nf>combineHandlers</span><span class=p>(</span><span class=nx>handlers</span><span class=w> </span><span class=nx>HandlersChain</span><span class=p>)</span><span class=w> </span><span class=nx>HandlersChain</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>finalSize</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>group</span><span class=p>.</span><span class=nx>Handlers</span><span class=p>)</span><span class=w> </span><span class=o>+</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>handlers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>finalSize</span><span class=w> </span><span class=o>&gt;=</span><span class=w> </span><span class=nb>int</span><span class=p>(</span><span class=nx>abortIndex</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>  </span><span class=c1>// 这里有一个最大限制</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nb>panic</span><span class=p>(</span><span class=s>&#34;too many handlers&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>mergedHandlers</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>make</span><span class=p>(</span><span class=nx>HandlersChain</span><span class=p>,</span><span class=w> </span><span class=nx>finalSize</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nb>copy</span><span class=p>(</span><span class=nx>mergedHandlers</span><span class=p>,</span><span class=w> </span><span class=nx>group</span><span class=p>.</span><span class=nx>Handlers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nb>copy</span><span class=p>(</span><span class=nx>mergedHandlers</span><span class=p>[</span><span class=nb>len</span><span class=p>(</span><span class=nx>group</span><span class=p>.</span><span class=nx>Handlers</span><span class=p>):],</span><span class=w> </span><span class=nx>handlers</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>mergedHandlers</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 会将一个路由的中间件函数和处理函数结合到一起组成一条处理函数链条HandlersChain，而它本质上就是一个由HandlerFunc组成的切片</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>HandlersChain</span><span class=w> </span><span class=p>[]</span><span class=nx>HandlerFunc</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>c.Next()</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 通过索引遍历HandlersChain链条，从而实现依次调用该路由的每一个函数（中间件或处理请求的函数）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>c</span><span class=w> </span><span class=o>*</span><span class=nx>Context</span><span class=p>)</span><span class=w> </span><span class=nf>Next</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=p>.</span><span class=nx>index</span><span class=o>++</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>c</span><span class=p>.</span><span class=nx>index</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nb>int8</span><span class=p>(</span><span class=nb>len</span><span class=p>(</span><span class=nx>c</span><span class=p>.</span><span class=nx>handlers</span><span class=p>))</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>c</span><span class=p>.</span><span class=nx>handlers</span><span class=p>[</span><span class=nx>c</span><span class=p>.</span><span class=nx>index</span><span class=p>](</span><span class=nx>c</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>c</span><span class=p>.</span><span class=nx>index</span><span class=o>++</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>c.Abort()</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 中断整个调用链条，从当前函数返回</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>c</span><span class=w> </span><span class=o>*</span><span class=nx>Context</span><span class=p>)</span><span class=w> </span><span class=nf>Abort</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>c</span><span class=p>.</span><span class=nx>index</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>abortIndex</span><span class=w>  </span><span class=c1>// 直接将索引置为最大限制值，从而退出循环</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><code>c.Set()</code>和<code>c.Get()</code>这两个方法多用于在多个函数之间通过<code>c</code>传递数据的，比如我们可以在认证中间件中获取当前请求的相关信息（userID等）通过<code>c.Set()</code>存入<code>c</code>，然后在后续处理业务逻辑的函数中通过<code>c.Get()</code>来获取当前请求的用户。<code>c</code>就像是一根绳子，将该次请求相关的所有的函数都串起来了。</p><h4 id=总结><a href=#%e6%80%bb%e7%bb%93 class=header-anchor></a>总结</h4><ol><li>gin框架路由使用前缀树，路由注册的过程是构造前缀树的过程，路由匹配的过程就是查找前缀树的过程。</li><li>gin框架的中间件函数和处理函数是以切片形式的调用链条存在的，我们可以顺序调用也可以借助<code>c.Next()</code>方法实现嵌套调用。</li><li>借助<code>c.Set()</code>和<code>c.Get()</code>方法我们能够在不同的中间件函数中传递数据。</li></ol><h4 id=参考资料><a href=#%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99 class=header-anchor></a>参考资料</h4><ol><li><a class=link href=https://study.163.com/course/introduction/1210171207.htm target=_blank rel=noopener>Go Web开发进阶实战（gin框架） - 网易云课堂</a></li><li><a class=link href=https://www.liwenzhou.com/posts/Go/gin-sourcecode/ target=_blank rel=noopener>gin框架源码解析</a></li></ol></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/go%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/><div class=article-image><img src=/images/1c818466.jpg loading=lazy data-key data-hash=/images/1c818466.jpg></div><div class=article-details><h2 class=article-title>Go项目实战</h2></div></a></article><article class=has-image><a href=/p/go-web%E5%BC%80%E5%8F%91%E5%B8%B8%E7%94%A8%E7%BB%84%E4%BB%B6/><div class=article-image><img src=/images/d406f9d8.jpg loading=lazy data-key data-hash=/images/d406f9d8.jpg></div><div class=article-details><h2 class=article-title>Go Web开发常用组件</h2></div></a></article><article class=has-image><a href=/p/go%E6%93%8D%E4%BD%9C%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E5%BA%93/><div class=article-image><img src=/images/0f4e5750.jpg loading=lazy data-key data-hash=/images/0f4e5750.jpg></div><div class=article-details><h2 class=article-title>Go操作常见数据库</h2></div></a></article><article class=has-image><a href=/p/go%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0/><div class=article-image><img src=/images/69198360.jpg loading=lazy data-key data-hash=/images/69198360.jpg></div><div class=article-details><h2 class=article-title>go入门学习</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

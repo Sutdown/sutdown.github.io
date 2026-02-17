@@ -1,0 +1,1011 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="基于半同步半反应堆模型的Webserver，包括线程同步封装类，半同步半反应堆线程池，HTTP连接管理，服务器优化（定时器处理，日志系统，压测，数据库连接池，注册登录）等模块。"><title>Webserver</title><link rel=canonical href=https://sutdown.github.io/p/webserver/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="Webserver"><meta property='og:description' content="基于半同步半反应堆模型的Webserver，包括线程同步封装类，半同步半反应堆线程池，HTTP连接管理，服务器优化（定时器处理，日志系统，压测，数据库连接池，注册登录）等模块。"><meta property='og:url' content='https://sutdown.github.io/p/webserver/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2024-09-08T00:00:00+00:00'><meta property='article:modified_time' content='2024-09-08T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/3ac4cd68.jpg'><meta name=twitter:title content="Webserver"><meta name=twitter:description content="基于半同步半反应堆模型的Webserver，包括线程同步封装类，半同步半反应堆线程池，HTTP连接管理，服务器优化（定时器处理，日志系统，压测，数据库连接池，注册登录）等模块。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/3ac4cd68.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#环境配置>环境配置</a><ul><li><a href=#docker入门教程>Docker入门教程</a></li><li><a href=#虚拟机的选择virtualbox还是vmware>虚拟机的选择：VirtualBox还是VMware</a></li></ul></li></ul><ul><li><a href=#第一篇-tcpip协议详解>第一篇 tcp/ip协议详解</a><ul><li><ul><li><a href=#chapter-1-tcpip协议族>Chapter 1 TCP/IP协议族</a></li><li><a href=#chapter-2-ip协议>Chapter 2 IP协议</a></li><li><a href=#chapter-3-tcp协议>Chapter 3 TCP协议</a></li><li><a href=#chapter-4-tcpip通信案例>Chapter 4 TCP/IP通信案例</a></li></ul></li></ul></li><li><a href=#第二篇-深入解析高性能服务器编程>第二篇 深入解析高性能服务器编程</a><ul><li><a href=#服务器程序框架>服务器程序框架</a><ul><li><a href=#cs模型>CS模型</a></li><li><a href=#io模型-线程接收整个过程>IO模型 线程接收整个过程</a></li><li><a href=#服务器如何接收客户端的报文>服务器如何接收客户端的报文？</a></li><li><a href=#服务器如何处理以及响应接收的http报文>服务器如何处理以及响应接收的HTTP报文</a></li><li><a href=#提高服务器性能的相关建议>提高服务器性能的相关建议：</a><ul><li><a href=#pool>pool</a></li><li><a href=#数据复制>数据复制</a></li><li><a href=#上下文切换和锁>上下文切换和锁</a></li></ul></li></ul></li><li><a href=#io复用-如何同时监听多个过程>IO复用 如何同时监听多个过程</a><ul><li><a href=#epoll底层红黑树>epoll：底层红黑树。</a></li><li><a href=#select底层线性表>select：底层线性表。</a></li><li><a href=#poll底层链表>poll：底层链表。</a></li></ul></li><li><a href=#lt和et模式>LT和ET模式</a></li></ul></li><li><a href=#线程池和进程池>线程池和进程池</a></li><li><a href=#压测webbench的原理>压测：webbench的原理</a></li></ul><ul><li><a href=#buffer>Buffer</a><ul><li><a href=#buffer的设计>BUFFER的设计</a></li></ul></li><li><a href=#log>Log</a><ul><li><a href=#log的设计>log的设计</a></li></ul></li><li><a href=#threadpool和sqlconnpool>threadpool和sqlconnpool</a><ul><li><a href=#threadpool>threadpool</a><ul><li><a href=#detach的作用>detach()的作用</a></li></ul></li><li><a href=#sqlconnpool>sqlconnpool</a><ul><li><a href=#连接池存在的必要性>连接池存在的必要性</a></li><li><a href=#rall>RALL</a></li><li><a href=#连接池的底层实现>连接池的底层实现</a></li></ul></li></ul></li><li><a href=#http>HTTP</a><ul><li><a href=#httprequest>httprequest</a></li><li><a href=#httpresponse>httpresponse</a></li><li><a href=#httpconn>httpconn</a><ul><li><a href=#http整体流程>HTTP整体流程：</a></li><li><a href=#write>write：</a></li><li><a href=#read>read:</a></li><li><a href=#httpconn-1>httpconn</a></li></ul></li></ul></li><li><a href=#timer>Timer</a></li><li><a href=#epoller>Epoller</a></li><li><a href=#webserver>webserver</a><ul><li><ul><li><ul><li><a href=#前置知识>前置知识</a></li></ul></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/webserver/><img src=/images/3ac4cd68.jpg loading=lazy alt="Featured image of post Webserver"></a></div><div class=article-details><header class=article-category><a href=/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/>计算机网络
+</a><a href=/categories/c++/>C++</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/webserver/>Webserver</a></h2><h3 class=article-subtitle>基于半同步半反应堆模型的Webserver，包括线程同步封装类，半同步半反应堆线程池，HTTP连接管理，服务器优化（定时器处理，日志系统，压测，数据库连接池，注册登录）等模块。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-09-08T00:00:00Z>Sep 08, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 26 分钟</time></div></footer></div></header><section class=article-content><blockquote><p>[!Note]</p><p>推荐书籍：</p><p>linux高性能服务器编程</p><p>UNIX环境高级编程</p><p>UNIX网络编程</p></blockquote><p><strong>具体模块：</strong></p><p>线程同步封装类，半同步半反应堆线程池</p><p>HTTP连接管理</p><p>服务器优化：定时器处理，日志系统，</p><p>压测，数据库连接池，注册登录</p><h2 id=环境配置><a href=#%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae class=header-anchor></a>环境配置</h2><blockquote><p>绷，果然配环境始终都是很难的一步。</p><p>这个说是要在ubuntu16.04环境上运行，搭建环境的话据说所知的方法还挺多，比如直接下载一个虚拟机软件再创建所需的虚拟机环境，可以用VMware或者VirtualBox，这两电脑上也都有，不过这两软件都用过但不是很熟悉，能再研究研究；要不然也可以在云平台上启动Ubuntu的实例，搭建远程的测试环境，没用过待定；再者就是用docker容器模拟环境，其实也可以。</p><p>docker和virtualbox有个坑点在于docker依赖底层的Hyper-v或者WSL 2，但是virtualbox的一些旧版本在启动hyper-v的情况下会遇到性能问题甚至无法正常启动。</p></blockquote><p><a class=link href="https://forums.virtualbox.org/viewtopic.php?t=94291" target=_blank rel=noopener>virtualbox配置Ubuntu出现问题解决方案</a></p><p>软件开发之前，程序员首先面临的第一个问题就是环境配置，一个软件能成功运行也需要依靠当前操作系统的设置，以及各种库和组件的安装。只有这些都正确，程序才能成功运行，如果不同的版本或者os和当前环境不兼容，那么程序便不能运行。</p><p>对于此，从前采用的大多是<strong>virtual machine</strong>，也就是虚拟机，在操作系统里运行另一种操作系统，但是虚拟机的资源占用多，冗余步骤多，启动也慢，对于这些问题，linux发展了另一种虚拟化技术，也就是linux containers，即linux容器。它不模拟一个完整的操作系统，只是对进出进行隔离，对于其中的进程而言，它接触的都是虚拟的资源进而实现与底层系统之间的隔离。</p><p><a class=link href=https://javaguide.cn/tools/docker/docker-intro.html#%E5%AE%B9%E5%99%A8-vs-%E8%99%9A%E6%8B%9F%E6%9C%BA target=_blank rel=noopener>Docker vs virtual machine</a></p><h3 id=docker入门教程><a href=#docker%e5%85%a5%e9%97%a8%e6%95%99%e7%a8%8b class=header-anchor></a>Docker入门教程</h3><p>参考资料：<a class=link href=https://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html target=_blank rel=noopener>阮一峰 - Docker 入门教程</a></p><p><strong>Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。</strong></p><p>它的用途：</p><p>**（1）提供一次性的环境。**比如，本地测试他人的软件、持续集成的时候提供单元测试和构建的环境。</p><p>**（2）提供弹性的云服务。**因为 Docker 容器可以随开随关，很适合动态扩容和缩容。</p><p>**（3）组建微服务架构。**通过多个容器，一台机器可以跑多个服务，因此在本机就可以模拟出微服务架构。</p><p>**Docker 把应用程序及其依赖，打包在 image 文件里面。**只有通过这个文件，才能生成 Docker 容器。image 文件可以看作是容器的模板。Docker 根据 image 文件生成容器的实例。同一个 image 文件，可以生成多个同时运行的容器实例。</p><p><strong>Dockerfile</strong> 是一个文本文件，用来配置 image。</p><h3 id=虚拟机的选择virtualbox还是vmware><a href=#%e8%99%9a%e6%8b%9f%e6%9c%ba%e7%9a%84%e9%80%89%e6%8b%a9virtualbox%e8%bf%98%e6%98%afvmware class=header-anchor></a>虚拟机的选择：VirtualBox还是VMware</h3><p>1.<strong>性能</strong></p><ul><li><strong>VirtualBox</strong>：性能适中，适合日常开发和测试任务。由于它是开源项目，可能在高性能任务中表现不如 VMware 稳定。</li><li><strong>VMware</strong>：总体性能表现优于 VirtualBox，尤其是在运行多个虚拟机、复杂的虚拟化任务和大规模企业级应用时，VMware 的虚拟机在资源管理、响应速度和 I/O 性能上更加出色。</li></ul><p>2.<strong>易用性</strong></p><ul><li><strong>VirtualBox</strong>：安装简单，用户界面直观，适合入门用户和中小型项目。配置文件（如 Vagrantfile）的支持使得虚拟机管理非常灵活，特别是结合 Vagrant 使用时。</li><li><strong>VMware</strong>：界面更加专业化，功能强大，虽然略显复杂，但提供更多企业级管理和高级功能。适合需要更多虚拟化细节和控制的用户。</li></ul><p>3.<strong>功能特性</strong></p><ul><li><p><strong>VirtualBox</strong></p><ul><li>开源、跨平台（支持 Windows、Linux、macOS）。</li><li>支持虚拟快照功能，可以保存虚拟机不同的状态。</li><li>支持 3D 加速、USB 设备和共享文件夹等功能，但与 VMware 相比，某些高级功能如虚拟网络配置和设备支持上稍显不足。</li></ul></li><li><p><strong>VMware</strong>：</p><ul><li>提供更加成熟和高效的快照、克隆功能。</li><li>提供更好的 3D 加速、USB 设备支持和网络管理。</li><li>企业级产品（如 vSphere）支持集群、容错、高可用性等高级功能，非常适合大型企业级应用和数据中心虚拟化需求。</li></ul></li></ul><p>4.<strong>企业级应用</strong></p><ul><li><strong>VirtualBox</strong>：更适合个人开发、测试环境和小型企业的简单虚拟化需求。</li><li><strong>VMware</strong>：提供丰富的企业级解决方案，尤其是 VMware vSphere 等企业级虚拟化平台，支持数据中心管理、云计算、高可用性等企业级功能，是大型企业和云服务提供商的首选。</li></ul><p><strong>总结：</strong></p><ul><li><strong>VirtualBox</strong>：免费、开源、跨平台，适合个人开发者、初学者和中小型项目的虚拟化需求。适合需要快速部署开发环境或简单测试任务的场景。</li><li><strong>VMware</strong>：性能更优，功能更加丰富，特别是在高级虚拟化管理和企业级功能上领先。适合企业用户和对虚拟机性能、可靠性要求较高的场景，尤其是数据中心和生产环境。</li></ul><h1 id=linux高性能服务器编程><a href=#linux%e9%ab%98%e6%80%a7%e8%83%bd%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bc%96%e7%a8%8b class=header-anchor></a>Linux高性能服务器编程</h1><h2 id=第一篇-tcpip协议详解><a href=#%e7%ac%ac%e4%b8%80%e7%af%87-tcpip%e5%8d%8f%e8%ae%ae%e8%af%a6%e8%a7%a3 class=header-anchor></a>第一篇 tcp/ip协议详解</h2><h4 id=chapter-1-tcpip协议族><a href=#chapter-1-tcpip%e5%8d%8f%e8%ae%ae%e6%97%8f class=header-anchor></a>Chapter 1 TCP/IP协议族</h4><p><img src=/img/images_stl/38.jpg loading=lazy alt=38></p><h4 id=chapter-2-ip协议><a href=#chapter-2-ip%e5%8d%8f%e8%ae%ae class=header-anchor></a>Chapter 2 IP协议</h4><p><img src=/img/images_stl/39.jpg loading=lazy alt=39></p><h4 id=chapter-3-tcp协议><a href=#chapter-3-tcp%e5%8d%8f%e8%ae%ae class=header-anchor></a>Chapter 3 TCP协议</h4><p><img src=/img/images_stl/40.jpg loading=lazy alt=40></p><p><img src=/img/images_stl/41.jpg loading=lazy alt=41></p><h4 id=chapter-4-tcpip通信案例><a href=#chapter-4-tcpip%e9%80%9a%e4%bf%a1%e6%a1%88%e4%be%8b class=header-anchor></a>Chapter 4 TCP/IP通信案例</h4><h2 id=第二篇-深入解析高性能服务器编程><a href=#%e7%ac%ac%e4%ba%8c%e7%af%87-%e6%b7%b1%e5%85%a5%e8%a7%a3%e6%9e%90%e9%ab%98%e6%80%a7%e8%83%bd%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bc%96%e7%a8%8b class=header-anchor></a>第二篇 深入解析高性能服务器编程</h2><h3 id=服务器程序框架><a href=#%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%a8%8b%e5%ba%8f%e6%a1%86%e6%9e%b6 class=header-anchor></a>服务器程序框架</h3><img src=/img/images_stl/42.jpg alt=42 style=zoom:80%><h4 id=cs模型><a href=#cs%e6%a8%a1%e5%9e%8b class=header-anchor></a>CS模型</h4><img src=/img/images_stl/45.jpg alt=45 style=zoom:40%><h4 id=io模型-线程接收整个过程><a href=#io%e6%a8%a1%e5%9e%8b-%e7%ba%bf%e7%a8%8b%e6%8e%a5%e6%94%b6%e6%95%b4%e4%b8%aa%e8%bf%87%e7%a8%8b class=header-anchor></a>IO模型 线程接收整个过程</h4><p><a class=link href=https://huixxi.github.io/2020/06/02/%E5%B0%8F%E7%99%BD%E8%A7%86%E8%A7%92%EF%BC%9A%E4%B8%80%E6%96%87%E8%AF%BB%E6%87%82%E7%A4%BE%E9%95%BF%E7%9A%84TinyWebServer/#more target=_blank rel=noopener>webserver讲解</a></p><h4 id=服务器如何接收客户端的报文><a href=#%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%a6%82%e4%bd%95%e6%8e%a5%e6%94%b6%e5%ae%a2%e6%88%b7%e7%ab%af%e7%9a%84%e6%8a%a5%e6%96%87 class=header-anchor></a>服务器如何接收客户端的报文？</h4><p>服务端使用socket监听来自用户的请求，epoll实现。</p><p>epoll：<strong>IO复用技术</strong>，实现对监听socket和连接socket的同时监听。但是本身是堵塞的。因此需要用<strong>线程池</strong>采取多线程并发为每个就绪的文件描述符分配逻辑单元处理。</p><p>服务器通常要处理三类事件：IO事件，<strong>信号以及定时</strong>事件。两种处理方式：</p><ul><li><p>Reactor模式：主线程只负责监听文件描述符上是否有事件发生，有的话通知工作线程，工作线程中会完成读写数据，接受新连接以及处理客户请求。同步IO</p><p><img src=/img/images_stl/43.jpg loading=lazy alt=43></p></li><li><p>Proactor模式：所有IO都交给主线程和内核处理，工作线程只负责业务逻辑。异步IO</p><p><img src=/img/images_stl/44.jpg loading=lazy alt=44></p></li></ul><blockquote><p>Reactor和Proactor模式的区别。</p></blockquote><p>本项目采用<strong>同步IO模拟的Proactor事件处理模式</strong>。</p><img src=/img/images_stl/47.jpg alt=47 style=zoom:67%><h4 id=服务器如何处理以及响应接收的http报文><a href=#%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%a6%82%e4%bd%95%e5%a4%84%e7%90%86%e4%bb%a5%e5%8f%8a%e5%93%8d%e5%ba%94%e6%8e%a5%e6%94%b6%e7%9a%84http%e6%8a%a5%e6%96%87 class=header-anchor></a>服务器如何处理以及响应接收的HTTP报文</h4><p><strong>并发：</strong></p><blockquote><p>同步：内核向应用程序通知IO的就绪事件，由应用程序完成IO读写。</p><p>异步：内核向应用程序通知IO的完成事件，由内核完成IO读写。</p><p>并发中，同步指程序按照代码序列顺序执行，异步指程序的执行由系统事件驱动</p></blockquote><p><strong>半同步/半异步模式：</strong></p><p>同步用于处理客户逻辑，异步用于处理IO事件。</p><p><img src=/img/images_stl/46.jpg loading=lazy alt=46></p><p>领导者/追随者模式</p><h4 id=提高服务器性能的相关建议><a href=#%e6%8f%90%e9%ab%98%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%e7%9a%84%e7%9b%b8%e5%85%b3%e5%bb%ba%e8%ae%ae class=header-anchor></a>提高服务器性能的相关建议：</h4><h5 id=pool><a href=#pool class=header-anchor></a>pool</h5><p><strong>线程池</strong>并发处理用户请求。主线程负责读写，工作线程 处理逻辑，（锁和信号量实现线程同步，保证原子性）</p><blockquote><p>线程池中线程数目的确定。</p><p>线程池中的线程数量最直接的限制因素是中央处理器(CPU)的处理器(processors/cores)的数量<code>N</code>：如果你的CPU是4-cores的，对于CPU密集型的任务(如视频剪辑等消耗CPU计算资源的任务)来说，那线程池中的线程数量最好也设置为4（或者+1防止其他因素造成的线程阻塞）；对于IO密集型的任务，一般要多于CPU的核数，因为线程间竞争的不是CPU的计算资源而是IO，IO的处理一般较慢，多于cores数的线程将为CPU争取更多的任务，不至在线程处理IO的过程造成CPU空闲导致资源浪费。</p><p>公式：<code>最佳线程数 = CPU当前可使用的Cores数 * 当前CPU的利用率 * (1 + CPU等待时间 / CPU处理时间)</code></p></blockquote><h5 id=数据复制><a href=#%e6%95%b0%e6%8d%ae%e5%a4%8d%e5%88%b6 class=header-anchor></a>数据复制</h5><ul><li>避免不必要的数据复制</li></ul><h5 id=上下文切换和锁><a href=#%e4%b8%8a%e4%b8%8b%e6%96%87%e5%88%87%e6%8d%a2%e5%92%8c%e9%94%81 class=header-anchor></a>上下文切换和锁</h5><ul><li>进程切换或者线程切换导致的系统开销。</li><li>对共享资源的加锁保护，锁通常是导致服务器效率低下的一个因素。</li></ul><h3 id=io复用-如何同时监听多个过程><a href=#io%e5%a4%8d%e7%94%a8-%e5%a6%82%e4%bd%95%e5%90%8c%e6%97%b6%e7%9b%91%e5%90%ac%e5%a4%9a%e4%b8%aa%e8%bf%87%e7%a8%8b class=header-anchor></a>IO复用 如何同时监听多个过程</h3><blockquote><p>IO复用技术的常见情况：</p><p>客户端</p><ul><li>同时处理多个socket，比如connect非阻塞技术</li><li>同时处理用户和网络连接，比如聊天室程序</li></ul><p>服务端</p><ul><li>同时处理TCP和UDP请求，比如回射服务器</li><li>同时监听多个端口或者多种服务。比如xineted服务器</li></ul></blockquote><p>linux下有三种IO复用方式：<strong>epoll，select和poll</strong></p><h4 id=epoll底层红黑树><a href=#epoll%e5%ba%95%e5%b1%82%e7%ba%a2%e9%bb%91%e6%a0%91 class=header-anchor></a>epoll：底层红黑树。</h4><blockquote><p>用途</p><ul><li>epoll使用一组函数完成任务，而不是单个函数</li><li>epoll把用户关心的文件描述符的事件放在内核的一个事件表中，无需像select和poll在每次调用都重复传入文件描述符或事件集，但epoll会用一个额外的文件描述符，唯一标识内核中的事件表。</li></ul><p>int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);</p><p>int epoll_wait(int epfd, struct epoll_event* events, int maxevents, int timeout);</p></blockquote><h4 id=select底层线性表><a href=#select%e5%ba%95%e5%b1%82%e7%ba%bf%e6%80%a7%e8%a1%a8 class=header-anchor></a>select：底层线性表。</h4><blockquote><p>用途：在一段指定时间内，监听用户感兴趣的文件描述符上的可读，可写和异常事件。</p><p>int select(int nfds, fd_set* readfds, fd_set* writefds, fd_set* exceptfds, struct timeval* timeout);</p></blockquote><h4 id=poll底层链表><a href=#poll%e5%ba%95%e5%b1%82%e9%93%be%e8%a1%a8 class=header-anchor></a>poll：底层链表。</h4><blockquote><p>用途：指定时间内轮询一定数量的文件描述符，测试其中是否有就绪者。</p><p>int poll(struct pollfd* fds, nfds_t nfds, int timeout);</p></blockquote><blockquote><p>三种复用方式的区别。</p></blockquote><p>本项目采用<strong>epoll。</strong></p><p>select的参数类型fd_set没有将文件描述符和事件绑定，需要提供三种类型的参数区分不同事件。</p><p>poll的参数类型pollfd将文件描述符和事件都定义其中，时间统一处理。</p><p>二者都返回整个用户注册的事件集合，通常工作在LT模式。</p><p>epoll在内核中维护一个事件表，对事件表进行增删改查，每次从内核事件中取得用户注册的事件，无需反复从用户空间读入。工作在ET模式。</p><p><img src=/img/images_stl/48.jpg loading=lazy alt=48></p><h3 id=lt和et模式><a href=#lt%e5%92%8cet%e6%a8%a1%e5%bc%8f class=header-anchor></a>LT和ET模式</h3><p>LT：检测到有事件发生，应用程序可以不立即处理。</p><p>ET：检测到有事件发生，应用程序可以立即处理。</p><h2 id=线程池和进程池><a href=#%e7%ba%bf%e7%a8%8b%e6%b1%a0%e5%92%8c%e8%bf%9b%e7%a8%8b%e6%b1%a0 class=header-anchor></a>线程池和进程池</h2><p><img src=/img/images_stl/52.jpg loading=lazy alt=52></p><p>进程池是由服务器预先创建的一组子进程，这些子进程的数目在3-10个之间。httpd守护进程就是使用包含7个子进程的进程池实现并发的。线程池中的线程数量应该和cpu数量差不多。</p><p>进程池中的所有子进程有相同的代码和属性，当新任务到来时，主进程通过某种方式选择进程池中的某一个子进程为之服务。</p><h2 id=压测webbench的原理><a href=#%e5%8e%8b%e6%b5%8bwebbench%e7%9a%84%e5%8e%9f%e7%90%86 class=header-anchor></a>压测：webbench的原理</h2><h1 id=code><a href=#code class=header-anchor></a>Code</h1><h2 id=buffer><a href=#buffer class=header-anchor></a>Buffer</h2><blockquote><p>Non-blocking IO 的核心思想是避免阻塞在 read() 或 write() 或其他 IO 系统调用上，这样可以最大限度地复用 thread-of-control，让一个线程能服务于多个 socket 连接。IO 线程只能阻塞在 IO-multiplexing 函数上，如 select()/poll()/epoll_wait()。这样一来，应用层的缓冲是必须的，每个 TCP socket 都要有 stateful 的 input buffer 和 output buffer。</p></blockquote><p><img src=/img/images_stl/49.jpg loading=lazy alt=49></p><p>对于<strong>线程安全上：</strong></p><ul><li>对于 input buffer，onMessage() 回调始终发生在该 TcpConnection 所属的那个 IO 线程，应用程序应该在 onMessage() 完成对 input buffer 的操作，并且不要把 input buffer 暴露给其他线程。这样所有对 input buffer 的操作都在同一个线程，Buffer class 不必是线程安全的。</li><li>对于 output buffer，应用程序不会直接操作它，而是调用 TcpConnection::send() 来发送数据，后者是线程安全的。</li></ul><blockquote><p>[!Note]</p><p>在不同线程之间实现数据转移时，我们的代码中仍然以数据拷贝的方式进行，这样是绝对安全的，但是略微存在些性能损失。</p><p>有种思路是用swap实现高效的线程间数据转移，但是还未实现。</p></blockquote><p>在设计<strong>缓冲区大小</strong>时，</p><p>一方面我们希望减少系统调用，也就是不要频繁调用read()，这样子似乎应该准备更大的缓冲区；但是另一方面我们希望系统减少内存占用，当缓冲区过大连接过多时，平白占用大量内存导致缓冲区利用率低同样是个很糟糕的问题。</p><p>因此我们开辟了一个栈上临时空间，具体过程如下：</p><p><em>在栈上准备一个 65536 字节的 stackbuf，然后利用 readv() 来读取数据，iovec 有两块，第一块指向 muduo Buffer 中的 writable 字节，另一块指向栈上的 stackbuf。这样如果读入的数据不多，那么全部都读到 Buffer 中去了；如果长度超过 Buffer 的 writable 字节数，就会读到栈上的 stackbuf 里，然后程序再把 stackbuf 里的数据 append 到 Buffer 中。</em></p><h3 id=buffer的设计><a href=#buffer%e7%9a%84%e8%ae%be%e8%ae%a1 class=header-anchor></a>BUFFER的设计</h3><p><img src=/img/images_stl/50-1726975754204-5.jpg loading=lazy alt=50></p><p>源码略。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef BUFFER_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define BUFFER_H
+</span></span></span><span class=line><span class=cl><span class=cp>#include ...
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Buffer</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*构造和析构*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>Buffer</span><span class=p>(</span><span class=kt>int</span> <span class=n>initBuffSize</span> <span class=o>=</span> <span class=mi>1024</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>Buffer</span><span class=p>()</span> <span class=o>=</span> <span class=k>default</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*buffer中可写，可读，可预留空间*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=nf>WritableBytes</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>       
+</span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=nf>ReadableBytes</span><span class=p>()</span> <span class=k>const</span> <span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=nf>PrependableBytes</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*可读的第一个地址，确保可读长度，移动可写长度*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>Peek</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>EnsureWriteable</span><span class=p>(</span><span class=n>size_t</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>HasWritten</span><span class=p>(</span><span class=n>size_t</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*移动可读长度，读到末尾*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Retrieve</span><span class=p>(</span><span class=n>size_t</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>RetrieveUntil</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>end</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*读完所有，读写下表全部归零*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>RetrieveAll</span><span class=p>()</span> <span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>RetrieveAllToStr</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*写指针位置*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>BeginWriteConst</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=nf>BeginWrite</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*对stackbuf的操作，添加str到缓冲区*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Append</span><span class=p>(</span><span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&amp;</span> <span class=n>str</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Append</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>str</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Append</span><span class=p>(</span><span class=k>const</span> <span class=kt>void</span><span class=o>*</span> <span class=n>data</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Append</span><span class=p>(</span><span class=k>const</span> <span class=n>Buffer</span><span class=o>&amp;</span> <span class=n>buff</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*读写的交互接口*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssize_t</span> <span class=nf>ReadFd</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>Errno</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>ssize_t</span> <span class=nf>WriteFd</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>,</span> <span class=kt>int</span><span class=o>*</span> <span class=n>Errno</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=n>BeginPtr_</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>BeginPtr_</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>MakeSpace_</span><span class=p>(</span><span class=n>size_t</span> <span class=n>len</span><span class=p>);</span> <span class=c1>// 扩展空间
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*atomic是一种原子类型，保证多线程的情况下，安全高性能的执行程序更新变量*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=kt>char</span><span class=o>&gt;</span> <span class=n>buffer_</span><span class=p>;</span> <span class=c1>// 存储实体
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>size_t</span><span class=o>&gt;</span> <span class=n>readPos_</span><span class=p>;</span> <span class=c1>// 读缓冲区
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>size_t</span><span class=o>&gt;</span> <span class=n>writePos_</span><span class=p>;</span> <span class=c1>// 写缓冲区
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//BUFFER_H
+</span></span></span></code></pre></td></tr></table></div></div><p>参考链接：<a class=link href=https://www.cnblogs.com/Solstice/archive/2011/04/17/2018801.html target=_blank rel=noopener>Muduo 设计与实现之一：Buffer 类的设计</a></p><h2 id=log><a href=#log class=header-anchor></a>Log</h2><blockquote><p>本项目中，使用<strong>单例模式</strong>创建日志系统，对服务器<strong>运行状态、错误信息和访问数据进行记录</strong>，该系统可以实现<strong>按天分类</strong>，<strong>超行分类</strong>功能，可以根据实际情况分别使用<strong>同步和异步</strong>写入两种方式。</p><p>其中异步写入方式，将生产者-消费者模型封装为阻塞队列，创建一个写线程，工作线程将要写的内容push进队列，写线程从队列中取出内容，写入日志文件。</p><p>日志系统大致可以分成两部分，其一是单例模式与阻塞队列的定义，其二是日志类的定义与使用。</p></blockquote><p><strong><code>日志</code></strong>，由服务器自动创建，并记录运行状态，错误信息，访问数据的文件。</p><p><strong><code>同步日志</code></strong>，日志写入函数与工作线程串行执行，由于涉及到I/O操作，当单条日志比较大的时候，同步模式会阻塞整个处理流程，服务器所能处理的并发能力将有所下降，尤其是在峰值的时候，写日志可能成为系统的瓶颈。</p><p><strong><code>异步日志</code></strong>，将所写的日志内容先存入阻塞队列，写线程从阻塞队列中取出内容，写入日志。</p><p><strong><code>阻塞队列</code></strong>，将生产者-消费者模型进行封装，使用循环数组实现队列，作为两者共享的缓冲区。</p><p><strong><code>单例模式</code></strong>，最简单也是被问到最多的设计模式之一，保证一个类只创建一个实例，同时提供全局访问的方法。私有化它的构造函数，以防止外界创建单例类的对象；使用类的私有静态指针变量指向类的唯一实例，并用一个公有的静态方法获取该实例。</p><p><strong><code>生产者-消费者模型</code></strong>，并发编程中的经典模型。以多线程为例，为了实现线程间数据同步，生产者线程与消费者线程共享一个缓冲区，其中生产者线程往缓冲区中push消息，消费者线程从缓冲区中pop消息。</p><h3 id=log的设计><a href=#log%e7%9a%84%e8%ae%be%e8%ae%a1 class=header-anchor></a>log的设计</h3><p><img src=/img/images_stl/51.jpg loading=lazy alt=51></p><ul><li><p>在init中，</p><p>如果队列大于0则是异步方式，用unique_ptr创建日志和新线程；如果队列等于0则采取同步方式。更新isAysnc变量，然后初始化日志，设置文件名，后缀等，确保日志文件能够成功打开。</p></li><li><p>然后调用write_log，</p><p>先判断日期变化或者日志能容纳的总内容是否超过，日期变化或者超过都重新生成新的日志名。</p><p>异步的话，将要写的内容放进队列，写线程从队列中取出再写入日志；如果同步，直接写入日志。</p><p>逻辑： 获取当前时间、生成日志文件名、处理可变参数以格式化日志内容、以及决定写入方式（同步或异步）。</p></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef LOG_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define LOG_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include ...
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Log</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*初始化日志，日志保存路径，文件后缀，最大容量*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=n>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>level</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>path</span> <span class=o>=</span> <span class=s>&#34;./log&#34;</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>suffix</span> <span class=o>=</span><span class=s>&#34;.log&#34;</span><span class=p>,</span> <span class=kt>int</span> <span class=n>maxQueueCapacity</span> <span class=o>=</span> <span class=mi>1024</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*懒汉模式，局部静态变量法*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=n>Log</span><span class=o>*</span> <span class=nf>Instance</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*异步日志的写线程函数*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=kt>void</span> <span class=nf>FlushLogThread</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*写日志*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>write</span><span class=p>(</span><span class=kt>int</span> <span class=n>level</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span> <span class=o>*</span><span class=n>format</span><span class=p>,...);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>flush</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetLevel</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>SetLevel</span><span class=p>(</span><span class=kt>int</span> <span class=n>level</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>IsOpen</span><span class=p>()</span> <span class=p>{</span> <span class=k>return</span> <span class=n>isOpen_</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>Log</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*添加日志等级*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>AppendLogLevelTitle_</span><span class=p>(</span><span class=kt>int</span> <span class=n>level</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>virtual</span> <span class=o>~</span><span class=n>Log</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*异步写日志*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>AsyncWrite_</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>int</span> <span class=n>LOG_PATH_LEN</span> <span class=o>=</span> <span class=mi>256</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>int</span> <span class=n>LOG_NAME_LEN</span> <span class=o>=</span> <span class=mi>256</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>int</span> <span class=n>MAX_LINES</span> <span class=o>=</span> <span class=mi>50000</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>path_</span><span class=p>;</span> <span class=c1>// 路径
+</span></span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>suffix_</span><span class=p>;</span> <span class=c1>// 后缀
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>MAX_LINES_</span><span class=p>;</span> <span class=c1>// 最大日志行数
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>lineCount_</span><span class=p>;</span> <span class=c1>// 日志行数
+</span></span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>toDay_</span><span class=p>;</span> <span class=c1>// 按照当天日期区分文件
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>isOpen_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> 
+</span></span><span class=line><span class=cl>    <span class=n>Buffer</span> <span class=n>buff_</span><span class=p>;</span> <span class=c1>// 输出缓冲区
+</span></span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>level_</span><span class=p>;</span> <span class=c1>// 日志等级
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>isAsync_</span><span class=p>;</span> <span class=c1>// 是否异步
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>FILE</span><span class=o>*</span> <span class=n>fp_</span><span class=p>;</span> <span class=c1>// 打开log的文件指针
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>unique_ptr</span><span class=o>&lt;</span><span class=n>BlockDeque</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&gt;&gt;</span> <span class=n>deque_</span><span class=p>;</span> <span class=c1>// 阻塞队列
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>unique_ptr</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=kr>thread</span><span class=o>&gt;</span> <span class=n>writeThread_</span><span class=p>;</span> <span class=c1>// 写线程的指针
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>mutex</span> <span class=n>mtx_</span><span class=p>;</span> <span class=c1>// 同步日志的锁
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#define LOG_BASE(level, format, ...) \
+</span></span></span><span class=line><span class=cl><span class=cp>    do {\
+</span></span></span><span class=line><span class=cl><span class=cp>        Log* log = Log::Instance();\
+</span></span></span><span class=line><span class=cl><span class=cp>        if (log-&gt;IsOpen() &amp;&amp; log-&gt;GetLevel() &lt;= level) {\
+</span></span></span><span class=line><span class=cl><span class=cp>            log-&gt;write(level, format, ##__VA_ARGS__); \
+</span></span></span><span class=line><span class=cl><span class=cp>            log-&gt;flush();\
+</span></span></span><span class=line><span class=cl><span class=cp>        }\
+</span></span></span><span class=line><span class=cl><span class=cp>    } while(0);
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 四个宏定义，用于不同类型日志输出，也就是外部使用日志接口
+</span></span></span><span class=line><span class=cl><span class=cm>* ...表示可变参数，_VA_ARGS_就是将...的值复制到这里
+</span></span></span><span class=line><span class=cl><span class=cm>* ##的作用在于可变参数为0时，去掉前面的逗号
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#define LOG_DEBUG(format, ...) do {LOG_BASE(0, format, ##__VA_ARGS__)} while(0);
+</span></span></span><span class=line><span class=cl><span class=cp>#define LOG_INFO(format, ...) do {LOG_BASE(1, format, ##__VA_ARGS__)} while(0);
+</span></span></span><span class=line><span class=cl><span class=cp>#define LOG_WARN(format, ...) do {LOG_BASE(2, format, ##__VA_ARGS__)} while(0);
+</span></span></span><span class=line><span class=cl><span class=cp>#define LOG_ERROR(format, ...) do {LOG_BASE(3, format, ##__VA_ARGS__)} while(0);
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//LOG_H
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=threadpool和sqlconnpool><a href=#threadpool%e5%92%8csqlconnpool class=header-anchor></a>threadpool和sqlconnpool</h2><h3 id=threadpool><a href=#threadpool class=header-anchor></a>threadpool</h3><p>线程同步问题涉及到了互斥量，条件变量。在代码中，将互斥锁，条件变量，关闭状态，工作队列共同封装，由共享指针管理。</p><h4 id=detach的作用><a href=#detach%e7%9a%84%e4%bd%9c%e7%94%a8 class=header-anchor></a>detach()的作用</h4><p><code>detach()</code> 是 C++ 标准库中的 <code>std::thread</code> 类的一个成员函数，用于将一个线程与其创建的 <code>std::thread</code> 对象分离。</p><ul><li><p><strong>分离线程</strong>：调用 <code>detach()</code> 后，线程将变为后台线程，独立运行。主线程或其他线程不再需要等待它结束。线程的资源会在执行完任务后自动回收。</p></li><li><p><strong>与 <code>join()</code> 的区别</strong>：<code>join()</code> 会阻塞调用它的线程，直到目标线程结束，而 <code>detach()</code> 则让目标线程在后台独立运行，调用它的线程可以立即继续执行。</p></li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef THREADPOOL_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define THREADPOOL_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ThreadPool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*explicit：
+</span></span></span><span class=line><span class=cl><span class=cm>    *主要用于防止隐式类型转换.当构造函数被声明为explicit时，
+</span></span></span><span class=line><span class=cl><span class=cm>    *编译器将禁止使用该构造函数进行隐式的类型转换。
+</span></span></span><span class=line><span class=cl><span class=cm>    *作用是防止编译器在某些情况下进行自动类型转换，导致不可预期的行为。
+</span></span></span><span class=line><span class=cl><span class=cm>    */</span>
+</span></span><span class=line><span class=cl>    <span class=k>explicit</span> <span class=n>ThreadPool</span><span class=p>(</span><span class=n>size_t</span> <span class=n>threadCount</span> <span class=o>=</span> <span class=mi>8</span><span class=p>)</span><span class=o>:</span> <span class=n>pool_</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>make_shared</span><span class=o>&lt;</span><span class=n>Pool</span><span class=o>&gt;</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>assert</span><span class=p>(</span><span class=n>threadCount</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>);</span> <span class=c1>// 确保线程数目大于0
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>            <span class=k>for</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>threadCount</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=n>std</span><span class=o>::</span><span class=kr>thread</span><span class=p>([</span><span class=n>pool</span> <span class=o>=</span> <span class=n>pool_</span><span class=p>]</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                    <span class=cm>/*该线程的互斥锁*/</span>
+</span></span><span class=line><span class=cl>                    <span class=n>std</span><span class=o>::</span><span class=n>unique_lock</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>mutex</span><span class=o>&gt;</span> <span class=n>locker</span><span class=p>(</span><span class=n>pool</span><span class=o>-&gt;</span><span class=n>mtx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                    <span class=k>while</span><span class=p>(</span><span class=nb>true</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>                        <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>pool</span><span class=o>-&gt;</span><span class=n>tasks</span><span class=p>.</span><span class=n>empty</span><span class=p>())</span> <span class=p>{</span><span class=cm>/*池子不为空时*/</span>
+</span></span><span class=line><span class=cl>                            <span class=cm>/*从队列中获取一个任务然后执行
+</span></span></span><span class=line><span class=cl><span class=cm>                            * 执行时可以加锁
+</span></span></span><span class=line><span class=cl><span class=cm>                            * 获取任务时采用move可以节省资源
+</span></span></span><span class=line><span class=cl><span class=cm>                            */</span>
+</span></span><span class=line><span class=cl>                            <span class=k>auto</span> <span class=n>task</span> <span class=o>=</span> <span class=n>std</span><span class=o>::</span><span class=n>move</span><span class=p>(</span><span class=n>pool</span><span class=o>-&gt;</span><span class=n>tasks</span><span class=p>.</span><span class=n>front</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>                            <span class=n>pool</span><span class=o>-&gt;</span><span class=n>tasks</span><span class=p>.</span><span class=n>pop</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                            <span class=n>locker</span><span class=p>.</span><span class=n>unlock</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                            <span class=n>task</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                            <span class=n>locker</span><span class=p>.</span><span class=n>lock</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>                        <span class=p>}</span> <span class=cm>/*线程池关闭时跳出*/</span>
+</span></span><span class=line><span class=cl>                        <span class=k>else</span> <span class=nf>if</span><span class=p>(</span><span class=n>pool</span><span class=o>-&gt;</span><span class=n>isClosed</span><span class=p>)</span> <span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>                        <span class=cm>/*线程池为空时，利用条件变量等待*/</span>
+</span></span><span class=line><span class=cl>                        <span class=k>else</span> <span class=n>pool</span><span class=o>-&gt;</span><span class=n>cond</span><span class=p>.</span><span class=n>wait</span><span class=p>(</span><span class=n>locker</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                    <span class=p>}</span>
+</span></span><span class=line><span class=cl>                <span class=p>}).</span><span class=n>detach</span><span class=p>();</span><span class=cm>/*线程类的一个成员函数，用于将线程和创建的thread对象分离*/</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>ThreadPool</span><span class=p>()</span> <span class=o>=</span> <span class=k>default</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>ThreadPool</span><span class=p>(</span><span class=n>ThreadPool</span><span class=o>&amp;&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>default</span><span class=p>;</span>   
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>ThreadPool</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=k>static_cast</span><span class=o>&lt;</span><span class=kt>bool</span><span class=o>&gt;</span><span class=p>(</span><span class=n>pool_</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=cm>/*c++11引入的RALL资源获取即初始化风格的做机制*/</span>
+</span></span><span class=line><span class=cl>                <span class=cm>/*当前作用域自动加锁，作用域结束自动释放锁*/</span>
+</span></span><span class=line><span class=cl>                <span class=n>std</span><span class=o>::</span><span class=n>lock_guard</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>mutex</span><span class=o>&gt;</span> <span class=n>locker</span><span class=p>(</span><span class=n>pool_</span><span class=o>-&gt;</span><span class=n>mtx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>                <span class=n>pool_</span><span class=o>-&gt;</span><span class=n>isClosed</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span> <span class=c1>// 关闭线程池
+</span></span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>            <span class=n>pool_</span><span class=o>-&gt;</span><span class=n>cond</span><span class=p>.</span><span class=n>notify_all</span><span class=p>();</span> <span class=c1>// 唤醒所有线程退出
+</span></span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>template</span><span class=o>&lt;</span><span class=k>class</span> <span class=nc>F</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=n>AddTask</span><span class=p>(</span><span class=n>F</span><span class=o>&amp;&amp;</span> <span class=n>task</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=cm>/*完美转发添加任务*/</span>
+</span></span><span class=line><span class=cl>            <span class=n>std</span><span class=o>::</span><span class=n>lock_guard</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>mutex</span><span class=o>&gt;</span> <span class=n>locker</span><span class=p>(</span><span class=n>pool_</span><span class=o>-&gt;</span><span class=n>mtx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=n>pool_</span><span class=o>-&gt;</span><span class=n>tasks</span><span class=p>.</span><span class=n>emplace</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>forward</span><span class=o>&lt;</span><span class=n>F</span><span class=o>&gt;</span><span class=p>(</span><span class=n>task</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span> <span class=c1>// 唤醒一个线程
+</span></span></span><span class=line><span class=cl>        <span class=n>pool_</span><span class=o>-&gt;</span><span class=n>cond</span><span class=p>.</span><span class=n>notify_one</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=nc>Pool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>mutex</span> <span class=n>mtx</span><span class=p>;</span> <span class=c1>// 互斥锁，保护共享数据
+</span></span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>condition_variable</span> <span class=n>cond</span><span class=p>;</span> <span class=c1>// 条件变量，管理任务的等待和通知机制
+</span></span></span><span class=line><span class=cl>        <span class=kt>bool</span> <span class=n>isClosed</span><span class=p>;</span> <span class=c1>// 标志线程池是否关闭
+</span></span></span><span class=line><span class=cl>        <span class=n>std</span><span class=o>::</span><span class=n>queue</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>function</span><span class=o>&lt;</span><span class=kt>void</span><span class=p>()</span><span class=o>&gt;&gt;</span> <span class=n>tasks</span><span class=p>;</span> <span class=c1>// 任务队列，存放待执行的任务
+</span></span></span><span class=line><span class=cl>    <span class=p>};</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>shared_ptr</span><span class=o>&lt;</span><span class=n>Pool</span><span class=o>&gt;</span> <span class=n>pool_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//THREADPOOL_H
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=sqlconnpool><a href=#sqlconnpool class=header-anchor></a>sqlconnpool</h3><h4 id=连接池存在的必要性><a href=#%e8%bf%9e%e6%8e%a5%e6%b1%a0%e5%ad%98%e5%9c%a8%e7%9a%84%e5%bf%85%e8%a6%81%e6%80%a7 class=header-anchor></a>连接池存在的必要性</h4><ul><li>由于服务器需要频繁的访问数据库，也就是需要频繁创建和断开数据库连接，该过程是一个很耗时的操作，也容易对数据库造成安全隐患。</li><li>在程序初始化的时候，集中创建多个数据库连接，并把他们集中管理，供程序使用，可以保证较快的数据库读写速度，更加安全可靠。</li></ul><h4 id=rall><a href=#rall class=header-anchor></a>RALL</h4><p>RALL是c++语言的一种管理资源，避免泄漏的惯用法。利用c++构造的对象最终会被销毁的原则，使得让对象在构造时获取对应的资源，在生命期结束时释放构造时获取的资源。</p><p>在编程时，我们往往会利用申请资源，使用资源，释放资源三步骤。如果忘记释放资源极易造成资源泄漏。</p><p>比如常见的<code>unique_ptr</code>，<code>lock_guard</code>采用了RALL的机制。因此避免了忘记释放的缺陷，c++新特性可以大大减少代码量。</p><h4 id=连接池的底层实现><a href=#%e8%bf%9e%e6%8e%a5%e6%b1%a0%e7%9a%84%e5%ba%95%e5%b1%82%e5%ae%9e%e7%8e%b0 class=header-anchor></a>连接池的底层实现</h4><p>在连接池中，使用了信号量管理资源的数量。锁则是为了访问公共资源的时候使用。</p><p><strong>不同的是，信号量的使用要先使用信号量sem_wait再上锁，而条件变量的使用要先上锁再使用条件变量wait。</strong></p><blockquote><p>pthread_cond_wait</p><p>“ 调用者把锁住的互斥量传给函数，函数然后自动把调用线程放到等待条件的线程列表上，**对互斥量解锁。**这就关闭了条件检查和线程进入休眠状态等待条件改变这两个操作之间的时间通道，这样线程就不会错过条件的任何变化。pthread_cond_wait返回时，互斥量再次被锁住。”</p><p><img src=/img/images_stl/53.jpg loading=lazy alt=53></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef SQLCONNPOOL_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define SQLCONNPOOL_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SqlConnPool</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*单例模式*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=n>SqlConnPool</span> <span class=o>*</span><span class=n>Instance</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*得到连接和释放连接*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>MYSQL</span> <span class=o>*</span><span class=nf>GetConn</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>FreeConn</span><span class=p>(</span><span class=n>MYSQL</span> <span class=o>*</span> <span class=n>conn</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetFreeConnCount</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Init</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>host</span><span class=p>,</span> <span class=kt>int</span> <span class=n>port</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>user</span><span class=p>,</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>pwd</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>dbName</span><span class=p>,</span> <span class=kt>int</span> <span class=n>connSize</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>ClosePool</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>SqlConnPool</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>SqlConnPool</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>MAX_CONN_</span><span class=p>;</span> <span class=c1>// 最大连接数
+</span></span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>useCount_</span><span class=p>,</span> <span class=n>freeCount_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>queue</span><span class=o>&lt;</span><span class=n>MYSQL</span> <span class=o>*&gt;</span> <span class=n>connQue_</span><span class=p>;</span> <span class=c1>// 连接队列
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>mutex</span> <span class=n>mtx_</span><span class=p>;</span> <span class=c1>// 互斥锁
+</span></span></span><span class=line><span class=cl>    <span class=n>sem_t</span> <span class=n>semId_</span><span class=p>;</span> <span class=c1>// 信号量
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 资源在对象构造初始化 资源在对象析构时释放*/</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SqlConnRAII</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>SqlConnRAII</span><span class=p>(</span><span class=n>MYSQL</span><span class=o>**</span> <span class=n>sql</span><span class=p>,</span> <span class=n>SqlConnPool</span> <span class=o>*</span><span class=n>connpool</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>assert</span><span class=p>(</span><span class=n>connpool</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 建立连接
+</span></span></span><span class=line><span class=cl>        <span class=o>*</span><span class=n>sql</span> <span class=o>=</span> <span class=n>connpool</span><span class=o>-&gt;</span><span class=n>GetConn</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>        <span class=n>sql_</span> <span class=o>=</span> <span class=o>*</span><span class=n>sql</span><span class=p>;</span> <span class=n>connpool_</span> <span class=o>=</span> <span class=n>connpool</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>SqlConnRAII</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 释放连接
+</span></span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>sql_</span><span class=p>)</span> <span class=p>{</span> <span class=n>connpool_</span><span class=o>-&gt;</span><span class=n>FreeConn</span><span class=p>(</span><span class=n>sql_</span><span class=p>);</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>MYSQL</span> <span class=o>*</span><span class=n>sql_</span><span class=p>;</span> <span class=n>SqlConnPool</span><span class=o>*</span> <span class=n>connpool_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>// SQLCONNPOOL_H
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=http><a href=#http class=header-anchor></a>HTTP</h2><h3 id=httprequest><a href=#httprequest class=header-anchor></a>httprequest</h3><p>过程逻辑如下：</p><ol><li><p>利用search从缓冲区中读取响应的报文片段。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>lineEnd</span> <span class=o>=</span> <span class=n>search</span><span class=p>(</span><span class=n>buff</span><span class=p>.</span><span class=n>Peek</span><span class=p>(),</span> <span class=n>buff</span><span class=p>.</span><span class=n>BeginWriteConst</span><span class=p>(),</span> <span class=n>CRLF</span><span class=p>,</span> <span class=n>CRLF</span> <span class=o>+</span> <span class=mi>2</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>line</span><span class=p>(</span><span class=n>buff</span><span class=p>.</span><span class=n>Peek</span><span class=p>(),</span> <span class=n>lineEnd</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>建立<strong>请求报文</strong>的有限状态机。请求报文中一般包含post和get。该有限状态机的作用原理在于每次读取缓冲区中的一行进行匹配，直至状态变成finish</p><p><img src=/img/images_stl/55.jpg loading=lazy alt=55></p><ul><li><p>REQUEST_LINE——ParseRequestLine_(line)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>case</span> <span class=nl>REQUEST_LINE</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/*解析请求行，method,path,version*/</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=o>!</span><span class=n>ParseRequestLine_</span><span class=p>(</span><span class=n>line</span><span class=p>))</span> <span class=p>{</span> <span class=c1>// 拆解请求行
+</span></span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>ParsePath_</span><span class=p>();</span> <span class=c1>// 进一步检查路径的有效性安全性
+</span></span></span><span class=line><span class=cl>    <span class=k>break</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>正则表达式</p><p><code>[^ ]</code>：表示<strong>非空格</strong>的字符，<code>[]</code> 是字符集合，<code>^</code> 在集合中表示<strong>取反</strong>，所以 <code>[^ ]</code> 代表任何<strong>不是空格</strong>的字符。</p><p><code>*</code>：表示前面的字符可以出现 <strong>零次或多次</strong>，即可以匹配任意长度的非空格字符（包括空）。</p><p><code>()</code>：圆括号表示<strong>捕获组</strong>，用于将匹配的内容保存起来，以供后续引用（如 <code>subMatch[1]</code>）。</p></blockquote><p>该部分代码直接匹配即可。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=n>regex</span> <span class=nf>patten</span><span class=p>(</span><span class=s>&#34;^([^ ]*)</span> <span class=p>([</span><span class=o>^</span> <span class=p>]</span><span class=o>*</span><span class=p>)</span> <span class=n>HTTP</span><span class=o>/</span><span class=p>([</span><span class=o>^</span> <span class=p>]</span><span class=o>*</span><span class=p>)</span><span class=err>$</span><span class=s>&#34;)</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl><span class=c1>// method path HTTP/version
+</span></span></span></code></pre></td></tr></table></div></div></li><li><p>HEADERS——ParseHeader_(line)</p></li><li><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// &lt;字段名&gt;:&lt;可选空格&gt;&lt;字段值&gt;
+</span></span></span><span class=line><span class=cl><span class=n>regex</span> <span class=nf>patten</span><span class=p>(</span><span class=s>&#34;^([^:]*)</span><span class=o>:</span> <span class=o>?</span><span class=p>(.</span><span class=o>*</span><span class=p>)</span><span class=err>$</span><span class=s>&#34;)</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>smatch</span> <span class=n>subMatch</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>if</span><span class=p>(</span><span class=n>regex_match</span><span class=p>(</span><span class=n>line</span><span class=p>,</span> <span class=n>subMatch</span><span class=p>,</span> <span class=n>patten</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>header_</span><span class=p>[</span><span class=n>subMatch</span><span class=p>[</span><span class=mi>1</span><span class=p>]]</span> <span class=o>=</span> <span class=n>subMatch</span><span class=p>[</span><span class=mi>2</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 匹配失败时转换状态
+</span></span></span><span class=line><span class=cl>    <span class=n>state_</span> <span class=o>=</span> <span class=n>BODY</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>BODY——ParseBody_(line)</p><p>调用ParsePost();，因为只有post中有请求体</p><p>1.<strong>解析 POST 请求</strong>：检查请求方法和 <code>Content-Type</code> 是否符合条件。</p><p>2.<strong>解析表单数据</strong>：从 URL 编码的请求体中提取用户提交的数据。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*URL 编码 是一种用于将数据编码为有效 URL 字符串的方式，其中特殊字符（如空格、&amp;、= 等）会被替换为特定的字符序列：
+</span></span></span><span class=line><span class=cl><span class=cm>*空格编码为 %20
+</span></span></span><span class=line><span class=cl><span class=cm>*特殊字符（如 &amp;, =）不会直接出现在值中，而需要进行编码
+</span></span></span><span class=line><span class=cl><span class=cm>*其他特殊字符也会有类似的编码方式，如 %3A 表示冒号 :
+</span></span></span></code></pre></td></tr></table></div></div><p>3.<strong>路径判断</strong>：检查路径是否是需要处理的特定页面（如登录或注册页面）。</p><p>4.<strong>登录或注册逻辑</strong>：根据路径进行用户验证，判断是登录还是注册，并根据结果决定跳转的页面。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>从sql池中取出数据；
+</span></span></span><span class=line><span class=cl><span class=cm>登录：
+</span></span></span><span class=line><span class=cl><span class=cm>查询用户名以及密码，看用户名和密码是否和sql语句中查出来的表格匹配。
+</span></span></span><span class=line><span class=cl><span class=cm>注册：
+</span></span></span><span class=line><span class=cl><span class=cm>添加sql语句，插入自己的用户名和密码，用户名再其中存在则注册失败，否则注册成功
+</span></span></span><span class=line><span class=cl><span class=cm>释放数据库连接池；
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span></code></pre></td></tr></table></div></div></li></ul></li><li><p>跳出循环，跳出末尾回车换行符，记录日志。</p></li></ol><h3 id=httpresponse><a href=#httpresponse class=header-anchor></a>httpresponse</h3><blockquote><p>httprequest是读取缓冲区中的可读数据进行解析；</p><p>httpresponse是对缓冲区中的可写数据进行写入。</p></blockquote><p>响应报文的四个部分：</p><p><img src=/img/images_stl/56.jpg loading=lazy alt=56></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef HTTP_RESPONSE_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define HTTP_RESPONSE_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HttpResponse</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>HttpResponse</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>HttpResponse</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Init</span><span class=p>(</span><span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&amp;</span> <span class=n>srcDir</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&amp;</span> <span class=n>path</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>isKeepAlive</span> <span class=o>=</span> <span class=nb>false</span><span class=p>,</span> <span class=kt>int</span> <span class=n>code</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>MakeResponse</span><span class=p>(</span><span class=n>Buffer</span><span class=o>&amp;</span> <span class=n>buff</span><span class=p>);</span> <span class=c1>// 该函数中会确定状态码，调用private中的三个添加函数
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>UnmapFile</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=nf>File</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=nf>FileLen</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>ErrorContent</span><span class=p>(</span><span class=n>Buffer</span><span class=o>&amp;</span> <span class=n>buff</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>message</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>Code</span><span class=p>()</span> <span class=k>const</span> <span class=p>{</span> <span class=k>return</span> <span class=n>code_</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=n>AddStateLine_</span><span class=p>(</span><span class=n>Buffer</span> <span class=o>&amp;</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// 添加状态行
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>AddHeader_</span><span class=p>(</span><span class=n>Buffer</span> <span class=o>&amp;</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// 添加消息报头
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>AddContent_</span><span class=p>(</span><span class=n>Buffer</span> <span class=o>&amp;</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// 添加响应正文
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>ErrorHtml_</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>GetFileType_</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>code_</span><span class=p>;</span> <span class=c1>// 状态码
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>isKeepAlive_</span><span class=p>;</span> <span class=c1>// http保活机制
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*生成状态码*/</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>path_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>srcDir_</span><span class=p>;</span> <span class=c1>// 源目录
+</span></span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=n>mmFile_</span><span class=p>;</span>  <span class=c1>// 映射文件
+</span></span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=nc>stat</span> <span class=n>mmFileStat_</span><span class=p>;</span> <span class=c1>// 文件状态信息
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>unordered_map</span><span class=o>&lt;</span><span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&gt;</span> <span class=n>SUFFIX_TYPE</span><span class=p>;</span> <span class=c1>// 后缀类型
+</span></span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>unordered_map</span><span class=o>&lt;</span><span class=kt>int</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&gt;</span> <span class=n>CODE_STATUS</span><span class=p>;</span> <span class=c1>// http状态码
+</span></span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=n>std</span><span class=o>::</span><span class=n>unordered_map</span><span class=o>&lt;</span><span class=kt>int</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>&gt;</span> <span class=n>CODE_PATH</span><span class=p>;</span> <span class=c1>// 400，403，404对应的错误路径
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//HTTP_RESPONSE_H
+</span></span></span></code></pre></td></tr></table></div></div><p>主要函数：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=kt>void</span> <span class=n>HttpResponse</span><span class=o>::</span><span class=n>MakeResponse</span><span class=p>(</span><span class=n>Buffer</span><span class=o>&amp;</span> <span class=n>buff</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* 判断请求的资源文件 */</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span><span class=p>(</span><span class=n>stat</span><span class=p>((</span><span class=n>srcDir_</span> <span class=o>+</span> <span class=n>path_</span><span class=p>).</span><span class=n>data</span><span class=p>(),</span> <span class=o>&amp;</span><span class=n>mmFileStat_</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mi>0</span> <span class=o>||</span> <span class=n>S_ISDIR</span><span class=p>(</span><span class=n>mmFileStat_</span><span class=p>.</span><span class=n>st_mode</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>code_</span> <span class=o>=</span> <span class=mi>404</span><span class=p>;</span> <span class=c1>// 文件状态信息小于0或者文件是一个目录
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span> <span class=nf>if</span><span class=p>(</span><span class=o>!</span><span class=p>(</span><span class=n>mmFileStat_</span><span class=p>.</span><span class=n>st_mode</span> <span class=o>&amp;</span> <span class=n>S_IROTH</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>code_</span> <span class=o>=</span> <span class=mi>403</span><span class=p>;</span> <span class=c1>// 文件没有其它用户的读取权限时
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span> <span class=nf>if</span><span class=p>(</span><span class=n>code_</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>        <span class=n>code_</span> <span class=o>=</span> <span class=mi>200</span><span class=p>;</span> <span class=c1>// 文件成功找到
+</span></span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>ErrorHtml_</span><span class=p>();</span> <span class=c1>// 根据 HTTP 响应码查找并设置相应的错误页面路径
+</span></span></span><span class=line><span class=cl>    <span class=n>AddStateLine_</span><span class=p>(</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// buff.Append(HTTP/1.1 状态码 状态)
+</span></span></span><span class=line><span class=cl>    <span class=n>AddHeader_</span><span class=p>(</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// 添加connection和content-type
+</span></span></span><span class=line><span class=cl>    <span class=n>AddContent_</span><span class=p>(</span><span class=n>buff</span><span class=p>);</span> <span class=c1>// 映射内存，追加文件长度，错误页面单独处理
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=httpconn><a href=#httpconn class=header-anchor></a>httpconn</h3><h4 id=http整体流程><a href=#http%e6%95%b4%e4%bd%93%e6%b5%81%e7%a8%8b class=header-anchor></a>HTTP整体流程：</h4><ul><li>浏览器发出http连接请求，主线程创建http对象接收请求同时将所有数据存到对应的buffer，将该对象插入任务队列，工作线程从任务队列中取出一个任务进行处理。</li><li>工作线程取出任务后，调用process_read函数，通过主从状态机对请求报文进行解析。</li><li>解析完成后，跳转do_request函数生成响应报文，通过process_write写入buffer，返回给浏览器端。</li></ul><p>注意：在生成的响应报文中并没有返回消息的具体内容，文件也并不在缓冲区，因此传输的时候采取分块写的方式，一块传输buff里面的内容，另一块传输内存映射的文件指针。</p><h4 id=write><a href=#write class=header-anchor></a>write：</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl>    <span class=c1>// write核心逻辑在于iov中的多缓冲区的写入。
+</span></span></span><span class=line><span class=cl>    <span class=c1>// 将writev一次性写入文件描述符中，使用ET写数据，动态调整缓冲区指针和长度
+</span></span></span><span class=line><span class=cl>    <span class=c1>// ET模式下，循环继续，直到全部数据写出或者数据小于设定阈值。
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=read><a href=#read class=header-anchor></a>read:</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// 循环读取到没有数据为止，
+</span></span></span><span class=line><span class=cl><span class=c1>// ET模式下，文件描述符的事件只触发一次，除非有新的数据到达
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=httpconn-1><a href=#httpconn-1 class=header-anchor></a>httpconn</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef HTTP_CONN_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define HTTP_CONN_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HttpConn</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>HttpConn</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>HttpConn</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>init</span><span class=p>(</span><span class=kt>int</span> <span class=n>sockFd</span><span class=p>,</span> <span class=k>const</span> <span class=n>sockaddr_in</span><span class=o>&amp;</span> <span class=n>addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 将请求报文的内容读取到读缓冲区里面
+</span></span></span><span class=line><span class=cl>    <span class=n>ssize_t</span> <span class=nf>read</span><span class=p>(</span><span class=kt>int</span><span class=o>*</span> <span class=n>saveErrno</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 将从缓冲区中得到的响应报文写到浏览器
+</span></span></span><span class=line><span class=cl>    <span class=n>ssize_t</span> <span class=nf>write</span><span class=p>(</span><span class=kt>int</span><span class=o>*</span> <span class=n>saveErrno</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>Close</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetFd</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetPort</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>GetIP</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>sockaddr_in</span> <span class=nf>GetAddr</span><span class=p>()</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 解析请求报文和生成响应报文
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>process</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>ToWriteBytes</span><span class=p>()</span> <span class=p>{</span> 
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>iov_</span><span class=p>[</span><span class=mi>0</span><span class=p>].</span><span class=n>iov_len</span> <span class=o>+</span> <span class=n>iov_</span><span class=p>[</span><span class=mi>1</span><span class=p>].</span><span class=n>iov_len</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>IsKeepAlive</span><span class=p>()</span> <span class=k>const</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>request_</span><span class=p>.</span><span class=n>IsKeepAlive</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=kt>bool</span> <span class=n>isET</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>srcDir</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>fd_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span>  <span class=nc>sockaddr_in</span> <span class=n>addr_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=n>isClose_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>iovCnt_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=nc>iovec</span> <span class=n>iov_</span><span class=p>[</span><span class=mi>2</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>Buffer</span> <span class=n>readBuff_</span><span class=p>;</span> <span class=c1>// 读缓冲区
+</span></span></span><span class=line><span class=cl>    <span class=n>Buffer</span> <span class=n>writeBuff_</span><span class=p>;</span> <span class=c1>// 写缓冲区
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>HttpRequest</span> <span class=n>request_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>HttpResponse</span> <span class=n>response_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//HTTP_CONN_H
+</span></span></span></code></pre></td></tr></table></div></div><blockquote><p>[!Warning]</p><p>啊啊啊啊，有种没理清楚的感觉。虽然大致知到不过没连贯起来。</p><p>比如为什么有两个缓冲区，buffer中不是一个就解决了吗？在http连接管理的过程中，肯定会涉及缓冲区，线程池，连接池，发送和接收，这些的逻辑关系是什么？还有日志的代码是怎么和log相关联的。如今你已经学完了buffer，pool，log，http，这四个如何将其连贯起来。后面还会多个timer,epoller两部分以及webserver最终的综合。</p><p>先把已经学完的四个理清楚再去看最后的部分。</p></blockquote><p>详见下图：</p><p><img src=/img/images_stl/57.jpg loading=lazy alt=57></p><h2 id=timer><a href=#timer class=header-anchor></a>Timer</h2><p>待办:https://zhuanlan.zhihu.com/p/668916073</p><blockquote><p><code>非活跃</code>，是指客户端（这里是浏览器）与服务器端建立连接后，长时间不交换数据，一直占用服务器端的文件描述符，导致连接资源的浪费。</p><p><code>定时事件</code>，是指固定一段时间之后触发某段代码，由该段代码处理一个事件，如从内核事件表删除事件，并关闭文件描述符，释放连接资源。</p><p><code>定时器</code>，是指利用结构体或其他形式，将多种定时事件进行封装起来。具体的，这里只涉及一种定时事件，即定期检测非活跃连接，这里将该定时事件与连接资源封装为一个结构体定时器。</p><p><code>定时器容器</code>，是指使用某种容器类数据结构，将上述多个定时器组合起来，便于对定时事件统一管理。具体的，项目中使用堆将所有定时器串联组织起来。</p></blockquote><p>传统的定时方案是以固定频率调用起搏函数tick，进而执行定时器上的回调函数。而时间堆的做法则是将所有定时器中超时时间最小的一个定时器的超时值作为心搏间隔，当超时时间到达时，处理超时事件，然后再次从剩余定时器中找出超时时间最小的一个，依次反复即可。</p><ul><li><strong>最小堆</strong>：用于快速找到最早超时的定时器（堆顶元素即为最早的定时器）。</li><li><strong>回调机制</strong>：每个定时器有一个超时回调函数，一旦超时，定时器会被触发并执行回调。</li><li><strong>堆优化</strong>：通过上浮和下沉操作保证每次插入、删除和调整操作都可以在对数时间内完成。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef HEAP_TIMER_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define HEAP_TIMER_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=n>std</span><span class=o>::</span><span class=n>function</span><span class=o>&lt;</span><span class=kt>void</span><span class=p>()</span><span class=o>&gt;</span> <span class=n>TimeoutCallBack</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=n>std</span><span class=o>::</span><span class=n>chrono</span><span class=o>::</span><span class=n>high_resolution_clock</span> <span class=n>Clock</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=n>std</span><span class=o>::</span><span class=n>chrono</span><span class=o>::</span><span class=n>milliseconds</span> <span class=n>MS</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>typedef</span> <span class=n>Clock</span><span class=o>::</span><span class=n>time_point</span> <span class=n>TimeStamp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>TimerNode</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>id</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>TimeStamp</span> <span class=n>expires</span><span class=p>;</span> <span class=c1>// 超时时间点
+</span></span></span><span class=line><span class=cl>    <span class=n>TimeoutCallBack</span> <span class=n>cb</span><span class=p>;</span> <span class=c1>// 超时回调函数
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=k>operator</span><span class=o>&lt;</span><span class=p>(</span><span class=k>const</span> <span class=n>TimerNode</span><span class=o>&amp;</span> <span class=n>t</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>expires</span> <span class=o>&lt;</span> <span class=n>t</span><span class=p>.</span><span class=n>expires</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=cm>/*基于对最小堆的定时器类*/</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>HeapTimer</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>HeapTimer</span><span class=p>()</span> <span class=p>{</span> <span class=n>heap_</span><span class=p>.</span><span class=n>reserve</span><span class=p>(</span><span class=mi>64</span><span class=p>);</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>HeapTimer</span><span class=p>()</span> <span class=p>{</span> <span class=n>clear</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>adjust</span><span class=p>(</span><span class=kt>int</span> <span class=n>id</span><span class=p>,</span> <span class=kt>int</span> <span class=n>newExpires</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=n>add</span><span class=p>(</span><span class=kt>int</span> <span class=n>id</span><span class=p>,</span> <span class=kt>int</span> <span class=n>timeOut</span><span class=p>,</span> <span class=k>const</span> <span class=n>TimeoutCallBack</span><span class=o>&amp;</span> <span class=n>cb</span><span class=p>);</span> <span class=c1>// 添加定时器结点，ID不存在则直接插入然后调整；id存在则更新超时时间
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>doWork</span><span class=p>(</span><span class=kt>int</span> <span class=n>id</span><span class=p>);</span><span class=c1>// 触发回调函数，删除该定时器
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>clear</span><span class=p>();</span> <span class=c1>// 清空
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>tick</span><span class=p>();</span> <span class=c1>// 检查堆顶元素是否超时，超时则回调删除
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>pop</span><span class=p>();</span> <span class=c1>// 删除最早超时的定时器
+</span></span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetNextTick</span><span class=p>();</span> <span class=c1>// 获取下一个超时定时器的剩余时间
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=n>del_</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span><span class=p>);</span>  <span class=c1>// 删除定时器
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>siftup_</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span><span class=p>);</span> <span class=c1>// 向上调整
+</span></span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>siftdown_</span><span class=p>(</span><span class=n>size_t</span> <span class=n>index</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>n</span><span class=p>);</span> <span class=c1>// 向下调整
+</span></span></span><span class=line><span class=cl>    <span class=kt>void</span> <span class=nf>SwapNode_</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>j</span><span class=p>);</span> <span class=c1>// 交换两个结点位置
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>TimerNode</span><span class=o>&gt;</span> <span class=n>heap_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>unordered_map</span><span class=o>&lt;</span><span class=kt>int</span><span class=p>,</span> <span class=n>size_t</span><span class=o>&gt;</span> <span class=n>ref_</span><span class=p>;</span> <span class=c1>// 定时器ID到堆中结点的索引，便于快速查找定时器
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//HEAP_TIMER_H
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=epoller><a href=#epoller class=header-anchor></a>Epoller</h2><blockquote><p>epoll是linux特有的IO复用函数。</p><ul><li><p>epoll使用一组函数来完成任务，而不是单个函数</p></li><li><p>epoll把用户关心的文件描述符上的事件放在内核的一个事件表中，而无需像select和poll那样每次调用都要重复传入文件描述符集或事件集。但epoll需要使用额外的文件描述符唯一标识内核中的事件表。</p><p><code>int epoll_creat(int size);</code></p><p><code>int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);</code>// 操作epoll的内核事件表，成功时返回0，失效则返回-1并设置errno</p><p>op为指定操作类型，比如EPOLL_CTL_ADD,EPOLL_CTL_MOD,EPOLL_CTL_DEL等</p></li><li><p><code>int epoll_wait(int epfd, struct epoll_event* events, int maxevents, int timeout);</code></p><p>成功时返回就绪的文件描述符个数，失败则返回-1并设置errno。</p><p>它会将所有的就绪事件从内核事件表中赋值到它的第二个参数events指向的数组中，这个数组只用于输出epoll_wait检测到的就绪事件，可以提高应用程序索引就绪文件描述符的效率。</p></li><li><p>对于epoll的LT模式和ET模式</p><ul><li>LT模式：当epoll_wait检测到有事件发生并且通知应用程序之后，应用程序可以不立即处理该事件，等待下次应用程序调用epoll_wait时，还会再次通告，直到该事件被处理。</li><li>ET模式：当epoll_wait检测到有事件发生并且通知应用程序之后，应用程序必须立即处理该事件，因为后续的epoll_wait调用将不再向应用程序通知这个事件。</li></ul></li><li><p>为了防止ET模式下，两个线程同时操作一个socket的局面,EPOLLONESHOT登场。</p><p>EPOLLONESHOT能保证操作系统最多触发其上注册的一个可读，可写或者异常事件，并且只触发一次。</p></li><li><p>POLLIN ：表示对应的文件描述符可以读（包括对端 SOCKET 正常关闭）；
+EPOLLOUT：表示对应的文件描述符可以写；
+EPOLLPRI：表示对应的文件描述符有紧急的数据可读（这里应该表示有带外数据到来）；
+EPOLLERR：表示对应的文件描述符发生错误；</p><p>EPOLLRDHUP：远端关闭了读方向（对端不再发送数据，但可能仍能接收数据）。</p><p>EPOLLHUP：连接完全关闭，文件描述符不可用。
+EPOLLET：将EPOLL设为边缘触发(Edge Triggered)模式，这是相对于水平触发(Level Triggered)来说的。
+EPOLLONESHOT：只监听一次事件，当监听完这次事件之后，如果还需要继续监听这个socket的话，需要再次把这个socket加入到EPOLL队列里。</p><ol><li>客户端直接调用close，会触犯EPOLLRDHUP事件</li><li>通过EPOLLRDHUP属性，来判断是否对端已经关闭，这样可以减少一次系统调用。</li></ol></li></ul></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cp>#ifndef EPOLLER_H
+</span></span></span><span class=line><span class=cl><span class=cp>#define EPOLLER_H
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#include...
+</span></span></span><span class=line><span class=cl><span class=cm>/*基于epoll的事件处理类*/</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Epoller</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>explicit</span> <span class=n>Epoller</span><span class=p>(</span><span class=kt>int</span> <span class=n>maxEvent</span> <span class=o>=</span> <span class=mi>1024</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=o>~</span><span class=n>Epoller</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*添加事件，修改事件，删除事件epoll_ctl*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>AddFd</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>events</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>ModFd</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>events</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>bool</span> <span class=nf>DelFd</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*等待事件发生，epoll_wait*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>Wait</span><span class=p>(</span><span class=kt>int</span> <span class=n>timeoutMs</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=cm>/*第i个事件的类型or文件描述符*/</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=nf>GetEventFd</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span><span class=p>)</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=nf>GetEvents</span><span class=p>(</span><span class=n>size_t</span> <span class=n>i</span><span class=p>)</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>epollFd_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=k>struct</span> <span class=nc>epoll_event</span><span class=o>&gt;</span> <span class=n>events_</span><span class=p>;</span>    
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cp>#endif </span><span class=c1>//EPOLLER_H
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=webserver><a href=#webserver class=header-anchor></a>webserver</h2><h5 id=前置知识><a href=#%e5%89%8d%e7%bd%ae%e7%9f%a5%e8%af%86 class=header-anchor></a>前置知识</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/* 设置套接字
+</span></span></span><span class=line><span class=cl><span class=cm>* SO_LINGER：
+</span></span></span><span class=line><span class=cl><span class=cm>确保当服务器关闭时，未发送的数据能够尽量发送完毕，
+</span></span></span><span class=line><span class=cl><span class=cm>提供一个“优雅关闭”的机制。
+</span></span></span><span class=line><span class=cl><span class=cm>* SO_REUSEADDR：
+</span></span></span><span class=line><span class=cl><span class=cm>允许多个套接字绑定到同一个端口，但同一时间只能有一个套接字接收数据
+</span></span></span><span class=line><span class=cl><span class=cm>解决TIME_WAIT状态导致的端口绑定问题。
+</span></span></span><span class=line><span class=cl><span class=cm>允许端口复用，避免端口被占用，
+</span></span></span><span class=line><span class=cl><span class=cm>确保服务器能够快速重启并继续监听同一个端口。
+</span></span></span><span class=line><span class=cl><span class=cm>* SO_REUSEPORT： 
+</span></span></span><span class=line><span class=cl><span class=cm>允许多个套接字同时绑定到同一个端口，
+</span></span></span><span class=line><span class=cl><span class=cm>内核会将收到的数据包分发给不同的套接字，实现真正的负载均衡。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 确立事件模式
+</span></span></span><span class=line><span class=cl><span class=cm>* EPOLLRDHUP:检测到对方关闭连接时触发，监控对端连接关闭的情况
+</span></span></span><span class=line><span class=cl><span class=cm>* EPOLLONSHOT:事件触发后自动取消，防止多线程竞争
+</span></span></span><span class=line><span class=cl><span class=cm>* EPOLLET:变韵出发，只有状态发生变化才会通知
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span></code></pre></td></tr></table></div></div><p>下面这图基本就是webserver的一些主要函数和大致用法了。</p><p><img src=/img/images_stl/58.jpg loading=lazy alt=58></p><p>再来张图，介绍一下所有函数的逻辑</p><p>果然比起打字更喜欢直接写出来）</p><p><img src=/img/images_stl/59.jpg loading=lazy alt=59></p><h1 id=last><a href=#last class=header-anchor></a>Last</h1><blockquote><p>介绍一下每部分的逻辑，以及它们之间的联系。</p></blockquote><blockquote><p>用到了哪些c++新特性</p></blockquote></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/webserver-sum/><div class=article-image><img src=/images/0a9f6d1d.jpg loading=lazy data-key data-hash=/images/0a9f6d1d.jpg></div><div class=article-details><h2 class=article-title>Webserver-sum</h2></div></a></article><article class=has-image><a href=/p/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E8%AF%A6%E8%A7%A3/><div class=article-image><img src=/images/9cb924e8.jpg loading=lazy data-key data-hash=/images/9cb924e8.jpg></div><div class=article-details><h2 class=article-title>二分查找详解</h2></div></a></article><article class=has-image><a href=/p/http%E8%AF%A6%E8%A7%A3/><div class=article-image><img src=/images/6f040081.jpg loading=lazy data-key data-hash=/images/6f040081.jpg></div><div class=article-details><h2 class=article-title>HTTP详解</h2></div></a></article><article class=has-image><a href=/p/coroutinelib%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0/><div class=article-image><img src=/images/5f69c1c1.jpg loading=lazy data-key data-hash=/images/5f69c1c1.jpg></div><div class=article-details><h2 class=article-title>Coroutinelib项目实现</h2></div></a></article><article class=has-image><a href=/p/%E5%90%8E%E7%AB%AF%E5%9B%9B%E7%A7%8D%E5%B1%82%E5%BC%8F%E7%BB%93%E6%9E%84/><div class=article-image><img src=/images/91b4adbf.jpg loading=lazy data-key data-hash=/images/91b4adbf.jpg></div><div class=article-details><h2 class=article-title>后端四种层式结构</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

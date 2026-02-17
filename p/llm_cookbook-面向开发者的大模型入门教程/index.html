@@ -1,0 +1,879 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="本文是基于吴恩达大模型系列课程的学习笔记，介绍面向开发者的提示工程和大模型应用开发基础知识。"><title>LLM_cookbook 面向开发者的大模型入门教程</title><link rel=canonical href=https://sutdown.github.io/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="LLM_cookbook 面向开发者的大模型入门教程"><meta property='og:description' content="本文是基于吴恩达大模型系列课程的学习笔记，介绍面向开发者的提示工程和大模型应用开发基础知识。"><meta property='og:url' content='https://sutdown.github.io/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-11-01T00:00:00+00:00'><meta property='article:modified_time' content='2025-11-01T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/f874fc13.jpg'><meta name=twitter:title content="LLM_cookbook 面向开发者的大模型入门教程"><meta name=twitter:description content="本文是基于吴恩达大模型系列课程的学习笔记，介绍面向开发者的提示工程和大模型应用开发基础知识。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/f874fc13.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#0-前言>0 前言</a></li><li><a href=#1-面向开发者的提示工程>1 面向开发者的提示工程</a><ul><li><a href=#简介introduction>简介Introduction</a></li><li><a href=#11-提示原则guidelines>1.1 提示原则Guidelines</a><ul><li><a href=#原则一编写清晰具体的指令>原则一：编写清晰具体的指令</a></li><li><a href=#原则二给模型时间去思考>原则二：给模型时间去思考</a></li><li><a href=#局限性>局限性</a></li></ul></li><li><a href=#12-迭代优化iterative>1.2 迭代优化Iterative</a></li><li><a href=#13-文本概括summarizing>1.3 文本概括Summarizing</a></li><li><a href=#14-推断inferring>1.4 推断Inferring</a></li><li><a href=#15-文本转换transforming>1.5 文本转换Transforming</a></li><li><a href=#16-文本扩展expanding>1.6 文本扩展Expanding</a></li><li><a href=#17-聊天机器人chatbot>1.7 聊天机器人Chatbot</a></li></ul></li><li><a href=#2-搭建基于chatgpt的问答系统>2 搭建基于ChatGPT的问答系统</a><ul><li><a href=#21-基础概念>2.1 基础概念</a></li><li><a href=#22-电商客服-ai-系统简单框架>2.2 电商客服 AI 系统简单框架</a><ul><li><a href=#评估输入---分类>评估输入 - 分类</a></li><li><a href=#检查输入---监督>检查输入 - 监督</a></li><li><a href=#思维链推理>思维链推理</a></li><li><a href=#prompt链>Prompt链</a></li><li><a href=#检查结果>检查结果</a></li><li><a href=#搭建一个带评估的端到端系统>搭建一个带评估的端到端系统</a></li><li><a href=#评估>评估</a></li><li><a href=#完整代码>完整代码</a></li></ul></li></ul></li><li><a href=#3-基于langchain开发应用程序>3 基于LangChain开发应用程序</a><ul><li><a href=#31-基础介绍>3.1 基础介绍</a></li><li><a href=#32-组件>3.2 组件</a><ul><li><a href=#模板>模板</a></li><li><a href=#memory>Memory</a></li><li><a href=#模型链---chain>模型链 - Chain</a><ul><li><a href=#简单顺序链>简单顺序链</a></li><li><a href=#路由链>路由链</a></li></ul></li><li><a href=#基于文档的问答>基于文档的问答</a></li><li><a href=#评估---evaluation>评估 - Evaluation</a></li><li><a href=#代理---agent>代理 - Agent</a></li></ul></li></ul></li><li><a href=#4-使用langchain访问个人数据>4 使用Langchain访问个人数据</a><ul><li><a href=#41-基础介绍>4.1 基础介绍</a></li><li><a href=#42-组件>4.2 组件</a><ul><li><a href=#文档加载>文档加载</a></li><li><a href=#文档分割>文档分割</a></li><li><a href=#向量数据库与词向量>向量数据库与词向量</a></li><li><a href=#检索>检索</a></li><li><a href=#问答>问答</a></li><li><a href=#聊天>聊天</a></li></ul></li><li><a href=#43-总结>4.3 总结</a><ul><li><ul><li></li></ul></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/><img src=/images/f874fc13.jpg loading=lazy alt="Featured image of post LLM_cookbook 面向开发者的大模型入门教程"></a></div><div class=article-details><header class=article-category><a href=/categories/ai/>AI
+</a><a href=/categories/langchain/>LangChain
+</a><a href=/categories/llm/>LLM</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/>LLM_cookbook 面向开发者的大模型入门教程</a></h2><h3 class=article-subtitle>本文是基于吴恩达大模型系列课程的学习笔记，介绍面向开发者的提示工程和大模型应用开发基础知识。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-11-01T00:00:00Z>Nov 01, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 17 分钟</time></div></footer></div></header><section class=article-content><h2 id=0-前言><a href=#0-%e5%89%8d%e8%a8%80 class=header-anchor></a>0 前言</h2><p>主要参考这份资料<a class=link href=https://github.com/datawhalechina/llm-cookbook target=_blank rel=noopener>datawhalechina/llm-cookbook: 面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版</a>。类似于学习笔记，文字笔记部分摘自原文，代码的部分进行了修改，一个是重新修正了代码逻辑，关于一些库的更新也用了新的函数运行；另一个在于将openai的app key改成了阿里的通义千问，有部分免费额度，国内运行也比较稳定。</p><h2 id=1-面向开发者的提示工程><a href=#1-%e9%9d%a2%e5%90%91%e5%bc%80%e5%8f%91%e8%80%85%e7%9a%84%e6%8f%90%e7%a4%ba%e5%b7%a5%e7%a8%8b class=header-anchor></a>1 面向开发者的提示工程</h2><blockquote><p><strong>Prompt Engineering</strong>，即是针对特定任务构造能充分发挥大模型能力的 Prompt 的技巧。</p><p>本部分内容基于<strong>吴恩达老师的《Prompt Engineering for Developer》课程</strong>进行编写。</p></blockquote><h3 id=简介introduction><a href=#%e7%ae%80%e4%bb%8bintroduction class=header-anchor></a>简介Introduction</h3><p>对于开发人员，<strong>大语言模型（LLM） 的更强大功能是能通过 API 接口调用，从而快速构建软件应用程序</strong>。</p><p>随着 LLM 的发展，其大致可以分为两种类型，后续称为<strong>基础 LLM</strong> 和<strong>指令微调（Instruction Tuned）LLM</strong>。</p><ul><li><p><strong>基础LLM</strong>是基于文本训练数据，训练出预测下一个单词能力的模型。其通常通过在互联网和其他来源的大量数据上训练，来确定紧接着出现的最可能的词。</p></li><li><p><strong>指令微调 LLM</strong> 通过专门的训练，可以更好地理解并遵循指令。</p><p>指令微调 LLM 的训练通常基于预训练语言模型，先在大规模文本数据上进行<strong>预训练</strong>，掌握语言的基本规律。在此基础上进行进一步的训练与<strong>微调（finetune）</strong>，输入是指令，输出是对这些指令的正确回复。有时还会采用**RLHF（reinforcement learning from human feedback，人类反馈强化学习）**技术，根据人类对模型输出的反馈进一步增强模型遵循指令的能力。通过这种受控的训练过程。指令微调 LLM 可以生成对指令高度敏感、更安全可靠的输出，较少无关和损害性内容。</p></li></ul><h3 id=11-提示原则guidelines><a href=#11-%e6%8f%90%e7%a4%ba%e5%8e%9f%e5%88%99guidelines class=header-anchor></a>1.1 提示原则Guidelines</h3><p>本章讨论了设计高效 Prompt 的两个关键原则：<strong>编写清晰、具体的指令</strong>和<strong>给予模型充足思考时间</strong>。</p><h4 id=原则一编写清晰具体的指令><a href=#%e5%8e%9f%e5%88%99%e4%b8%80%e7%bc%96%e5%86%99%e6%b8%85%e6%99%b0%e5%85%b7%e4%bd%93%e7%9a%84%e6%8c%87%e4%bb%a4 class=header-anchor></a>原则一：编写清晰具体的指令</h4><p>下面的几点要求，对于指令清晰则是从输入表示，输出结构，输出检查和简单示例四部分构成，比较经典的过程流。</p><p>1 使用分隔符清晰的表示输入的不同部分。有利于防止提示词注入。</p><p>2 寻求结构化输出，比如JSON，HTML等格式。</p><p>3 要求模型检查是否满足条件，检查不满足则不输出。</p><p>4 提供少量示例。即"Few-shot" prompting，在要求模型执行实际任务之前，给模型一两个已完成的样例，让模型了解我们的要求和期望的输出样式。</p><h4 id=原则二给模型时间去思考><a href=#%e5%8e%9f%e5%88%99%e4%ba%8c%e7%bb%99%e6%a8%a1%e5%9e%8b%e6%97%b6%e9%97%b4%e5%8e%bb%e6%80%9d%e8%80%83 class=header-anchor></a>原则二：给模型时间去思考</h4><p>1 制定完成任务所需的步骤。而不是直接让他盲目的得到最终结果。</p><p>2 指导模型在下结论之前找出自己的解法。因为即使你给的是错误解法，大模型也很容易认为这是正确的，从而导致误判。</p><h4 id=局限性><a href=#%e5%b1%80%e9%99%90%e6%80%a7 class=header-anchor></a>局限性</h4><p>模型偶尔会生成一些看似真实实则编造的知识。</p><p>语言模型生成虚假信息的“幻觉”问题，是使用与开发语言模型时需要高度关注的风险。由于幻觉信息往往令人无法辨别真伪，开发者必须警惕并尽量避免它的产生。</p><h3 id=12-迭代优化iterative><a href=#12-%e8%bf%ad%e4%bb%a3%e4%bc%98%e5%8c%96iterative class=header-anchor></a>1.2 迭代优化Iterative</h3><p>在开发大语言模型应用时，很难通过第一次尝试就得到完美适用的 Prompt。但关键是要有一个<strong>良好的迭代优化过程</strong>，以不断改进 Prompt。相比训练机器学习模型，Prompt 的一次成功率可能更高，但仍需要通过多次迭代找到最适合应用的形式。</p><h3 id=13-文本概括summarizing><a href=#13-%e6%96%87%e6%9c%ac%e6%a6%82%e6%8b%acsummarizing class=header-anchor></a>1.3 文本概括Summarizing</h3><ul><li>单一文本概括</li><li>多文本概括</li></ul><h3 id=14-推断inferring><a href=#14-%e6%8e%a8%e6%96%adinferring class=header-anchor></a>1.4 推断Inferring</h3><ul><li>情感推断</li><li>信息提取</li><li>主题推断</li></ul><h3 id=15-文本转换transforming><a href=#15-%e6%96%87%e6%9c%ac%e8%bd%ac%e6%8d%a2transforming class=header-anchor></a>1.5 文本转换Transforming</h3><ul><li>文本翻译</li><li>预期和写作风格调整</li><li>文件格式转换</li><li>拼写以及语法纠正</li></ul><h3 id=16-文本扩展expanding><a href=#16-%e6%96%87%e6%9c%ac%e6%89%a9%e5%b1%95expanding class=header-anchor></a>1.6 文本扩展Expanding</h3><ul><li>温度系数：一般来说，如果需要可预测、可靠的输出，则将 temperature 设置为0，如果需要更具创造性的多样文本，那么适当提高 temperature 则很有帮助。调整这个参数可以灵活地控制语言模型的输出特性。</li></ul><h3 id=17-聊天机器人chatbot><a href=#17-%e8%81%8a%e5%a4%a9%e6%9c%ba%e5%99%a8%e4%ba%bachatbot class=header-anchor></a>1.7 聊天机器人Chatbot</h3><h2 id=2-搭建基于chatgpt的问答系统><a href=#2-%e6%90%ad%e5%bb%ba%e5%9f%ba%e4%ba%8echatgpt%e7%9a%84%e9%97%ae%e7%ad%94%e7%b3%bb%e7%bb%9f class=header-anchor></a>2 搭建基于ChatGPT的问答系统</h2><h3 id=21-基础概念><a href=#21-%e5%9f%ba%e7%a1%80%e6%a6%82%e5%bf%b5 class=header-anchor></a>2.1 基础概念</h3><p><strong>大型语言模型</strong>主要可以分为两类:基础语言模型和指令调优语言模型。</p><ul><li><strong>基础语言模型</strong>（Base LLM）通过反复预测下一个词来训练的方式进行训练，没有明确的目标导向。</li><li><strong>指令微调的语言模型</strong>（Instruction Tuned LLM）则进行了专门的训练，以便更好地理解问题并给出符合指令的回答。</li></ul><p><strong>LLM 实际上并不是重复预测下一个单词，而是重复预测下一个 token</strong> 。</p><p>这种提问格式，我们可以明确地角色扮演，让语言模型理解自己就是助手这个角色，需要回答问题。这可以减少无效输出，帮助其生成针对性强的回复。</p><h3 id=22-电商客服-ai-系统简单框架><a href=#22-%e7%94%b5%e5%95%86%e5%ae%a2%e6%9c%8d-ai-%e7%b3%bb%e7%bb%9f%e7%ae%80%e5%8d%95%e6%a1%86%e6%9e%b6 class=header-anchor></a>2.2 电商客服 AI 系统简单框架</h3><blockquote><p>这个搭建问答系统更偏向于应用层面，可以大体理解一下整体逻辑，从数据集准备（评估输入的分类），到输入检查（检查输入数据是否合法），再到ai的思考（其中涉及的思维链和prompt链），最后输出（检查输出信息是否有效，是否有害）。只是去简单的实现一个调用，缺少的像这篇文章里面的<a class=link href=https://sutdown.github.io/2025/10/06/langchain/ target=_blank rel=noopener>Langchain到简单Agent - 江舟的博客 | Sutdown Blog</a>比如RAG，Memory之类的并没有详细阐述。建议大致看看这部分即可，用于基本了解。</p></blockquote><h4 id=评估输入---分类><a href=#%e8%af%84%e4%bc%b0%e8%be%93%e5%85%a5---%e5%88%86%e7%b1%bb class=header-anchor></a>评估输入 - 分类</h4><p>类似描述的数据集，将各种信息分类完成，比如如果只是一个简单的商品检索助手，那么分类有助于在ai查找信息时更加快速查找到需要的数据。</p><h4 id=检查输入---监督><a href=#%e6%a3%80%e6%9f%a5%e8%be%93%e5%85%a5---%e7%9b%91%e7%9d%a3 class=header-anchor></a>检查输入 - 监督</h4><ul><li>审核</li><li>prompt注入</li></ul><p>审核的在于审核两点：1 是否输入一些不安全信息，比如违法信息</p><h4 id=思维链推理><a href=#%e6%80%9d%e7%bb%b4%e9%93%be%e6%8e%a8%e7%90%86 class=header-anchor></a>思维链推理</h4><ul><li>思维链提示设计</li><li>内心独白</li></ul><h4 id=prompt链><a href=#prompt%e9%93%be class=header-anchor></a>Prompt链</h4><ul><li>提取产品和类别</li><li>检索详细信息</li><li>生成查询答案</li><li>总结</li></ul><h4 id=检查结果><a href=#%e6%a3%80%e6%9f%a5%e7%bb%93%e6%9e%9c class=header-anchor></a>检查结果</h4><ul><li>检查有害内容</li><li>检查是否符合产品信息</li></ul><h4 id=搭建一个带评估的端到端系统><a href=#%e6%90%ad%e5%bb%ba%e4%b8%80%e4%b8%aa%e5%b8%a6%e8%af%84%e4%bc%b0%e7%9a%84%e7%ab%af%e5%88%b0%e7%ab%af%e7%b3%bb%e7%bb%9f class=header-anchor></a>搭建一个带评估的端到端系统</h4><ul><li>端到端实现问答系统<ol><li>对用户的输入进行检验，验证其是否可以通过审核 API 的标准。</li><li>若输入顺利通过审核，我们将进一步对产品目录进行搜索。</li><li>若产品搜索成功，我们将继续寻找相关的产品信息。</li><li>我们使用模型针对用户的问题进行回答。</li><li>最后，我们会使用审核 API 对生成的回答进行再次的检验。</li></ol></li><li>持续收集用户和助手消息</li></ul><h4 id=评估><a href=#%e8%af%84%e4%bc%b0 class=header-anchor></a>评估</h4><ul><li>针对不同的测试用例进行测试，比较理想答案和输出答案比较评估xia0guo</li><li>注意回归测试：验证模型在以前的代码上的效果</li><li>运用gpt进行自行评估</li></ul><h4 id=完整代码><a href=#%e5%ae%8c%e6%95%b4%e4%bb%a3%e7%a0%81 class=header-anchor></a>完整代码</h4><p>这个主要实现一个完整的电商客服AI框架，基于<a class=link href=https://github.com/datawhalechina/llm-cookbook target=_blank rel=noopener>datawhalechina/llm-cookbook</a>的原代码，进行了适当变化，精简逻辑，添加注释，将openAI appkey改成了阿里的通义千问，openAI国内不太好访问。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span><span class=lnt>133
+</span><span class=lnt>134
+</span><span class=lnt>135
+</span><span class=lnt>136
+</span><span class=lnt>137
+</span><span class=lnt>138
+</span><span class=lnt>139
+</span><span class=lnt>140
+</span><span class=lnt>141
+</span><span class=lnt>142
+</span><span class=lnt>143
+</span><span class=lnt>144
+</span><span class=lnt>145
+</span><span class=lnt>146
+</span><span class=lnt>147
+</span><span class=lnt>148
+</span><span class=lnt>149
+</span><span class=lnt>150
+</span><span class=lnt>151
+</span><span class=lnt>152
+</span><span class=lnt>153
+</span><span class=lnt>154
+</span><span class=lnt>155
+</span><span class=lnt>156
+</span><span class=lnt>157
+</span><span class=lnt>158
+</span><span class=lnt>159
+</span><span class=lnt>160
+</span><span class=lnt>161
+</span><span class=lnt>162
+</span><span class=lnt>163
+</span><span class=lnt>164
+</span><span class=lnt>165
+</span><span class=lnt>166
+</span><span class=lnt>167
+</span><span class=lnt>168
+</span><span class=lnt>169
+</span><span class=lnt>170
+</span><span class=lnt>171
+</span><span class=lnt>172
+</span><span class=lnt>173
+</span><span class=lnt>174
+</span><span class=lnt>175
+</span><span class=lnt>176
+</span><span class=lnt>177
+</span><span class=lnt>178
+</span><span class=lnt>179
+</span><span class=lnt>180
+</span><span class=lnt>181
+</span><span class=lnt>182
+</span><span class=lnt>183
+</span><span class=lnt>184
+</span><span class=lnt>185
+</span><span class=lnt>186
+</span><span class=lnt>187
+</span><span class=lnt>188
+</span><span class=lnt>189
+</span><span class=lnt>190
+</span><span class=lnt>191
+</span><span class=lnt>192
+</span><span class=lnt>193
+</span><span class=lnt>194
+</span><span class=lnt>195
+</span><span class=lnt>196
+</span><span class=lnt>197
+</span><span class=lnt>198
+</span><span class=lnt>199
+</span><span class=lnt>200
+</span><span class=lnt>201
+</span><span class=lnt>202
+</span><span class=lnt>203
+</span><span class=lnt>204
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>json</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_community.chat_models</span> <span class=kn>import</span> <span class=n>ChatTongyi</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_core.messages</span> <span class=kn>import</span> <span class=n>SystemMessage</span><span class=p>,</span> <span class=n>HumanMessage</span><span class=p>,</span> <span class=n>AIMessage</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>collections</span> <span class=kn>import</span> <span class=n>defaultdict</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dotenv</span> <span class=kn>import</span> <span class=n>load_dotenv</span>
+</span></span><span class=line><span class=cl><span class=n>load_dotenv</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>DASHSCOPE_API_KEY</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>getenv</span><span class=p>(</span><span class=s2>&#34;DASHSCOPE_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>llm</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>,</span> <span class=n>api_key</span><span class=o>=</span><span class=n>DASHSCOPE_API_KEY</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 商品和目录的数据文件</span>
+</span></span><span class=line><span class=cl><span class=n>PRODUCTS_FILE</span> <span class=o>=</span> <span class=s2>&#34;products.json&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>CATEGORIES_FILE</span> <span class=o>=</span> <span class=s2>&#34;categories.json&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>DELIMITER</span> <span class=o>=</span> <span class=s2>&#34;####&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># -------------------------- 系统提示词（修正原重复类别问题）--------------------------</span>
+</span></span><span class=line><span class=cl><span class=c1># 第二步（抽取商品）系统信息文本，校验不同类别，并返回一个列表，其中包含所有类别。</span>
+</span></span><span class=line><span class=cl><span class=c1># 提取问题分布解决，此为思维链</span>
+</span></span><span class=line><span class=cl><span class=n>step_2_system_message_content</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>您将获得一次客户服务对话。最近的用户查询将使用</span><span class=si>{</span><span class=n>DELIMITER</span><span class=si>}</span><span class=s2>字符进行分隔。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>输出一个Python对象列表，其中每个对象具有以下格式：
+</span></span></span><span class=line><span class=cl><span class=s2>&#39;category&#39;: &lt;包括以下几个类别：Computers and Laptops、Smartphones and Accessories、Televisions and Home Theater Systems、Gaming Consoles and Accessories、Audio Equipment、Cameras and Camcorders
+</span></span></span><span class=line><span class=cl><span class=s2>&#39;products&#39;: &lt;必须是下面的允许产品列表中找到的产品&gt;
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>类别和产品必须在客户服务查询中找到。
+</span></span></span><span class=line><span class=cl><span class=s2>如果提到了产品，它必须与下面的允许产品列表中的正确类别相关联。
+</span></span></span><span class=line><span class=cl><span class=s2>如果未找到任何产品或类别，请输出一个空列表。
+</span></span></span><span class=line><span class=cl><span class=s2>只列出之前对话的早期部分未提及和讨论的产品和类别。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>允许的产品：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Computers and Laptops类别：
+</span></span></span><span class=line><span class=cl><span class=s2>TechPro Ultrabook
+</span></span></span><span class=line><span class=cl><span class=s2>BlueWave Gaming Laptop
+</span></span></span><span class=line><span class=cl><span class=s2>PowerLite Convertible
+</span></span></span><span class=line><span class=cl><span class=s2>TechPro Desktop
+</span></span></span><span class=line><span class=cl><span class=s2>BlueWave Chromebook
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Smartphones and Accessories类别：
+</span></span></span><span class=line><span class=cl><span class=s2>SmartX ProPhone
+</span></span></span><span class=line><span class=cl><span class=s2>MobiTech PowerCase
+</span></span></span><span class=line><span class=cl><span class=s2>SmartX MiniPhone
+</span></span></span><span class=line><span class=cl><span class=s2>MobiTech Wireless Charger
+</span></span></span><span class=line><span class=cl><span class=s2>SmartX EarBuds
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Televisions and Home Theater Systems类别：
+</span></span></span><span class=line><span class=cl><span class=s2>CineView 4K TV
+</span></span></span><span class=line><span class=cl><span class=s2>SoundMax Home Theater
+</span></span></span><span class=line><span class=cl><span class=s2>CineView 8K TV
+</span></span></span><span class=line><span class=cl><span class=s2>SoundMax Soundbar
+</span></span></span><span class=line><span class=cl><span class=s2>CineView OLED TV
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Gaming Consoles and Accessories类别：
+</span></span></span><span class=line><span class=cl><span class=s2>GameSphere X
+</span></span></span><span class=line><span class=cl><span class=s2>ProGamer Controller
+</span></span></span><span class=line><span class=cl><span class=s2>GameSphere Y
+</span></span></span><span class=line><span class=cl><span class=s2>ProGamer Racing Wheel
+</span></span></span><span class=line><span class=cl><span class=s2>GameSphere VR Headset
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Audio Equipment类别：
+</span></span></span><span class=line><span class=cl><span class=s2>AudioPhonic Noise-Canceling Headphones
+</span></span></span><span class=line><span class=cl><span class=s2>WaveSound Bluetooth Speaker
+</span></span></span><span class=line><span class=cl><span class=s2>AudioPhonic True Wireless Earbuds
+</span></span></span><span class=line><span class=cl><span class=s2>WaveSound Soundbar
+</span></span></span><span class=line><span class=cl><span class=s2>AudioPhonic Turntable
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>Cameras and Camcorders类别：
+</span></span></span><span class=line><span class=cl><span class=s2>FotoSnap DSLR Camera
+</span></span></span><span class=line><span class=cl><span class=s2>ActionCam 4K
+</span></span></span><span class=line><span class=cl><span class=s2>FotoSnap Mirrorless Camera
+</span></span></span><span class=line><span class=cl><span class=s2>ZoomMaster Camcorder
+</span></span></span><span class=line><span class=cl><span class=s2>FotoSnap Instant Camera
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>只输出对象列表，不包含其他内容。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第四步（生成用户回答）的系统信息，添加身份，进一步区分，可以理解成prompt chain</span>
+</span></span><span class=line><span class=cl><span class=n>step_4_system_message_content</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    你是一家大型电子商店的客户服务助理。
+</span></span></span><span class=line><span class=cl><span class=s2>    以友好和乐于助人的语气回答，回答保持简洁明了。
+</span></span></span><span class=line><span class=cl><span class=s2>    确保让用户提出相关的后续问题。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 第六步（验证模型回答）的系统信息，重新根据数据校验结果</span>
+</span></span><span class=line><span class=cl><span class=c1># 思维链的一部分，检查结果</span>
+</span></span><span class=line><span class=cl><span class=n>step_6_system_message_content</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>你是一个助手，评估客户服务代理的回答是否足够回答客户的问题，并验证回答中所有产品信息是否与提供的商品数据一致。
+</span></span></span><span class=line><span class=cl><span class=s2>请基于以下三部分内容进行判断：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 用户的问题
+</span></span></span><span class=line><span class=cl><span class=s2>2. 客服的回答
+</span></span></span><span class=line><span class=cl><span class=s2>3. 商品数据集（包含所有产品的真实信息）
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>输出格式：
+</span></span></span><span class=line><span class=cl><span class=s2>Y - 回答足够且所有产品信息与数据集一致
+</span></span></span><span class=line><span class=cl><span class=s2>N - 回答不足够，或存在与数据集不符的信息
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>只输出一个字母。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># -------------------------- 模型调用函数（基于 ChatTongyi）--------------------------</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>call_llm</span><span class=p>(</span><span class=n>messages</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;统一的模型调用接口&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>response</span> <span class=o>=</span> <span class=n>llm</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>response</span><span class=o>.</span><span class=n>content</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;[模型错误] </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># --------------------------基础数据加载--------------------------</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>load_json_file</span><span class=p>(</span><span class=n>path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;从文件读取 JSON 数据&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>os</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>exists</span><span class=p>(</span><span class=n>path</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>raise</span> <span class=ne>FileNotFoundError</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;未找到文件：</span><span class=si>{</span><span class=n>path</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=n>path</span><span class=p>,</span> <span class=s2>&#34;r&#34;</span><span class=p>,</span> <span class=n>encoding</span><span class=o>=</span><span class=s2>&#34;utf-8&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>json</span><span class=o>.</span><span class=n>load</span><span class=p>(</span><span class=n>f</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>load_products</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>load_json_file</span><span class=p>(</span><span class=n>PRODUCTS_FILE</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>load_categories</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>load_json_file</span><span class=p>(</span><span class=n>CATEGORIES_FILE</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ---------------------- 功能函数 ----------------------</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>extract_products_and_categories</span><span class=p>(</span><span class=n>user_msg</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;调用模型识别用户提到的产品和类别&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=n>SystemMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=n>step_2_system_message_content</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=n>HumanMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>DELIMITER</span><span class=si>}{</span><span class=n>user_msg</span><span class=si>}{</span><span class=n>DELIMITER</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>call_llm</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>read_string_to_list</span><span class=p>(</span><span class=n>json_like_str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;将模型输出转为 Python 对象&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>json_like_str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>fixed</span> <span class=o>=</span> <span class=n>json_like_str</span><span class=o>.</span><span class=n>replace</span><span class=p>(</span><span class=s2>&#34;&#39;&#34;</span><span class=p>,</span> <span class=s1>&#39;&#34;&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>json</span><span class=o>.</span><span class=n>loads</span><span class=p>(</span><span class=n>fixed</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=n>json</span><span class=o>.</span><span class=n>JSONDecodeError</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;[警告] 无法解析模型输出：&#34;</span><span class=p>,</span> <span class=n>json_like_str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>generate_product_info</span><span class=p>(</span><span class=n>data_list</span><span class=p>,</span> <span class=n>products</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;根据识别结果提取产品详情&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>info_text</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>item</span> <span class=ow>in</span> <span class=n>data_list</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>pname</span> <span class=ow>in</span> <span class=n>item</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;products&#34;</span><span class=p>,</span> <span class=p>[]):</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>pname</span> <span class=ow>in</span> <span class=n>products</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>info_text</span> <span class=o>+=</span> <span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>products</span><span class=p>[</span><span class=n>pname</span><span class=p>],</span> <span class=n>ensure_ascii</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>indent</span><span class=o>=</span><span class=mi>2</span><span class=p>)</span> <span class=o>+</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>info_text</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>answer_user_question</span><span class=p>(</span><span class=n>user_msg</span><span class=p>,</span> <span class=n>product_info</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;生成客服回答&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=n>SystemMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=n>step_4_system_message_content</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=n>HumanMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=sa>f</span><span class=s2>&#34;用户问题：</span><span class=si>{</span><span class=n>user_msg</span><span class=si>}</span><span class=se>\n\n</span><span class=s2>相关产品信息：</span><span class=se>\n</span><span class=si>{</span><span class=n>product_info</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>call_llm</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>validate_answer</span><span class=p>(</span><span class=n>user_msg</span><span class=p>,</span> <span class=n>answer</span><span class=p>,</span> <span class=n>products</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;验证客服回答是否正确（传入商品数据作为参考）&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 将商品数据转为字符串，作为参考信息传入</span>
+</span></span><span class=line><span class=cl>    <span class=n>products_str</span> <span class=o>=</span> <span class=n>json</span><span class=o>.</span><span class=n>dumps</span><span class=p>(</span><span class=n>products</span><span class=p>,</span> <span class=n>ensure_ascii</span><span class=o>=</span><span class=kc>False</span><span class=p>,</span> <span class=n>indent</span><span class=o>=</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=n>SystemMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=n>step_6_system_message_content</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=n>HumanMessage</span><span class=p>(</span><span class=n>content</span><span class=o>=</span><span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>		用户问题：</span><span class=si>{</span><span class=n>user_msg</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>		客服回答：</span><span class=si>{</span><span class=n>answer</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>		商品数据集：</span><span class=si>{</span><span class=n>products_str</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>        &#34;&#34;&#34;</span><span class=o>.</span><span class=n>strip</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>call_llm</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    电商客服 AI 系统主流程
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;=== Step 1: 初始化商品与分类数据 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>products</span> <span class=o>=</span> <span class=n>load_products</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;=== Step 2: 模型识别用户提到的商品和类别 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>user_msg</span> <span class=o>=</span> <span class=s2>&#34;你好，我想了解一下 SmartX ProPhone 的电池续航，以及 CineView 8K TV 有没有HDR功能？&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;用户消息：</span><span class=si>{</span><span class=n>user_msg</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>extract_products_and_categories</span><span class=p>(</span><span class=n>user_msg</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;模型识别结果（原始文本）：</span><span class=se>\n</span><span class=si>{</span><span class=n>response</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>data_list</span> <span class=o>=</span> <span class=n>read_string_to_list</span><span class=p>(</span><span class=n>response</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;解析后结构：</span><span class=si>{</span><span class=n>data_list</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>product_info_str</span> <span class=o>=</span> <span class=n>generate_product_info</span><span class=p>(</span><span class=n>data_list</span><span class=p>,</span> <span class=n>products</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;生成的产品信息：</span><span class=se>\n</span><span class=si>{</span><span class=n>product_info_str</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>=== Step 3: 生成客服回答 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>answer</span> <span class=o>=</span> <span class=n>answer_user_question</span><span class=p>(</span><span class=n>user_msg</span><span class=p>,</span> <span class=n>product_info_str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;客服回答：</span><span class=se>\n</span><span class=si>{</span><span class=n>answer</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>=== Step 4: 检查回答质量 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>validation</span> <span class=o>=</span> <span class=n>validate_answer</span><span class=p>(</span><span class=n>user_msg</span><span class=p>,</span> <span class=n>answer</span><span class=p>,</span> <span class=n>product_info_str</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;验证结果（Y=合格，N=不合格）：</span><span class=si>{</span><span class=n>validation</span><span class=si>}</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>基于之前有篇文章写过langchain<a class=link href=https://sutdown.github.io/2025/10/06/langchain/ target=_blank rel=noopener>Langchain到简单Agent - 江舟的博客 | Sutdown Blog</a>，都是些很基础的用法，这里偏向深层次的语法，可以看看，后续再出个具体的应用代码写的agent，用langgraph尽量。</p></blockquote><h2 id=3-基于langchain开发应用程序><a href=#3-%e5%9f%ba%e4%ba%8elangchain%e5%bc%80%e5%8f%91%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f class=header-anchor></a>3 基于LangChain开发应用程序</h2><h3 id=31-基础介绍><a href=#31-%e5%9f%ba%e7%a1%80%e4%bb%8b%e7%bb%8d class=header-anchor></a>3.1 基础介绍</h3><p>LangChain 是用于构建大模型应用程序的开源框架，有Python和JavaScript两个不同版本的包。LangChain 也是一个开源项目，社区活跃，新增功能快速迭代。LangChain基于模块化组合，有许多单独的组件，可以一起使用或单独使用。</p><p>LangChain 的常用组件：</p><ul><li>模型(Models)：集成各种语言模型与向量模型。</li><li>提示(Prompts)：向模型提供指令的途径。</li><li>索引(Indexes)：提供数据检索功能。</li><li>链(Chains)：将组件组合实现端到端应用。</li><li>代理(Agents)：扩展模型的推理能力</li></ul><h3 id=32-组件><a href=#32-%e7%bb%84%e4%bb%b6 class=header-anchor></a>3.2 组件</h3><h4 id=模板><a href=#%e6%a8%a1%e6%9d%bf class=header-anchor></a>模板</h4><p>在应用于比较复杂的场景时，提示可能会非常长并且包含涉及许多细节。<strong>使用提示模版，可以让我们更为方便地重复使用设计好的提示</strong>。</p><p>当然对于特定的条件，也可以采用输出解释器提取用户评价中的信息。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span><span class=lnt>131
+</span><span class=lnt>132
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain.output_parsers</span> <span class=kn>import</span> <span class=n>ResponseSchema</span><span class=p>,</span> <span class=n>StructuredOutputParser</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_community.chat_models</span> <span class=kn>import</span> <span class=n>ChatTongyi</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dotenv</span> <span class=kn>import</span> <span class=n>load_dotenv</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_core.prompts</span> <span class=kn>import</span> <span class=n>ChatPromptTemplate</span><span class=p>,</span> <span class=n>SystemMessagePromptTemplate</span><span class=p>,</span> <span class=n>HumanMessagePromptTemplate</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>load_dotenv</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>DASHSCOPE_API_KEY</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>getenv</span><span class=p>(</span><span class=s2>&#34;DASHSCOPE_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>llm</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>,</span> <span class=n>api_key</span><span class=o>=</span><span class=n>DASHSCOPE_API_KEY</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    prompt template
+</span></span></span><span class=line><span class=cl><span class=s2>    默认进行了embedding
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>customer_style_res</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;正式普通话 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>用一个平静、尊敬、有礼貌的语调
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>customer_res</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>嗯呐，我现在可是火冒三丈，我那个搅拌机盖子竟然飞了出去，把我厨房的墙壁都溅上了果汁！
+</span></span></span><span class=line><span class=cl><span class=s2>更糟糕的是，保修条款可不包括清理我厨房的费用。
+</span></span></span><span class=line><span class=cl><span class=s2>伙计，赶紧给我过来！
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>service_reply</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;嘿，顾客， </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>保修不包括厨房的清洁费用， </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>因为您在启动搅拌机之前 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>忘记盖上盖子而误用搅拌机, </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>这是您的错。 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>倒霉！ 再见！
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>service_style_pirate</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>一个有礼貌的语气 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>使用海盗风格</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>customer_review</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>这款吹叶机非常神奇。 它有四个设置：</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>吹蜡烛、微风、风城、龙卷风。 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>两天后就到了，正好赶上我妻子的</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>周年纪念礼物。 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>我想我的妻子会喜欢它到说不出话来。 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>到目前为止，我是唯一一个使用它的人，而且我一直</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>每隔一天早上用它来清理草坪上的叶子。 </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>它比其他吹叶机稍微贵一点，</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>但我认为它的额外功能是值得的。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>review_template</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>对于以下文本，请从中提取以下信息：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>礼物：该商品是作为礼物送给别人的吗？ </span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>如果是，则回答 是的；如果否或未知，则回答 不是。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>交货天数：产品需要多少天</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>到达？ 如果没有找到该信息，则输出-1。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>价钱：提取有关价值或价格的任何句子，</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>并将它们输出为逗号分隔的 Python 列表。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>使用以下键将输出格式化为 JSON：
+</span></span></span><span class=line><span class=cl><span class=s2>礼物
+</span></span></span><span class=line><span class=cl><span class=s2>交货天数
+</span></span></span><span class=line><span class=cl><span class=s2>价钱
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>文本: </span><span class=si>{text}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>review_template_2</span> <span class=o>=</span> <span class=s2>&#34;&#34;&#34;</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>对于以下文本，请从中提取以下信息：：
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>礼物：该商品是作为礼物送给别人的吗？
+</span></span></span><span class=line><span class=cl><span class=s2>如果是，则回答 是的；如果否或未知，则回答 不是。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>交货天数：产品到达需要多少天？ 如果没有找到该信息，则输出-1。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>价钱：提取有关价值或价格的任何句子，并将它们输出为逗号分隔的 Python 列表。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>文本: </span><span class=si>{text}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=si>{format_instructions}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    功能函数
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>translate_email</span><span class=p>(</span><span class=n>style</span><span class=p>,</span> <span class=n>customer_email</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>human_prompt</span> <span class=o>=</span> <span class=n>HumanMessagePromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    请把由三个反引号分隔的文本翻译成一种</span><span class=si>{style}</span><span class=s2>风格。
+</span></span></span><span class=line><span class=cl><span class=s2>    文本: ```</span><span class=si>{customer_email}</span><span class=s2>```
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>system_prompt</span> <span class=o>=</span> <span class=n>SystemMessagePromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span><span class=s2>&#34;你是一个ai助手。&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_messages</span><span class=p>([</span><span class=n>system_prompt</span><span class=p>,</span> <span class=n>human_prompt</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=n>prompt</span><span class=o>.</span><span class=n>format_messages</span><span class=p>(</span><span class=n>style</span><span class=o>=</span><span class=n>style</span><span class=p>,</span> <span class=n>customer_email</span><span class=o>=</span><span class=n>customer_email</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>llm</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34; - messages</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>response</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>translate_review</span><span class=p>(</span><span class=n>text</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>human_prompt</span> <span class=o>=</span> <span class=n>HumanMessagePromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span><span class=n>review_template</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>system_prompt</span> <span class=o>=</span> <span class=n>SystemMessagePromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span><span class=s2>&#34;你是一个ai助手。&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_messages</span><span class=p>([</span><span class=n>system_prompt</span><span class=p>,</span> <span class=n>human_prompt</span><span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=n>prompt</span><span class=o>.</span><span class=n>format_messages</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>text</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>llm</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34; - messages</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>response</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>translate_review_2</span><span class=p>(</span><span class=n>text</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span><span class=n>template</span><span class=o>=</span><span class=n>review_template_2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>gift_schema</span> <span class=o>=</span> <span class=n>ResponseSchema</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s2>&#34;礼物&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                <span class=n>description</span><span class=o>=</span><span class=s2>&#34;这件物品是作为礼物送给别人的吗？</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>                                如果是，则回答 是的，</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>                                如果否或未知，则回答 不是。&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>delivery_days_schema</span> <span class=o>=</span> <span class=n>ResponseSchema</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s2>&#34;交货天数&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                          <span class=n>description</span><span class=o>=</span><span class=s2>&#34;产品需要多少天才能到达？</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>                                          如果没有找到该信息，则输出-1。&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>price_value_schema</span> <span class=o>=</span> <span class=n>ResponseSchema</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s2>&#34;价钱&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                                        <span class=n>description</span><span class=o>=</span><span class=s2>&#34;提取有关价值或价格的任何句子，</span><span class=se>\
+</span></span></span><span class=line><span class=cl><span class=s2>                                        并将它们输出为逗号分隔的 Python 列表&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response_schemas</span> <span class=o>=</span> <span class=p>[</span><span class=n>gift_schema</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                        <span class=n>delivery_days_schema</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                        <span class=n>price_value_schema</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>output_parser</span> <span class=o>=</span> <span class=n>StructuredOutputParser</span><span class=o>.</span><span class=n>from_response_schemas</span><span class=p>(</span><span class=n>response_schemas</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>format_instructions</span> <span class=o>=</span> <span class=n>output_parser</span><span class=o>.</span><span class=n>get_format_instructions</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span> <span class=o>=</span> <span class=n>prompt</span><span class=o>.</span><span class=n>format_messages</span><span class=p>(</span><span class=n>text</span><span class=o>=</span><span class=n>text</span><span class=p>,</span> <span class=n>format_instructions</span><span class=o>=</span><span class=n>format_instructions</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>llm</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34; - messages</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>,</span> <span class=n>response</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1># translate_email(customer_style_res, customer_res)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># translate_email(service_style_pirate, service_reply)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># translate_review(customer_review)</span>
+</span></span><span class=line><span class=cl>    <span class=n>translate_review_2</span><span class=p>(</span><span class=n>customer_review</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=memory><a href=#memory class=header-anchor></a>Memory</h4><p>在 LangChain 中，储存指的是大语言模型（LLM）的短期记忆。当使用 LangChain 中的储存(Memory)模块时，它旨在保存、组织和跟踪整个对话的历史，从而为用户和模型之间的交互提供连续的上下文。</p><p>LangChain 提供了多种储存类型。这些记忆组件都是模块化的，可与其他组件组合使用，从而增强机器人的对话管理能力。储存模块可以通过简单的 API 调用来访问和更新，允许开发人员更轻松地实现对话历史记录的管理和维护。</p><ul><li>缓冲区储存允许保留最近的聊天消息，</li><li>摘要储存则提供了对整个对话的摘要。</li><li>实体储存则允许在多轮对话中保留有关特定实体的信息。</li></ul><div class=table-wrapper><table><thead><tr><th>类型</th><th>保存方式</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td><code>InMemoryChatMessageHistory</code></td><td>内存</td><td>简单，快速</td><td>会话结束丢失数据</td></tr><tr><td><code>ConversationBufferMemory</code></td><td>内存，链友好</td><td>可以直接在 chain 中使用</td><td>长对话 token 会增大</td></tr><tr><td><code>ConversationSummaryMemory</code></td><td>内存 + LLM摘要</td><td>节省 token，保持核心上下文</td><td>需要额外调用 LLM</td></tr><tr><td>自定义 Memory</td><td>任意</td><td>灵活</td><td>需要自己管理逻辑</td></tr></tbody></table></div><p>单对话单用户，下面代码尝试了一下简单的角色扮演，能够记住上下文，角色扮演的语气场景都不错，看来千问的效果很好。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>llm</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>,</span> <span class=n>api_key</span><span class=o>=</span><span class=n>DASHSCOPE_API_KEY</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 存储对话的地方（取代 ConversationBufferMemory）</span>
+</span></span><span class=line><span class=cl><span class=n>store</span> <span class=o>=</span> <span class=p>{}</span>  <span class=c1># 模拟 session 存储</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>get_session_history</span><span class=p>(</span><span class=n>session_id</span><span class=p>:</span> <span class=nb>str</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;根据 session_id 获取或创建消息历史&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>session_id</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>store</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=c1># InMemoryChatMessageHistory() 是一个用来保存对话消息历史的容器。</span>
+</span></span><span class=line><span class=cl>        <span class=c1># 可以保存，用户说的话 和 模型回答</span>
+</span></span><span class=line><span class=cl>        <span class=n>store</span><span class=p>[</span><span class=n>session_id</span><span class=p>]</span> <span class=o>=</span> <span class=n>InMemoryChatMessageHistory</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>store</span><span class=p>[</span><span class=n>session_id</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>runnable_func</span><span class=p>(</span><span class=n>inputs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>history</span> <span class=o>=</span> <span class=n>inputs</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;chat_history&#34;</span><span class=p>,</span> <span class=p>[])</span>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>=</span> <span class=s2>&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>msg</span> <span class=ow>in</span> <span class=n>history</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>prompt</span> <span class=o>+=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>msg</span><span class=o>.</span><span class=n>type</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>msg</span><span class=o>.</span><span class=n>content</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>+=</span> <span class=sa>f</span><span class=s2>&#34;user: </span><span class=si>{</span><span class=n>inputs</span><span class=p>[</span><span class=s1>&#39;input&#39;</span><span class=p>]</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>llm</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>prompt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># runablewithmeaasgehistory是一个通用组件，用于处理会话历史</span>
+</span></span><span class=line><span class=cl><span class=n>runnable</span> <span class=o>=</span> <span class=n>RunnableLambda</span><span class=p>(</span><span class=n>runnable_func</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>chain</span> <span class=o>=</span> <span class=n>RunnableWithMessageHistory</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>runnable</span><span class=o>=</span><span class=n>runnable</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>get_session_history</span><span class=o>=</span><span class=n>get_session_history</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>input_messages_key</span><span class=o>=</span><span class=s2>&#34;input&#34;</span><span class=p>,</span>          <span class=c1># 输入字段名</span>
+</span></span><span class=line><span class=cl>    <span class=n>history_messages_key</span><span class=o>=</span><span class=s2>&#34;chat_history&#34;</span>  <span class=c1># 历史字段名</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 指定一个 session_id（比如不同用户或会话）</span>
+</span></span><span class=line><span class=cl><span class=n>session_id</span> <span class=o>=</span> <span class=s2>&#34;user1&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;🧠 开始多轮对话（输入 &#39;exit&#39; 退出）&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>user_input</span> <span class=o>=</span> <span class=nb>input</span><span class=p>(</span><span class=s2>&#34;👤 你：&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>user_input</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span> <span class=ow>in</span> <span class=p>{</span><span class=s2>&#34;exit&#34;</span><span class=p>,</span> <span class=s2>&#34;quit&#34;</span><span class=p>}:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;🚪 结束对话&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>break</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>response</span> <span class=o>=</span> <span class=n>chain</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s2>&#34;input&#34;</span><span class=p>:</span> <span class=n>user_input</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=n>config</span><span class=o>=</span><span class=p>{</span><span class=s2>&#34;configurable&#34;</span><span class=p>:</span> <span class=p>{</span><span class=s2>&#34;session_id&#34;</span><span class=p>:</span> <span class=n>session_id</span><span class=p>}}</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;🤖 AI：</span><span class=si>{</span><span class=n>response</span><span class=o>.</span><span class=n>content</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=模型链---chain><a href=#%e6%a8%a1%e5%9e%8b%e9%93%be---chain class=header-anchor></a>模型链 - Chain</h4><p>链（Chains）通常将大语言模型（LLM）与提示（Prompt）结合在一起，基于此，我们可以对文本或数据进行一系列操作。链（Chains）可以一次性接受多个输入。</p><h5 id=简单顺序链><a href=#%e7%ae%80%e5%8d%95%e9%a1%ba%e5%ba%8f%e9%93%be class=header-anchor></a>简单顺序链</h5><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>llm</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>,</span> <span class=n>api_key</span><span class=o>=</span><span class=n>DASHSCOPE_API_KEY</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>first_prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;把下面的评论review翻译成英文:&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;</span><span class=se>\n\n</span><span class=si>{Review}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># prompt模板 2: 用一句话总结下面的 review</span>
+</span></span><span class=line><span class=cl><span class=n>second_prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;请你用一句话来总结下面的评论review:&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;</span><span class=se>\n\n</span><span class=si>{English_Review}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># prompt模板 3: 下面review使用的什么语言</span>
+</span></span><span class=line><span class=cl><span class=n>third_prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;下面的评论review使用的什么语言:</span><span class=se>\n\n</span><span class=si>{Review}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># prompt模板 4: 使用特定的语言对下面的总结写一个后续回复</span>
+</span></span><span class=line><span class=cl><span class=n>fourth_prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_template</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;使用特定的语言对下面的总结写一个后续回复:&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;</span><span class=se>\n\n</span><span class=s2>总结: </span><span class=si>{summary}</span><span class=se>\n\n</span><span class=s2>语言: </span><span class=si>{language}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 将 overall_chain 修改为直接串联各个步骤</span>
+</span></span><span class=line><span class=cl><span class=c1># 使用 RunnableMap 一次性处理所有步骤</span>
+</span></span><span class=line><span class=cl><span class=n>overall_chain</span> <span class=o>=</span> <span class=n>RunnableMap</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;English_Review&#34;</span><span class=p>:</span> <span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=p>(</span><span class=n>first_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s2>&#34;Review&#34;</span><span class=p>]}),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;summary&#34;</span><span class=p>:</span> <span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=p>(</span><span class=n>second_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;English_Review&#34;</span><span class=p>:</span> <span class=p>(</span><span class=n>first_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s2>&#34;Review&#34;</span><span class=p>]})</span>
+</span></span><span class=line><span class=cl>    <span class=p>}),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;language&#34;</span><span class=p>:</span> <span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=p>(</span><span class=n>third_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s2>&#34;Review&#34;</span><span class=p>]}),</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;followup_message&#34;</span><span class=p>:</span> <span class=k>lambda</span> <span class=n>x</span><span class=p>:</span> <span class=p>(</span><span class=n>fourth_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;summary&#34;</span><span class=p>:</span> <span class=p>(</span><span class=n>second_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span>
+</span></span><span class=line><span class=cl>            <span class=s2>&#34;English_Review&#34;</span><span class=p>:</span> <span class=p>(</span><span class=n>first_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s2>&#34;Review&#34;</span><span class=p>]})</span>
+</span></span><span class=line><span class=cl>        <span class=p>}),</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;language&#34;</span><span class=p>:</span> <span class=p>(</span><span class=n>third_prompt</span> <span class=o>|</span> <span class=n>llm</span><span class=p>)</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>x</span><span class=p>[</span><span class=s2>&#34;Review&#34;</span><span class=p>]})</span>
+</span></span><span class=line><span class=cl>    <span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=p>})</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>review_text</span> <span class=o>=</span> <span class=s2>&#34;部员们都很有个性——真田那家伙，严肃得像块石头，但其实比谁都可靠；柳生总是冷静分析，却会在切原胡闹时默默帮他收拾烂摊子；仁王那狐狸，总爱捉弄人，可关键时刻从不含糊；还有丸井和桑原，一个爱吹泡泡糖，一个沉默却温柔，他们之间的默契谁都比不上。&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>overall_chain</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;Review&#34;</span><span class=p>:</span> <span class=n>review_text</span><span class=p>})</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;英文评论:&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>[</span><span class=s2>&#34;English_Review&#34;</span><span class=p>]</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;评论总结:&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>[</span><span class=s2>&#34;summary&#34;</span><span class=p>]</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;评论语言:&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>[</span><span class=s2>&#34;language&#34;</span><span class=p>]</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;后续回复:&#34;</span><span class=p>,</span> <span class=n>result</span><span class=p>[</span><span class=s2>&#34;followup_message&#34;</span><span class=p>]</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=路由链><a href=#%e8%b7%af%e7%94%b1%e9%93%be class=header-anchor></a>路由链</h5><p>如果你有多个子链，每个子链都专门用于特定类型的输入，那么可以组成一个路由链，它首先决定将它传递给哪个子链，然后将它传递给那个链。</p><p>路由器由两个组件组成：</p><ul><li>路由链（Router Chain）：路由器链本身，负责选择要调用的下一个链</li><li>destination_chains：路由器链可以路由到的链</li></ul><h4 id=基于文档的问答><a href=#%e5%9f%ba%e4%ba%8e%e6%96%87%e6%a1%a3%e7%9a%84%e9%97%ae%e7%ad%94 class=header-anchor></a>基于文档的问答</h4><h4 id=评估---evaluation><a href=#%e8%af%84%e4%bc%b0---evaluation class=header-anchor></a>评估 - Evaluation</h4><h4 id=代理---agent><a href=#%e4%bb%a3%e7%90%86---agent class=header-anchor></a>代理 - Agent</h4><h2 id=4-使用langchain访问个人数据><a href=#4-%e4%bd%bf%e7%94%a8langchain%e8%ae%bf%e9%97%ae%e4%b8%aa%e4%ba%ba%e6%95%b0%e6%8d%ae class=header-anchor></a>4 使用Langchain访问个人数据</h2><h3 id=41-基础介绍><a href=#41-%e5%9f%ba%e7%a1%80%e4%bb%8b%e7%bb%8d class=header-anchor></a>4.1 基础介绍</h3><h3 id=42-组件><a href=#42-%e7%bb%84%e4%bb%b6 class=header-anchor></a>4.2 组件</h3><h4 id=文档加载><a href=#%e6%96%87%e6%a1%a3%e5%8a%a0%e8%bd%bd class=header-anchor></a>文档加载</h4><h4 id=文档分割><a href=#%e6%96%87%e6%a1%a3%e5%88%86%e5%89%b2 class=header-anchor></a>文档分割</h4><h4 id=向量数据库与词向量><a href=#%e5%90%91%e9%87%8f%e6%95%b0%e6%8d%ae%e5%ba%93%e4%b8%8e%e8%af%8d%e5%90%91%e9%87%8f class=header-anchor></a>向量数据库与词向量</h4><h4 id=检索><a href=#%e6%a3%80%e7%b4%a2 class=header-anchor></a>检索</h4><h4 id=问答><a href=#%e9%97%ae%e7%ad%94 class=header-anchor></a>问答</h4><h4 id=聊天><a href=#%e8%81%8a%e5%a4%a9 class=header-anchor></a>聊天</h4><h3 id=43-总结><a href=#43-%e6%80%bb%e7%bb%93 class=header-anchor></a>4.3 总结</h3><h5><a href=# class=header-anchor></a></h5></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/><div class=article-image><img src=/images/d92d9921.jpg loading=lazy data-key data-hash=/images/d92d9921.jpg></div><div class=article-details><h2 class=article-title>Langchain到简单Agent</h2></div></a></article><article class=has-image><a href=/p/%E5%9F%BA%E4%BA%8Elangchain%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E5%B8%B8%E8%A7%81%E7%94%A8%E6%B3%95/><div class=article-image><img src=/images/7d388d79.jpg loading=lazy data-key data-hash=/images/7d388d79.jpg></div><div class=article-details><h2 class=article-title>基于langchain源码剖析常见用法</h2></div></a></article><article class=has-image><a href=/p/code-agent/><div class=article-image><img src=/images/92dbc608.jpg loading=lazy data-key data-hash=/images/92dbc608.jpg></div><div class=article-details><h2 class=article-title>Code Agent</h2></div></a></article><article class=has-image><a href=/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/><div class=article-image><img src=/images/9d46bfff.jpg loading=lazy data-key data-hash=/images/9d46bfff.jpg></div><div class=article-details><h2 class=article-title>大模型原理：从transformer到llm</h2></div></a></article><article class=has-image><a href=/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/><div class=article-image><img src=/images/31b7298e.jpg loading=lazy data-key data-hash=/images/31b7298e.jpg></div><div class=article-details><h2 class=article-title>MCP详解指南</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

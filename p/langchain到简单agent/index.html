@@ -1,0 +1,383 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="本文介绍从LangChain基础到构建简单Agent的实现过程，包括LLM调用、Prompt模板、工具集成等关键概念。"><title>Langchain到简单Agent</title><link rel=canonical href=https://sutdown.github.io/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="Langchain到简单Agent"><meta property='og:description' content="本文介绍从LangChain基础到构建简单Agent的实现过程，包括LLM调用、Prompt模板、工具集成等关键概念。"><meta property='og:url' content='https://sutdown.github.io/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-10-06T00:00:00+00:00'><meta property='article:modified_time' content='2025-10-06T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/d92d9921.jpg'><meta name=twitter:title content="Langchain到简单Agent"><meta name=twitter:description content="本文介绍从LangChain基础到构建简单Agent的实现过程，包括LLM调用、Prompt模板、工具集成等关键概念。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/d92d9921.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#0-ai相关基础概念>0 AI相关基础概念</a></li><li><a href=#1-基础llm和聊天模型调用>1 基础LLM和聊天模型调用</a><ul><li><a href=#chat-api调用>Chat API调用</a></li><li><a href=#app-key>APP KEY</a></li><li><a href=#prompt-模板>Prompt 模板</a></li></ul></li><li><a href=#2-简单agent>2 简单Agent</a><ul><li><a href=#基础概念>基础概念</a></li><li><a href=#核心逻辑>核心逻辑</a></li><li><a href=#langchaintools>LangChain.tools</a></li><li><a href=#旅游助手agent>旅游助手agent</a></li></ul></li><li><a href=#后话>后话</a></li><li><a href=#参考文档>参考文档</a></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/><img src=/images/d92d9921.jpg loading=lazy alt="Featured image of post Langchain到简单Agent"></a></div><div class=article-details><header class=article-category><a href=/categories/ai/>AI
+</a><a href=/categories/langchain/>LangChain
+</a><a href=/categories/llm/>LLM</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/langchain%E5%88%B0%E7%AE%80%E5%8D%95agent/>Langchain到简单Agent</a></h2><h3 class=article-subtitle>本文介绍从LangChain基础到构建简单Agent的实现过程，包括LLM调用、Prompt模板、工具集成等关键概念。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-10-06T00:00:00Z>Oct 06, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 8 分钟</time></div></footer></div></header><section class=article-content><h2 id=0-ai相关基础概念><a href=#0-ai%e7%9b%b8%e5%85%b3%e5%9f%ba%e7%a1%80%e6%a6%82%e5%bf%b5 class=header-anchor></a>0 AI相关基础概念</h2><ul><li><strong>LangChain</strong> 是一个用于开发由大型语言模型（LLMs）驱动的应用程序的框架。</li><li>**生成式AI：**使用大模型进行支持，在大量原始未标记的数据基础上对于深度学习模型进行预训练，从而让机器能够理解语言甚至图像，能根据需要自动生成内容。</li><li>**大模型的训练阶段：**预训练（提升本身的知识量），SFT（Supervised Fine-Tuning监督微调，专注于选择某一方面），RLF（Reinforcement Learning with Human Feedback基于人类反馈的强化学习）</li><li><strong>prompt</strong>：使用大模型时，向模型提供的一些指令或者问题，这些指令作为模型输入，引导模型产生必要的输出。</li></ul><h2 id=1-基础llm和聊天模型调用><a href=#1-%e5%9f%ba%e7%a1%80llm%e5%92%8c%e8%81%8a%e5%a4%a9%e6%a8%a1%e5%9e%8b%e8%b0%83%e7%94%a8 class=header-anchor></a>1 基础LLM和聊天模型调用</h2><h3 id=chat-api调用><a href=#chat-api%e8%b0%83%e7%94%a8 class=header-anchor></a>Chat API调用</h3><p>LangChain 将底层 API 调用抽象为统一的接口（如<code>ChatOpenAI</code>、<code>LLM</code>类），屏蔽了不同模型 API 的差异（如阿里云、百度、OpenAI 的接口格式不同）。</p><blockquote><p>当前支持的模型：<a class=link href=https://python.langchain.ac.cn/docs/integrations/chat/ target=_blank rel=noopener>聊天模型 | 🦜️🔗 LangChain 框架</a></p></blockquote><h3 id=app-key><a href=#app-key class=header-anchor></a>APP KEY</h3><p>以通义千问为例，app key可以从<a class=link href=https://www.aliyun.com/product/bailian target=_blank rel=noopener>阿里云百炼大模型服务平台</a>中获取，存在一定的免费额度，app key建议新建一个<code>.env</code>文件存储，加上<code>load_dotenv()</code>预先加载即可。</p><h3 id=prompt-模板><a href=#prompt-%e6%a8%a1%e6%9d%bf class=header-anchor></a>Prompt 模板</h3><p><code>ChatPromptTemplate</code> 是 LangChain 中用于管理对话提示词的核心工具，专为多角色（如 <code>system</code>、<code>user</code>、<code>assistant</code>）对话场景设计，其优点主要体现在<strong>结构化、灵活性、复用性</strong>和<strong>生态集成能力</strong>上。</p><p>它的核心在于增加了提示词的灵活性，将其从”静态字符串“升级成了”可配置，可动态生成，可集成的结构化组件“。在需要处理多角色度化，动态调整提示词，复用模板或者集成langchain的其它功能时，能够显著提升代码质量。</p><blockquote><p>官方文档：<a class=link href=https://python.langchain.ac.cn/docs/concepts/prompt_templates/ target=_blank rel=noopener>提示模板 | 🦜️🔗 LangChain 框架</a></p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_community.chat_models</span> <span class=kn>import</span> <span class=n>ChatTongyi</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dotenv</span> <span class=kn>import</span> <span class=n>load_dotenv</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_core.prompts</span> <span class=kn>import</span> <span class=n>ChatPromptTemplate</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>load_dotenv</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>os</span><span class=o>.</span><span class=n>environ</span><span class=p>[</span><span class=s2>&#34;DASHSCOPE_API_KEY&#34;</span><span class=p>]</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>getenv</span><span class=p>(</span><span class=s2>&#34;DASHSCOPE_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>main</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>chat</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>prompt_template</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_messages</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=s2>&#34;system&#34;</span><span class=p>,</span> <span class=s2>&#34;你是</span><span class=si>{role}</span><span class=s2>，专业领域为</span><span class=si>{field}</span><span class=s2>。回答需符合</span><span class=si>{style}</span><span class=s2>风格，控制在</span><span class=si>{word_limit}</span><span class=s2>字左右。&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=s2>&#34;user&#34;</span><span class=p>,</span> <span class=s2>&#34;这个</span><span class=si>{concept}</span><span class=s2>的作用是什么，担任什么样的角色？&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>])</span>
+</span></span><span class=line><span class=cl>    <span class=n>params1</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;科普博主&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;field&#34;</span><span class=p>:</span> <span class=s2>&#34;人工智能&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;style&#34;</span><span class=p>:</span> <span class=s2>&#34;口语化、通俗易懂&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;word_limit&#34;</span><span class=p>:</span> <span class=s2>&#34;30&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;concept&#34;</span><span class=p>:</span> <span class=s2>&#34;通义千问&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>params2</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;AI工程师&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;field&#34;</span><span class=p>:</span> <span class=s2>&#34;大语言模型&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;style&#34;</span><span class=p>:</span> <span class=s2>&#34;专业、技术化&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;word_limit&#34;</span><span class=p>:</span> <span class=s2>&#34;50&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;concept&#34;</span><span class=p>:</span> <span class=s2>&#34;通义千问&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;=== 场景1：向普通用户解释 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages1</span> <span class=o>=</span> <span class=n>prompt_template</span><span class=o>.</span><span class=n>format_messages</span><span class=p>(</span><span class=o>**</span><span class=n>params1</span><span class=p>)</span>  <span class=c1># 用参数填充模板</span>
+</span></span><span class=line><span class=cl>    <span class=n>response1</span> <span class=o>=</span> <span class=n>chat</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>response1</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>=== 场景2：向开发者解释 ===&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages2</span> <span class=o>=</span> <span class=n>prompt_template</span><span class=o>.</span><span class=n>format_messages</span><span class=p>(</span><span class=o>**</span><span class=n>params2</span><span class=p>)</span>  <span class=c1># 复用同一模板，仅换参数</span>
+</span></span><span class=line><span class=cl>    <span class=n>response2</span> <span class=o>=</span> <span class=n>chat</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=n>messages2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>response2</span><span class=o>.</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>main</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>=== 场景1：向普通用户解释 ===
+</span></span></span><span class=line><span class=cl><span class=s2>通义千问是个AI助手，能回答问题、写故事、编程，帮你搞定各种任务！
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>=== 场景2：向开发者解释 ===
+</span></span></span><span class=line><span class=cl><span class=s2>通义千问是大语言模型，用于理解与生成人类语言，支持问答、创作、推理等任务，扮演智能助手角色。
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=2-简单agent><a href=#2-%e7%ae%80%e5%8d%95agent class=header-anchor></a>2 简单Agent</h2><h3 id=基础概念><a href=#%e5%9f%ba%e7%a1%80%e6%a6%82%e5%bf%b5 class=header-anchor></a>基础概念</h3><p><strong>AI agents</strong>：基于LLM的能够自主理解，自主规划决策，执行复杂任务的智能体。</p><p><strong>AI agents流程</strong></p><ul><li>规划（planing）：将任务分为子任务，对任务进行思考反思 &mdash; 给一个合适的prompt</li><li>记忆（memory）：记住执行任务的上下文，有助于更好的理解当前任务 &mdash; 短期记忆 长期记忆</li><li>工具（tools）：为智能体配备工具AI，比如计算器，搜索工具等</li></ul><h3 id=核心逻辑><a href=#%e6%a0%b8%e5%bf%83%e9%80%bb%e8%be%91 class=header-anchor></a>核心逻辑</h3><p><code>Agent</code> 的核心逻辑遵循 REACT 框架（Reason→Act→Observe→React），这是一种典型的链式流程。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-txt data-lang=txt><span class=line><span class=cl>用户输入 → 记忆组件（加载历史对话） → Agent（分析是否调用工具） → 工具（执行任务） → Agent（处理结果） → 记忆组件（保存新对话） → 输出回答
+</span></span></code></pre></td></tr></table></div></div><h3 id=langchaintools><a href=#langchaintools class=header-anchor></a>LangChain.tools</h3><p>LangChain 的 Tools 是连接大模型与外部功能的核心组件。工具是一种封装函数及其模式的方式，以便可以将其传递给聊天模型。使用@tool装饰器创建工具，该装饰器简化了工具创建过程，支持以下功能：</p><ul><li>自动推断工具的<strong>名称</strong>、<strong>描述</strong>和<strong>预期参数</strong>，同时支持自定义。</li><li>定义返回<strong>工件</strong>（例如图像、数据框等）的工具</li><li>使用<strong>注入的工具参数</strong>从模式（从而从模型）中隐藏输入参数。</li></ul><p><a class=link href=https://python.langchain.ac.cn/docs/concepts/tools/ target=_blank rel=noopener>工具 | 🦜️🔗 LangChain 框架</a></p><h3 id=旅游助手agent><a href=#%e6%97%85%e6%b8%b8%e5%8a%a9%e6%89%8bagent class=header-anchor></a>旅游助手agent</h3><p>这段代码实现了一个基于 <strong>LangChain</strong> 和 <strong>通义千问（ChatTongyi）</strong> 的智能旅行助手，具备联网搜索、预算计算和多轮对话记忆功能。</p><ul><li>谷歌搜索工具（google_search）：通过 Serper API 调用 Google 搜索，获取实时信息如天气、景点、政策等。<a class=link href=https://serper.dev/logs target=_blank rel=noopener>Serper API key</a>，也可以用其余搜索工具，采用相应的api key即可。</li><li>预算计算工具（calculate_budget）：输入“天数,每日预算”格式，自动计算旅行总费用。</li><li>对话记忆（ConversationSummaryMemory）：保留历史对话摘要，帮助模型理解上下文（如“刚才的城市”）</li><li>自定义提示词模板（ChatPromptTemplate）：定义系统行为和工具使用逻辑，让模型决定何时调用工具。</li><li>智能体（Agent）初始化：通过 <code>initialize_agent()</code> 将 LLM、工具和记忆整合为具备推理和工具调用能力的对话体。</li><li>交互循环（chat_loop）：实现命令行多轮聊天界面，支持实时输入与退出（exit/退出）。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span><span class=lnt>126
+</span><span class=lnt>127
+</span><span class=lnt>128
+</span><span class=lnt>129
+</span><span class=lnt>130
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>os</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>requests</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>dotenv</span> <span class=kn>import</span> <span class=n>load_dotenv</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain_community.chat_models</span> <span class=kn>import</span> <span class=n>ChatTongyi</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain.prompts</span> <span class=kn>import</span> <span class=n>ChatPromptTemplate</span><span class=p>,</span> <span class=n>MessagesPlaceholder</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain.tools</span> <span class=kn>import</span> <span class=n>tool</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain.memory</span> <span class=kn>import</span> <span class=n>ConversationSummaryMemory</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langchain.agents</span> <span class=kn>import</span> <span class=n>initialize_agent</span><span class=p>,</span> <span class=n>AgentType</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>datetime</span> <span class=kn>import</span> <span class=n>datetime</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>load_dotenv</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;tool&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=nd>@tool</span><span class=p>(</span><span class=s2>&#34;谷歌搜索&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=n>description</span><span class=o>=</span><span class=s2>&#34;使用 Google 搜索获取实时信息，如‘北京天气’、‘东京景点推荐’、‘签证政策’等&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>google_search</span><span class=p>(</span><span class=n>query</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>api_key</span> <span class=o>=</span> <span class=n>os</span><span class=o>.</span><span class=n>getenv</span><span class=p>(</span><span class=s2>&#34;SERPER_API_KEY&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>api_key</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;未设置 SERPER_API_KEY 环境变量&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>url</span> <span class=o>=</span> <span class=s2>&#34;https://google.serper.dev/search&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>headers</span> <span class=o>=</span> <span class=p>{</span><span class=s2>&#34;X-API-KEY&#34;</span><span class=p>:</span> <span class=n>api_key</span><span class=p>,</span> <span class=s2>&#34;Content-Type&#34;</span><span class=p>:</span> <span class=s2>&#34;application/json&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>payload</span> <span class=o>=</span> <span class=p>{</span><span class=s2>&#34;q&#34;</span><span class=p>:</span> <span class=n>query</span><span class=p>,</span> <span class=s2>&#34;num&#34;</span><span class=p>:</span> <span class=mi>5</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>res</span> <span class=o>=</span> <span class=n>requests</span><span class=o>.</span><span class=n>post</span><span class=p>(</span><span class=n>url</span><span class=p>,</span> <span class=n>headers</span><span class=o>=</span><span class=n>headers</span><span class=p>,</span> <span class=n>json</span><span class=o>=</span><span class=n>payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>data</span> <span class=o>=</span> <span class=n>res</span><span class=o>.</span><span class=n>json</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=s2>&#34;organic&#34;</span> <span class=ow>not</span> <span class=ow>in</span> <span class=n>data</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>return</span> <span class=s2>&#34;未找到搜索结果。&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>results</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>r</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;title&#39;</span><span class=p>)</span><span class=si>}</span><span class=s2>: </span><span class=si>{</span><span class=n>r</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;snippet&#39;</span><span class=p>)</span><span class=si>}</span><span class=s2> (</span><span class=si>{</span><span class=n>r</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s1>&#39;link&#39;</span><span class=p>)</span><span class=si>}</span><span class=s2>)&#34;</span>
+</span></span><span class=line><span class=cl>            <span class=k>for</span> <span class=n>r</span> <span class=ow>in</span> <span class=n>data</span><span class=p>[</span><span class=s2>&#34;organic&#34;</span><span class=p>][:</span><span class=mi>3</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;</span><span class=se>\n\n</span><span class=s2>&#34;</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>results</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=sa>f</span><span class=s2>&#34;搜索出错: </span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@tool</span><span class=p>(</span><span class=s2>&#34;计算旅行预算&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=n>description</span><span class=o>=</span><span class=s2>&#34;计算旅行总预算，输入格式为“天数,每日预算”（如“3,500”），返回总预算结果&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>      <span class=n>return_direct</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>calculate_budget</span><span class=p>(</span><span class=n>input_str</span><span class=p>:</span> <span class=nb>str</span><span class=p>)</span> <span class=o>-&gt;</span> <span class=nb>str</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;计算旅行总预算，输入格式为“天数,每日预算”（如“3,500”）&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>days</span><span class=p>,</span> <span class=n>daily_cost</span> <span class=o>=</span> <span class=n>input_str</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;,&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>total</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>days</span><span class=p>)</span> <span class=o>*</span> <span class=nb>int</span><span class=p>(</span><span class=n>daily_cost</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=sa>f</span><span class=s2>&#34;总预算：</span><span class=si>{</span><span class=n>days</span><span class=si>}</span><span class=s2>天×</span><span class=si>{</span><span class=n>daily_cost</span><span class=si>}</span><span class=s2>元/天=</span><span class=si>{</span><span class=n>total</span><span class=si>}</span><span class=s2>元&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=k>except</span> <span class=ne>ValueError</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=s2>&#34;输入格式错误，请使用“天数,每日预算”（如“3,500”）&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>tools</span> <span class=o>=</span> <span class=p>[</span><span class=n>google_search</span><span class=p>,</span> <span class=n>calculate_budget</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;llm&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>llm</span> <span class=o>=</span> <span class=n>ChatTongyi</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;qwen3-max&#34;</span><span class=p>,</span> <span class=n>api_key</span><span class=o>=</span><span class=n>os</span><span class=o>.</span><span class=n>getenv</span><span class=p>(</span><span class=s2>&#34;DASHSCOPE_API_KEY&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;memory&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=c1># 摘要记忆，节省token</span>
+</span></span><span class=line><span class=cl><span class=n>memory</span> <span class=o>=</span> <span class=n>ConversationSummaryMemory</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>llm</span><span class=o>=</span><span class=n>llm</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>memory_key</span><span class=o>=</span><span class=s2>&#34;chat_history&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>return_messages</span><span class=o>=</span><span class=kc>True</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;prompt&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>prompt</span> <span class=o>=</span> <span class=n>ChatPromptTemplate</span><span class=o>.</span><span class=n>from_messages</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;system&#34;</span><span class=p>,</span> <span class=s2>&#34;&#34;&#34;你是一个智能旅行助手，拥有以下能力：
+</span></span></span><span class=line><span class=cl><span class=s2>1. 当用户提出涉及实时信息（如天气、景点、签证等）的问题时，请调用【谷歌搜索】工具。
+</span></span></span><span class=line><span class=cl><span class=s2>2. 当用户要求预算计算时，调用【计算旅行预算】工具。
+</span></span></span><span class=line><span class=cl><span class=s2>3. 其它情况（例如行程建议、交通说明）直接回答。
+</span></span></span><span class=line><span class=cl><span class=s2>4. 保持上下文一致性（chat_history），比如“刚才的城市”指之前提到的城市。
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>工作流程：
+</span></span></span><span class=line><span class=cl><span class=s2>- 先分析用户问题是否需要工具：需要则调用，不需要则直接回答
+</span></span></span><span class=line><span class=cl><span class=s2>- 调用工具时严格遵循工具的输入格式
+</span></span></span><span class=line><span class=cl><span class=s2>- 结合历史对话（chat_history）理解上下文（如“刚才说的城市”指之前提到的城市）
+</span></span></span><span class=line><span class=cl><span class=s2>- 用中文简洁回答，避免冗余
+</span></span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>    <span class=n>MessagesPlaceholder</span><span class=p>(</span><span class=n>variable_name</span><span class=o>=</span><span class=s2>&#34;chat_history&#34;</span><span class=p>),</span>  <span class=c1># 插入历史对话</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;user&#34;</span><span class=p>,</span> <span class=s2>&#34;</span><span class=si>{input}</span><span class=s2>&#34;</span><span class=p>),</span>                               <span class=c1># 当前用户输入</span>
+</span></span><span class=line><span class=cl>    <span class=p>(</span><span class=s2>&#34;ai&#34;</span><span class=p>,</span> <span class=s2>&#34;</span><span class=si>{agent_scratchpad}</span><span class=s2>&#34;</span><span class=p>)</span>                       <span class=c1># Agent思考过程（自动填充）</span>
+</span></span><span class=line><span class=cl><span class=p>])</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;agent&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>agent</span> <span class=o>=</span> <span class=n>initialize_agent</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>tools</span><span class=o>=</span><span class=n>tools</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>llm</span><span class=o>=</span><span class=n>llm</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>agent</span><span class=o>=</span><span class=n>AgentType</span><span class=o>.</span><span class=n>CHAT_CONVERSATIONAL_REACT_DESCRIPTION</span><span class=p>,</span>  <span class=c1># 带记忆的聊天型Agent</span>
+</span></span><span class=line><span class=cl>    <span class=n>memory</span><span class=o>=</span><span class=n>memory</span><span class=p>,</span>  <span class=c1># 使用记忆</span>
+</span></span><span class=line><span class=cl>    <span class=c1># verbose=True,  # 输出详细日志</span>
+</span></span><span class=line><span class=cl>    <span class=n>agent_kwargs</span><span class=o>=</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;prompt&#34;</span><span class=p>:</span> <span class=n>prompt</span><span class=p>,</span>  <span class=c1># 绑定提示词模板</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;system_message&#34;</span><span class=p>:</span> <span class=n>prompt</span><span class=o>.</span><span class=n>messages</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>prompt</span><span class=o>.</span><span class=n>template</span><span class=p>,</span>  <span class=c1># 系统提示</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;extra_prompt_messages&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>            <span class=n>MessagesPlaceholder</span><span class=p>(</span><span class=n>variable_name</span><span class=o>=</span><span class=s2>&#34;chat_history&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=n>handle_parsing_errors</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>  <span class=c1># 忽略解析错误</span>
+</span></span><span class=line><span class=cl>    <span class=n>return_intermediate_steps</span><span class=o>=</span><span class=kc>False</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=s2>&#34;&#34;&#34;多轮对话&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>chat_loop</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;智能旅行助手&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;提示：输入任意问题与我对话，例如：&#39;我打算去东京玩三天&#39; 或 &#39;帮我查一下北京天气&#39;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;输入 &#39;exit&#39; 或 &#39;退出&#39; 可结束对话。</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>user_input</span> <span class=o>=</span> <span class=nb>input</span><span class=p>(</span><span class=s2>&#34;用户：&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>strip</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>user_input</span><span class=o>.</span><span class=n>lower</span><span class=p>()</span> <span class=ow>in</span> <span class=p>[</span><span class=s2>&#34;exit&#34;</span><span class=p>,</span> <span class=s2>&#34;quit&#34;</span><span class=p>,</span> <span class=s2>&#34;退出&#34;</span><span class=p>,</span> <span class=s2>&#34;bye&#34;</span><span class=p>]:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;助手：好的，下次再见，祝你旅途愉快！👋&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>break</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=n>user_input</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>continue</span>  <span class=c1># 忽略空输入</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>current_time</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>()</span><span class=o>.</span><span class=n>strftime</span><span class=p>(</span><span class=s2>&#34;%Y年%m月</span><span class=si>%d</span><span class=s2>日 %H:%M&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>query</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;</span><span class=si>{</span><span class=n>user_input</span><span class=si>}</span><span class=se>\n</span><span class=s2>（当前时间：</span><span class=si>{</span><span class=n>current_time</span><span class=si>}</span><span class=s2>）&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>response</span> <span class=o>=</span> <span class=n>agent</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;input&#34;</span><span class=p>:</span> <span class=n>query</span><span class=p>})</span>
+</span></span><span class=line><span class=cl>            <span class=n>result</span> <span class=o>=</span> <span class=n>response</span><span class=p>[</span><span class=s2>&#34;output&#34;</span><span class=p>]</span> <span class=k>if</span> <span class=nb>isinstance</span><span class=p>(</span><span class=n>response</span><span class=p>,</span> <span class=nb>dict</span><span class=p>)</span> <span class=ow>and</span> <span class=s2>&#34;output&#34;</span> <span class=ow>in</span> <span class=n>response</span> <span class=k>else</span> <span class=n>response</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;助手：</span><span class=si>{</span><span class=n>result</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>except</span> <span class=ne>Exception</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=nb>print</span><span class=p>(</span><span class=sa>f</span><span class=s2>&#34;❌ 出错：</span><span class=si>{</span><span class=n>e</span><span class=si>}</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=vm>__name__</span> <span class=o>==</span> <span class=s2>&#34;__main__&#34;</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>chat_loop</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=后话><a href=#%e5%90%8e%e8%af%9d class=header-anchor></a>后话</h2><p>LangChain 实现智能体的推理、工具调用与记忆，但其核心架构仍是「线性链式执行」。在复杂多轮推理、长上下文管理和并发场景下存在一定缺陷。langchain运行过程中会出现官方提示当前功能<strong>仍然可用</strong>，但<strong>推荐迁移到更新的模块或框架</strong>。</p><p><strong>LangGraph</strong> 是 LangChain 团队推出的下一代框架，它基于“有状态计算图（StateGraph）”思想，将每个步骤建模为节点，支持显式状态管理、并发执行、持久记忆与可视化调试，更适合用于创建实际需要的智能体。</p><p><a class=link href=https://github.langchain.ac.cn/langgraph/concepts/high_level/ target=_blank rel=noopener>为什么选择 LangGraph？ - LangChain 框架官网</a></p><h2 id=参考文档><a href=#%e5%8f%82%e8%80%83%e6%96%87%e6%a1%a3 class=header-anchor></a>参考文档</h2><p><a class=link href=https://python.langchain.ac.cn/docs/introduction/ target=_blank rel=noopener>简介 | 🦜️🔗 LangChain 框架</a></p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/><div class=article-image><img src=/images/f874fc13.jpg loading=lazy data-key data-hash=/images/f874fc13.jpg></div><div class=article-details><h2 class=article-title>LLM_cookbook 面向开发者的大模型入门教程</h2></div></a></article><article class=has-image><a href=/p/%E5%9F%BA%E4%BA%8Elangchain%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E5%B8%B8%E8%A7%81%E7%94%A8%E6%B3%95/><div class=article-image><img src=/images/7d388d79.jpg loading=lazy data-key data-hash=/images/7d388d79.jpg></div><div class=article-details><h2 class=article-title>基于langchain源码剖析常见用法</h2></div></a></article><article class=has-image><a href=/p/code-agent/><div class=article-image><img src=/images/92dbc608.jpg loading=lazy data-key data-hash=/images/92dbc608.jpg></div><div class=article-details><h2 class=article-title>Code Agent</h2></div></a></article><article class=has-image><a href=/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/><div class=article-image><img src=/images/9d46bfff.jpg loading=lazy data-key data-hash=/images/9d46bfff.jpg></div><div class=article-details><h2 class=article-title>大模型原理：从transformer到llm</h2></div></a></article><article class=has-image><a href=/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/><div class=article-image><img src=/images/31b7298e.jpg loading=lazy data-key data-hash=/images/31b7298e.jpg></div><div class=article-details><h2 class=article-title>MCP详解指南</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

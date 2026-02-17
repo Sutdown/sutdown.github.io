@@ -1,0 +1,389 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="leveldb snapshot,Bloom Filter 源码阅读，包括快照机制的实现、Bloom Filter 数据结构的原理和应用场景。"><title>leveldb源码阅读4 snapshot,Bloom Filter</title><link rel=canonical href=https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB4-snapshotbloom-filter/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="leveldb源码阅读4 snapshot,Bloom Filter"><meta property='og:description' content="leveldb snapshot,Bloom Filter 源码阅读，包括快照机制的实现、Bloom Filter 数据结构的原理和应用场景。"><meta property='og:url' content='https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB4-snapshotbloom-filter/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2024-10-18T00:00:00+00:00'><meta property='article:modified_time' content='2024-10-18T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/505bc7b2.jpg'><meta name=twitter:title content="leveldb源码阅读4 snapshot,Bloom Filter"><meta name=twitter:description content="leveldb snapshot,Bloom Filter 源码阅读，包括快照机制的实现、Bloom Filter 数据结构的原理和应用场景。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/505bc7b2.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#snapshot>snapshot</a></li><li><a href=#bloom-filter>Bloom Filter</a><ul><li><a href=#bloom-filter的数据结构>bloom filter的数据结构</a></li><li><a href=#数学结论>数学结论</a></li><li><a href=#源码实现>源码实现</a><ul><li><a href=#filter_policy抽象基类定义过滤器策略>filter_policy抽象基类，定义过滤器策略</a></li><li><a href=#bloomcc布隆过滤器的实现>bloom.cc布隆过滤器的实现</a></li><li><a href=#filter_block过滤器块实现数据块的过滤器功能>filter_block过滤器块，实现数据块的过滤器功能</a><ul><li><a href=#filter_blockh>filter_block.h</a></li><li><a href=#filter_blockcc>filter_block.cc</a></li></ul></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB4-snapshotbloom-filter/><img src=/images/505bc7b2.jpg loading=lazy alt="Featured image of post leveldb源码阅读4 snapshot,Bloom Filter"></a></div><div class=article-details><header class=article-category><a href=/categories/leveldb/>LevelDB</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB4-snapshotbloom-filter/>leveldb源码阅读4 snapshot,Bloom Filter</a></h2><h3 class=article-subtitle>leveldb snapshot,Bloom Filter 源码阅读，包括快照机制的实现、Bloom Filter 数据结构的原理和应用场景。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-10-18T00:00:00Z>Oct 18, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 8 分钟</time></div></footer></div></header><section class=article-content><h2 id=snapshot><a href=#snapshot class=header-anchor></a>snapshot</h2><p><em>snapshot是什么，有什么用</em></p><p>snapshot是一种机制，用于在数据库<strong>读取时保持一致</strong>的视图，确保在读取数据时，写入操作不会影响读取结果，从而提供一种简单的<strong>并发</strong>控制方式。LevelDB 的快照机制通过<strong>版本管理</strong>和<strong>引用计数</strong>来实现一致性读取，确保读操作在写入操作发生时不会受到影响。版本管理机制在leveldb5中会讲解，这里暂时掠过。</p><p>这个.h文件中的信息有限，主要是有三个类：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>`Snapshot` 是一个通用的快照接口或基类。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* 
+</span></span></span><span class=line><span class=cl><span class=cm>表示一个具体的快照实例，包含一个序列号和指向前后快照的指针
+</span></span></span><span class=line><span class=cl><span class=cm>序列号的主要作用是提供快照创建时数据库状态的唯一标识
+</span></span></span><span class=line><span class=cl><span class=cm>双链表，便于快速插入和删除
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SnapshotImpl</span> <span class=o>:</span> <span class=k>public</span> <span class=n>Snapshot</span><span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=k>friend</span> <span class=k>class</span> <span class=nc>SnapshotList</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// SnapshotImpl is kept in a doubly-linked circular list. The SnapshotList
+</span></span></span><span class=line><span class=cl>  <span class=c1>// implementation operates on the next/previous fields directly.
+</span></span></span><span class=line><span class=cl>  <span class=n>SnapshotImpl</span><span class=o>*</span> <span class=n>prev_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>SnapshotImpl</span><span class=o>*</span> <span class=n>next_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=n>SequenceNumber</span> <span class=n>sequence_number_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 管理多个SnapshotImpl的链表结构，处理快照的创建和删除
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SnapshotList</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=p>...</span>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// Dummy head of doubly-linked list of snapshots 虚拟头结点
+</span></span></span><span class=line><span class=cl>  <span class=n>SnapshotImpl</span> <span class=n>head_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>当leveldb进行读操作时，过程如下</p><ul><li>接收读取请求，查询Memtable和Immutable Memtable（内存）</li><li>查询blockcache（blockcache中存储了从sstable中读取的data数据块）</li><li>如果此时还没找到，就会进入磁盘中，通过<strong>布隆过滤器</strong>定位sstable文件</li><li>如果找到，读取sstable中的datablock，否则返回没有找到。</li></ul></blockquote><p>在这个过程中，为了减少读放大的两个措施：</p><ol><li>采用major compaction尽量减少sstable文件</li><li>利用布隆过滤器进行快速筛选，看key是否在某个sstable文件中</li></ol><h2 id=bloom-filter><a href=#bloom-filter class=header-anchor></a>Bloom Filter</h2><h3 id=bloom-filter的数据结构><a href=#bloom-filter%e7%9a%84%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84 class=header-anchor></a>bloom filter的数据结构</h3><p>推荐文章：<a class=link href=https://blog.csdn.net/jiaomeng/article/details/1495500 target=_blank rel=noopener>bloom filter</a></p><p><strong>初始状态</strong>：</p><p>Bloom Filter底层是一个m位的位数组，每一位置为0</p><p>当插入某个元素时，会利用k个哈希函数对x进行散列，然后按照数组长度取余后置相应位置为1：</p><p><img src=/img/images/13.jpg loading=lazy alt=13></p><p>查找和插入过程类似，也是利用相同的哈希对待元素查找顺序进行哈希，得到k个位置。</p><p>如果所有位上均为1，那么元素有可能存在；如果有位上不为1，那么元素一定不存在。</p><p><img src=/img/images/14.jpg loading=lazy alt=14></p><p>相对于其他表示数据集的数据结构，如平衡二叉搜索树、Trie 树、哈希表，甚至更简单的数组或者链表，Bloom Filter 有着巨大的时空优势。上述提到的表示数据集的数据结构，大都需要对数据项本身存储，可能有的做了压缩，比如 Trie 树。但是 Bloom Filter 走了另一条路，并不存储数据项本身，而是存储数据项的几个哈希值，并且用高效紧凑的位数组来存，避免了指针的额外开销。</p><p>这种优势的获得，可以理解为在哈希表基础上，忽略了冲突处理，从而省下了额外开销。</p><h3 id=数学结论><a href=#%e6%95%b0%e5%ad%a6%e7%bb%93%e8%ae%ba class=header-anchor></a>数学结论</h3><p>跟布隆过滤器的误判率有关的参数有：</p><ol><li>哈希函数的个数 k</li><li>布隆过滤器位数组的容量m;</li><li>布隆过滤器插入的数据数量n;</li></ol><p>因此根据<a class=link href=http://blog.csdn.net/jiaomeng/article/details/1495500 target=_blank rel=noopener>一系列推导</a>可以得到：</p><ol><li>为了获得最优的准确率，当k = ln2 * (m/n)时，布隆过滤器获得最优的准确性；</li><li>在哈希函数的个数取到最优时，要让错误率不超过є，m至少需要取到最小值的1.44倍；</li></ol><h3 id=源码实现><a href=#%e6%ba%90%e7%a0%81%e5%ae%9e%e7%8e%b0 class=header-anchor></a>源码实现</h3><h4 id=filter_policy抽象基类定义过滤器策略><a href=#filter_policy%e6%8a%bd%e8%b1%a1%e5%9f%ba%e7%b1%bb%e5%ae%9a%e4%b9%89%e8%bf%87%e6%bb%a4%e5%99%a8%e7%ad%96%e7%95%a5 class=header-anchor></a>filter_policy抽象基类，定义过滤器策略</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>Slice</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>LEVELDB_EXPORT</span> <span class=n>FilterPolicy</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 虚析构函数，保证派生类正确清理资源
+</span></span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=o>~</span><span class=n>FilterPolicy</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 返回过滤策略的名称，如果过滤器的编码方式发生不兼容的变化，该名称也需要更改
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 否则旧的不兼容的过滤器被错误的传递到方法中
+</span></span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>Name</span><span class=p>()</span> <span class=k>const</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 根据给定的键列表生成过滤器并附加到dst中。
+</span></span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>void</span> <span class=nf>CreateFilter</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>*</span> <span class=n>keys</span><span class=p>,</span> <span class=kt>int</span> <span class=n>n</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                            <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>*</span> <span class=n>dst</span><span class=p>)</span> <span class=k>const</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 看给定的键是否可能在过滤器中
+</span></span></span><span class=line><span class=cl>  <span class=k>virtual</span> <span class=kt>bool</span> <span class=nf>KeyMayMatch</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>filter</span><span class=p>)</span> <span class=k>const</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 返回一个新的布隆过滤器的策略，用户可以直接调用函数来获取实例
+</span></span></span><span class=line><span class=cl><span class=c1>// 创建布隆过滤器的逻辑与 FilterPolicy 类本身并不直接相关。将其提取为全局函数可以使其更模块化，便于将来对其他过滤策略的扩展。
+</span></span></span><span class=line><span class=cl><span class=n>LEVELDB_EXPORT</span> <span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=nf>NewBloomFilterPolicy</span><span class=p>(</span><span class=kt>int</span> <span class=n>bits_per_key</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=bloomcc布隆过滤器的实现><a href=#bloomcc%e5%b8%83%e9%9a%86%e8%bf%87%e6%bb%a4%e5%99%a8%e7%9a%84%e5%ae%9e%e7%8e%b0 class=header-anchor></a>bloom.cc布隆过滤器的实现</h4><p>和上面对过滤器原理讲的差不多。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>BloomFilterPolicy</span> <span class=o>:</span> <span class=k>public</span> <span class=n>FilterPolicy</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>   
+</span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=n>BloomFilterPolicy</span><span class=p>(</span><span class=kt>int</span> <span class=n>bits_per_key</span><span class=p>)</span> <span class=o>:</span> <span class=n>bits_per_key_</span><span class=p>(</span><span class=n>bits_per_key</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// k太大，增加内存使用，减少假阳性率
+</span></span></span><span class=line><span class=cl>    <span class=c1>// k太小，节省内存，但是增加假阳性率
+</span></span></span><span class=line><span class=cl>    <span class=n>k_</span> <span class=o>=</span> <span class=k>static_cast</span><span class=o>&lt;</span><span class=n>size_t</span><span class=o>&gt;</span><span class=p>(</span><span class=n>bits_per_key</span> <span class=o>*</span> <span class=mf>0.69</span><span class=p>);</span>  <span class=c1>// 0.69 =~ ln(2)
+</span></span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>k_</span> <span class=o>&lt;</span> <span class=mi>1</span><span class=p>)</span> <span class=n>k_</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=k>if</span><span class=p>(</span><span class=n>k_</span> <span class=o>&gt;</span> <span class=mi>30</span><span class=p>)</span> <span class=n>k_</span> <span class=o>=</span> <span class=mi>30</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 返回布隆过滤器名称
+</span></span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=nf>Name</span><span class=p>()</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span> <span class=k>return</span> <span class=s>&#34;leveldb.BuiltinBloomFilter2&#34;</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>  <span class=c1>//接受一个键的数组（keys）、键的数量（n），并将生成的布隆过滤器结果存储在 dst 中
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>CreateFilter</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>*</span> <span class=n>keys</span><span class=p>,</span> <span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>string</span><span class=o>*</span> <span class=n>dst</span><span class=p>)</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Compute bloom filter size (in both bits and bytes)
+</span></span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=n>bits</span> <span class=o>=</span> <span class=n>n</span> <span class=o>*</span> <span class=n>bits_per_key_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>bits</span> <span class=o>&lt;</span> <span class=mi>64</span><span class=p>)</span> <span class=n>bits</span> <span class=o>=</span> <span class=mi>64</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>size_t</span> <span class=n>bytes</span> <span class=o>=</span> <span class=p>(</span><span class=n>bits</span> <span class=o>+</span> <span class=mi>7</span><span class=p>)</span> <span class=o>/</span> <span class=mi>8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>bits</span> <span class=o>=</span> <span class=n>bytes</span> <span class=o>*</span> <span class=mi>8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=n>size_t</span> <span class=n>init_size</span> <span class=o>=</span> <span class=n>dst</span><span class=o>-&gt;</span><span class=n>size</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>    <span class=n>dst</span><span class=o>-&gt;</span><span class=n>resize</span><span class=p>(</span><span class=n>init_size</span> <span class=o>+</span> <span class=n>bytes</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>dst</span><span class=o>-&gt;</span><span class=n>push_back</span><span class=p>(</span><span class=k>static_cast</span><span class=o>&lt;</span><span class=kt>char</span><span class=o>&gt;</span><span class=p>(</span><span class=n>k_</span><span class=p>));</span>  <span class=c1>// Remember # of probes in filter
+</span></span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=n>array</span> <span class=o>=</span> <span class=o>&amp;</span><span class=p>(</span><span class=o>*</span><span class=n>dst</span><span class=p>)[</span><span class=n>init_size</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// Use double-hashing to generate a sequence of hash values.
+</span></span></span><span class=line><span class=cl>      <span class=c1>// See analysis in [Kirsch,Mitzenmacher 2006].
+</span></span></span><span class=line><span class=cl>      <span class=kt>uint32_t</span> <span class=n>h</span> <span class=o>=</span> <span class=n>BloomHash</span><span class=p>(</span><span class=n>keys</span><span class=p>[</span><span class=n>i</span><span class=p>]);</span> <span class=c1>// 使用Bloomhash哈希
+</span></span></span><span class=line><span class=cl>      <span class=k>const</span> <span class=kt>uint32_t</span> <span class=n>delta</span> <span class=o>=</span> <span class=p>(</span><span class=n>h</span> <span class=o>&gt;&gt;</span> <span class=mi>17</span><span class=p>)</span> <span class=o>|</span> <span class=p>(</span><span class=n>h</span> <span class=o>&lt;&lt;</span> <span class=mi>15</span><span class=p>);</span>  
+</span></span><span class=line><span class=cl>      <span class=c1>// Rotate right 17 bits 为双重哈希生成增量，用于后续的哈希计算
+</span></span></span><span class=line><span class=cl>      <span class=k>for</span> <span class=p>(</span><span class=n>size_t</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;</span> <span class=n>k_</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>const</span> <span class=kt>uint32_t</span> <span class=n>bitpos</span> <span class=o>=</span> <span class=n>h</span> <span class=o>%</span> <span class=n>bits</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>array</span><span class=p>[</span><span class=n>bitpos</span> <span class=o>/</span> <span class=mi>8</span><span class=p>]</span> <span class=o>|=</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=p>(</span><span class=n>bitpos</span> <span class=o>%</span> <span class=mi>8</span><span class=p>));</span> <span class=c1>// 将目标位设置为1
+</span></span></span><span class=line><span class=cl>        <span class=n>h</span> <span class=o>+=</span> <span class=n>delta</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>  <span class=c1>// 匹配数据，略
+</span></span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=nf>KeyMayMatch</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>bloom_filter</span><span class=p>)</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{...}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 双重哈希比对
+</span></span></span><span class=line><span class=cl>    <span class=kt>uint32_t</span> <span class=n>h</span> <span class=o>=</span> <span class=n>BloomHash</span><span class=p>(</span><span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=kt>uint32_t</span> <span class=n>delta</span> <span class=o>=</span> <span class=p>(</span><span class=n>h</span> <span class=o>&gt;&gt;</span> <span class=mi>17</span><span class=p>)</span> <span class=o>|</span> <span class=p>(</span><span class=n>h</span> <span class=o>&lt;&lt;</span> <span class=mi>15</span><span class=p>);</span>  <span class=c1>// Rotate right 17 bits
+</span></span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=n>size_t</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;</span> <span class=n>k</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>const</span> <span class=kt>uint32_t</span> <span class=n>bitpos</span> <span class=o>=</span> <span class=n>h</span> <span class=o>%</span> <span class=n>bits</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>((</span><span class=n>array</span><span class=p>[</span><span class=n>bitpos</span> <span class=o>/</span> <span class=mi>8</span><span class=p>]</span> <span class=o>&amp;</span> <span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=p>(</span><span class=n>bitpos</span> <span class=o>%</span> <span class=mi>8</span><span class=p>)))</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=n>h</span> <span class=o>+=</span> <span class=n>delta</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>bits_per_key_</span><span class=p>;</span> <span class=c1>// 每个键使用的比特数
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>k_</span><span class=p>;</span> <span class=c1>// 哈希函数的数量
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>  <span class=c1>// namespace
+</span></span></span></code></pre></td></tr></table></div></div><h4 id=filter_block过滤器块实现数据块的过滤器功能><a href=#filter_block%e8%bf%87%e6%bb%a4%e5%99%a8%e5%9d%97%e5%ae%9e%e7%8e%b0%e6%95%b0%e6%8d%ae%e5%9d%97%e7%9a%84%e8%bf%87%e6%bb%a4%e5%99%a8%e5%8a%9f%e8%83%bd class=header-anchor></a>filter_block过滤器块，实现数据块的过滤器功能</h4><h5 id=filter_blockh><a href=#filter_blockh class=header-anchor></a>filter_block.h</h5><p>该文件定义了leveldb中的过滤器块的相关类，用于实现数据块的过滤器功能，比如布隆过滤器。核心功能是通过构建和读取过滤器块来优化LevelDB的查找性能。</p><ul><li><p><code>FilterPolicy</code>抽象基类，负责定义过滤器的策略。它并没有直接的实现</p></li><li><p><code>FilterBlockBuilder</code>类负责创建过滤器，接受一个filterPolicy指针，指定过滤器策略</p></li><li><p><code>FilterBlockReader</code>类负责使用过滤器来判断某个键是否可能在特定数据块中,接收 FilterPolicy 指针和过滤器数据的切片，初始化读取器.</p></li></ul><p>通过有效利用过滤器，LevelDB能够减少不必要的磁盘读取，提高数据访问效率。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>FilterBlockBuilder</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=p>...</span>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=n>GenerateFilter</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy_</span><span class=p>;</span> <span class=c1>// 过滤器策略。
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>keys_</span><span class=p>;</span>             <span class=c1>// 已展平的键内容。
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>size_t</span><span class=o>&gt;</span> <span class=n>start_</span><span class=p>;</span>    <span class=c1>// 每个键在 keys_ 中的起始索引。
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>result_</span><span class=p>;</span>             <span class=c1>// 当前计算的过滤器数据。
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=n>Slice</span><span class=o>&gt;</span> <span class=n>tmp_keys_</span><span class=p>;</span>  <span class=c1>// policy_-&gt;CreateFilter() argument 临时存储
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=kt>uint32_t</span><span class=o>&gt;</span> <span class=n>filter_offsets_</span><span class=p>;</span> <span class=c1>// 计算过滤器的辅助数据。
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>FilterBlockReader</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// REQUIRES: &#34;contents&#34; and *policy must stay live while *this is live.
+</span></span></span><span class=line><span class=cl>  <span class=n>FilterBlockReader</span><span class=p>(</span><span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>contents</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>  检查给定的键是否可能匹配指定偏移量的数据块。
+</span></span></span><span class=line><span class=cl><span class=cm>  如果返回 true，表示键可能存在于该块中，
+</span></span></span><span class=line><span class=cl><span class=cm>  否则可以确定该块中不存在该键。
+</span></span></span><span class=line><span class=cl><span class=cm>  */</span>
+</span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=nf>KeyMayMatch</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>block_offset</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>data_</span><span class=p>;</span>    <span class=c1>// Pointer to filter data (at block-start)
+</span></span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>offset_</span><span class=p>;</span>  <span class=c1>// Pointer to beginning of offset array (at block-end)
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>num_</span><span class=p>;</span>          <span class=c1>// 偏移数组中的条目数。
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>base_lg_</span><span class=p>;</span>      <span class=c1>// 编码参数 (see kFilterBaseLg in .cc file)
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><h5 id=filter_blockcc><a href=#filter_blockcc class=header-anchor></a>filter_block.cc</h5><p>这里包含有关过滤块中对于过滤器的一些操作。过滤块的作用有：</p><ul><li>布隆过滤器占用内存较多，因此通过分块优化内存使用，以免生成过大的布隆过滤器。</li><li>为不同的区块采取不同的过滤策略，从而能根据不同的数据分布和访问模式进行调整以获得更好的性能。</li><li>过滤块通过过滤器来判断某个键是否可能存在于特定区块中，如果过滤器表明某个键不在该区块中，则可以避免不必要的磁盘读取，节省 I/O 资源。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*构造函数，一些需要初始化的私有成员*/</span>
+</span></span><span class=line><span class=cl><span class=n>FilterBlockBuilder</span><span class=o>::</span><span class=n>FilterBlockBuilder</span><span class=p>(</span><span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=cm>/*根据区块偏移量决定何时生成新的过滤器*/</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>FilterBlockBuilder</span><span class=o>::</span><span class=n>StartBlock</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>block_offset</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=cm>/*将键添加到当前过滤器*/</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>FilterBlockBuilder</span><span class=o>::</span><span class=n>AddKey</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=cm>/*完成当前过滤器构建*/</span>
+</span></span><span class=line><span class=cl><span class=n>Slice</span> <span class=n>FilterBlockBuilder</span><span class=o>::</span><span class=n>Finish</span><span class=p>();</span>
+</span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 生成当前键集的过滤器，并将其追加到结果中。
+</span></span></span><span class=line><span class=cl><span class=cm>* 在没有键的情况下，会快速路径返回当前过滤器的偏移。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>FilterBlockBuilder</span><span class=o>::</span><span class=n>GenerateFilter</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 负责读取过滤块并检查某个键是否可能在特定区块中。
+</span></span></span><span class=line><span class=cl><span class=cm>* 在构造函数中，它解析过滤块的内容并设置相应的成员变量。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=n>FilterBlockReader</span><span class=o>::</span><span class=n>FilterBlockReader</span><span class=p>(</span><span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>contents</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=cm>/*KeyMayMatch 方法通过查找特定区块的过滤器，来判断某个键是否可能匹配。*/</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=n>FilterBlockReader</span><span class=o>::</span><span class=n>KeyMayMatch</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>block_offset</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>void FilterBlockBuilder::GenerateFilter()</code>这个生成过滤器的关键在于先要找到keys的数组，keys的slice应该由每个key的初始位置也就是字符串和长度构成，而这些参数可以从FilterBlockBuilder的私有成员starts_数组和keys_中找到。</p><p>这个函数时从Slice中读取相关数据。</p><p>在contents中，有 偏移数组，偏移数组起始位置（4字节），编码参数（1字节）组成，根据这一点在contents中读出相关数据。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>* 负责读取过滤块并检查某个键是否可能在特定区块中。
+</span></span></span><span class=line><span class=cl><span class=cm>* 在构造函数中，它解析过滤块的内容并设置相应的成员变量。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl><span class=n>FilterBlockReader</span><span class=o>::</span><span class=n>FilterBlockReader</span><span class=p>(</span><span class=k>const</span> <span class=n>FilterPolicy</span><span class=o>*</span> <span class=n>policy</span><span class=p>,</span> <span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>contents</span><span class=p>)</span> <span class=o>:</span> <span class=n>policy_</span><span class=p>(</span><span class=n>policy</span><span class=p>),</span> <span class=n>data_</span><span class=p>(</span><span class=k>nullptr</span><span class=p>),</span> <span class=n>offset_</span><span class=p>(</span><span class=k>nullptr</span><span class=p>),</span> <span class=n>num_</span><span class=p>(</span><span class=mi>0</span><span class=p>),</span> <span class=n>base_lg_</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>n</span> <span class=o>=</span> <span class=n>contents</span><span class=p>.</span><span class=n>size</span><span class=p>();</span> <span class=c1>// 过滤内容
+</span></span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>n</span> <span class=o>&lt;</span> <span class=mi>5</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>  <span class=c1>// 1 byte for base_lg_ and 4 for start of offset array
+</span></span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=n>base_lg_</span> <span class=o>=</span> <span class=n>contents</span><span class=p>[</span><span class=n>n</span> <span class=o>-</span> <span class=mi>1</span><span class=p>];</span> <span class=c1>// 编码参数
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>last_word</span> <span class=o>=</span> <span class=n>DecodeFixed32</span><span class=p>(</span><span class=n>contents</span><span class=p>.</span><span class=n>data</span><span class=p>()</span> <span class=o>+</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>5</span><span class=p>);</span> <span class=c1>// 偏移数组在原始数据中的起始位置
+</span></span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>last_word</span> <span class=o>&gt;</span> <span class=n>n</span> <span class=o>-</span> <span class=mi>5</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=n>data_</span> <span class=o>=</span> <span class=n>contents</span><span class=p>.</span><span class=n>data</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>  <span class=n>offset_</span> <span class=o>=</span> <span class=n>data_</span> <span class=o>+</span> <span class=n>last_word</span><span class=p>;</span> <span class=c1>// 现指向偏移数组的位置
+</span></span></span><span class=line><span class=cl>  <span class=c1>//FilterBlockBuilder时，偏移量可能是动态生成并存储在某个结构中
+</span></span></span><span class=line><span class=cl>  <span class=n>num_</span> <span class=o>=</span> <span class=p>(</span><span class=n>n</span> <span class=o>-</span> <span class=mi>5</span> <span class=o>-</span> <span class=n>last_word</span><span class=p>)</span> <span class=o>/</span> <span class=mi>4</span><span class=p>;</span> <span class=c1>// 偏移数组总字节数/4=过滤器的实际数量
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>bool FilterBlockReader::KeyMayMatch</code>这个里面key已经给出来了，从offset_中找到过滤器的起始和结束位置，从而定义一个filter，利用policy中的keymaymatch进行调用。</p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/%E8%AF%A6%E8%B0%88leveldb%E4%B8%AD%E7%9A%84sstable/><div class=article-image><img src=/images/dfcceaca.jpg loading=lazy data-key data-hash=/images/dfcceaca.jpg></div><div class=article-details><h2 class=article-title>详谈leveldb中的sstable</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB8-orient%E9%9D%A2%E8%AF%95/><div class=article-image><img src=/images/fee4263f.jpg loading=lazy data-key data-hash=/images/fee4263f.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读8 Orient面试</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB7-question/><div class=article-image><img src=/images/9b9f137c.jpg loading=lazy data-key data-hash=/images/9b9f137c.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读7 Question</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB6-wirteread-and-log/><div class=article-image><img src=/images/9ca73f67.jpg loading=lazy data-key data-hash=/images/9ca73f67.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读6 wirte&amp;read and log</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB5-compaction-and-version/><div class=article-image><img src=/images/62c77b63.jpg loading=lazy data-key data-hash=/images/62c77b63.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读5 Compaction And Version</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

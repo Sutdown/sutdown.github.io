@@ -1,0 +1,444 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="本文详细介绍了分治法的核心思想、实现步骤、应用场景以及经典问题求解。"><title>算法专题：分治法（Divide and Conquer）</title><link rel=canonical href=https://sutdown.github.io/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%88%86%E6%B2%BB%E6%B3%95divide-and-conquer/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="算法专题：分治法（Divide and Conquer）"><meta property='og:description' content="本文详细介绍了分治法的核心思想、实现步骤、应用场景以及经典问题求解。"><meta property='og:url' content='https://sutdown.github.io/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%88%86%E6%B2%BB%E6%B3%95divide-and-conquer/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2023-03-20T00:00:00+00:00'><meta property='article:modified_time' content='2023-03-20T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/97fd68b2.jpg'><meta name=twitter:title content="算法专题：分治法（Divide and Conquer）"><meta name=twitter:description content="本文详细介绍了分治法的核心思想、实现步骤、应用场景以及经典问题求解。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/97fd68b2.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#一分治法概述>一：分治法概述</a><ul><li><a href=#分治法思想>分治法思想</a></li><li><a href=#分治法的基本步骤>分治法的基本步骤：</a></li></ul></li><li><a href=#二分治法的应用实例>二：分治法的应用实例</a><ul><li><a href=#求一组数的最大值和最小值>求一组数的最大值和最小值</a></li><li><a href=#大整数乘法>大整数乘法</a></li><li><a href=#归并排序和快速排序>归并排序和快速排序</a></li><li><a href=#归并排序和逆序对>归并排序和逆序对</a></li><li><a href=#二分搜索问题>二分搜索问题</a></li><li><a href=#选择问题>选择问题</a></li><li><a href=#棋盘覆盖问题>棋盘覆盖问题</a></li><li><a href=#循环赛日程表>循环赛日程表</a></li></ul></li><li><a href=#附>附：</a></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%88%86%E6%B2%BB%E6%B3%95divide-and-conquer/><img src=/images/97fd68b2.jpg loading=lazy alt="Featured image of post 算法专题：分治法（Divide and Conquer）"></a></div><div class=article-details><header class=article-category><a href=/categories/algorithm/>Algorithm
+</a><a href=/categories/c++/>C++</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%88%86%E6%B2%BB%E6%B3%95divide-and-conquer/>算法专题：分治法（Divide and Conquer）</a></h2><h3 class=article-subtitle>本文详细介绍了分治法的核心思想、实现步骤、应用场景以及经典问题求解。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2023-03-20T00:00:00Z>Mar 20, 2023</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 13 分钟</time></div></footer></div></header><section class=article-content><p>[TOC]</p><h2 id=一分治法概述><a href=#%e4%b8%80%e5%88%86%e6%b2%bb%e6%b3%95%e6%a6%82%e8%bf%b0 class=header-anchor></a>一：分治法概述</h2><h3 id=分治法思想><a href=#%e5%88%86%e6%b2%bb%e6%b3%95%e6%80%9d%e6%83%b3 class=header-anchor></a>分治法思想</h3><p>分治法的基本思想是将问题分成（divide）多个子问题，再递归（Conquer）的解决每个子问题，再将子问题的解合并（Combine）成原问题的解。</p><p>1）<em>这个思想是不是很熟悉，第一反应能不能想到<strong>归并排序</strong>和<strong>快速排序</strong>。后面我们会对两种排序和分治法的思想进行具体分析。</em></p><p>2）分成多个子问题，有没有想到动态规划和贪心法，它们有什么区别呢？</p><p>看一下这三者的主要思想：</p><blockquote><ul><li><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener><strong>分治法</strong>：将问题分解成多个子问题，并允许不断分解，使规模越来越小，最终可用已知的方法求解足够小的问题。使用要求：（1） 问题能够按照某种方式分解成若干个==规模较小、相互独立且与原问题类型相同的子问题==。 （2） 子问题足够小时可以直接求解。 （3） 能够将子问题的解组合成原问题的解。</a><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener>1</a></li><li><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener><strong>贪心法</strong>：总是选择==当前最优解==，并不考虑整体最优。拥有最优子结构特性。当==一个问题的最优解包含其子问题的最优解==时，称此问题具有最优子结构性质。问题的最优子结构性质是该问题可用动态规划算法或贪心算法求解的关键特征。</a><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener>1</a></li><li><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener><strong>动态规划法</strong>：将较大问题分解为较小的同类子问题，这一点上它与分治法和贪心法类似。动态规划法解决子问题重叠现象，利用最优子结构，自底向上从子问题的最优解逐步构造出整个问题的最优解。适用动态规划法的要求：==具有最优子结构特性和重叠子问题。==与贪心算法比较：贪心算法局部的最优性依赖于其前面各部分是否最优；且不能保证最终解的最优性。动态规划当前决策的最优性取决于其后续决策系列的是否最优。动态规划方法可以保证问题求解是==全局最优==的。</a><a class=link href=https://blog.csdn.net/a260256216/article/details/106995592 target=_blank rel=noopener>1</a></li></ul><p>（来源：new bing。其中答案点击可达相应链接）</p></blockquote><h3 id=分治法的基本步骤><a href=#%e5%88%86%e6%b2%bb%e6%b3%95%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%ad%a5%e9%aa%a4 class=header-anchor></a>分治法的基本步骤：</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=n>divide</span><span class=o>-</span><span class=n>and</span><span class=o>-</span><span class=n>conquer</span><span class=p>(</span><span class=n>P</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>　<span class=k>if</span> <span class=p>(</span> <span class=o>|</span><span class=n>P</span><span class=o>|</span> <span class=o>&lt;=</span> <span class=n>n0</span><span class=p>)</span> <span class=n>adhoc</span><span class=p>(</span><span class=n>P</span><span class=p>);</span>   <span class=c1>//解决小规模的问题
+</span></span></span><span class=line><span class=cl>　<span class=n>divide</span> <span class=n>P</span> <span class=n>into</span> <span class=n>smaller</span> <span class=n>subinstances</span> <span class=n>P1</span><span class=p>,</span><span class=n>P2</span><span class=p>,...,</span><span class=n>Pk</span><span class=err>；</span><span class=c1>//分解问题
+</span></span></span><span class=line><span class=cl>　<span class=k>for</span> <span class=p>(</span><span class=n>i</span><span class=o>=</span><span class=mi>1</span><span class=p>,</span><span class=n>i</span><span class=o>&lt;=</span><span class=n>k</span><span class=p>,</span><span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>　<span class=n>yi</span><span class=o>=</span><span class=n>divide</span><span class=o>-</span><span class=n>and</span><span class=o>-</span><span class=n>conquer</span><span class=p>(</span><span class=n>Pi</span><span class=p>);</span>  <span class=c1>//递归的解各子问题
+</span></span></span><span class=line><span class=cl>　<span class=k>return</span> <span class=nf>merge</span><span class=p>(</span><span class=n>y1</span><span class=p>,...,</span><span class=n>yk</span><span class=p>);</span>  <span class=c1>//将各子问题的解合并为原问题的解
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>这个步骤为什么是这样子呢？</p><p>这个来源于递归的函数的运行轨迹。</p><p>先解决小规模问题指的是不用进行递归就能解决的极小规模问题，比如求一个数组的最大最小值，数组只有一个和只有两个的情况完全不需要递归就可以直接解决返回。</p><p>然后将问题先分解，进行数次递归分解到最后然后从最后的递归依次往下执行接下来合并子问题的解的代码，回到上一层稍大问题的递归，再执行下面合并子问题的解的代码……直到回到原先要解决的大问题，答案搞定。</p><p>这个过程其实是可以画出一个递归树，因此分治法很好的将n的时间复杂度降低到了logn。</p><h2 id=二分治法的应用实例><a href=#%e4%ba%8c%e5%88%86%e6%b2%bb%e6%b3%95%e7%9a%84%e5%ba%94%e7%94%a8%e5%ae%9e%e4%be%8b class=header-anchor></a>二：分治法的应用实例</h2><h3 id=求一组数的最大值和最小值><a href=#%e6%b1%82%e4%b8%80%e7%bb%84%e6%95%b0%e7%9a%84%e6%9c%80%e5%a4%a7%e5%80%bc%e5%92%8c%e6%9c%80%e5%b0%8f%e5%80%bc class=header-anchor></a>求一组数的最大值和最小值</h3><blockquote><p>这个是指找出一组数中最大值和最小值的在数组中的位置。若数组大小为n。</p></blockquote><p>思路一：（非递归1）分别设立min，max为数组的第一个数，然后一起与后面所有数进行比较，需要进行2*（n-1）次比较。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=n>min</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=n>max</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span><span class=c1>//伪代码
+</span></span></span><span class=line><span class=cl><span class=n>For</span> <span class=n>i</span><span class=err>←</span><span class=mi>1</span> <span class=n>to</span> <span class=n>n</span><span class=o>-</span><span class=mi>1</span> <span class=k>do</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>&lt;</span><span class=n>min</span> 
+</span></span><span class=line><span class=cl>            <span class=n>min</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>       <span class=k>else</span> <span class=k>if</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>&gt;</span><span class=n>max</span> <span class=n>max</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span>
+</span></span></code></pre></td></tr></table></div></div><p>思路二：（递归）将一组数分为（1）1-n/2和（2）n/2+1-n两部分，再将（1）和（2）分别分为两部分，依次往下分解，知道分成单独的一个或两个数，进行比较，设为最大和最小，再依次向上得到最大值。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=n>Max</span><span class=o>-</span><span class=n>min</span><span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=mi>0</span><span class=p>,</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span><span class=n>max</span><span class=p>,</span><span class=n>min</span><span class=p>)</span><span class=c1>//伪代码
+</span></span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=n>n</span><span class=o>=</span><span class=mi>1</span> <span class=n>max</span><span class=err>←</span><span class=n>min</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span><span class=k>return</span><span class=p>;</span><span class=c1>//解决小规模问题
+</span></span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=n>n</span><span class=o>=</span><span class=mi>2</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=err>≥</span><span class=n>a</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=n>max</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>],</span><span class=n>min</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=c1>//解决小规模问题
+</span></span></span><span class=line><span class=cl>              <span class=k>else</span> <span class=n>max</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>1</span><span class=p>],</span><span class=n>min</span><span class=err>←</span><span class=n>a</span><span class=p>[</span><span class=mi>0</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span> <span class=k>else</span> <span class=n>m</span><span class=err>←</span><span class=n>n</span><span class=o>/</span><span class=mi>2</span> 
+</span></span><span class=line><span class=cl>             <span class=n>Max</span><span class=o>-</span><span class=n>min</span><span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=mi>0</span><span class=p>,</span><span class=n>m</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span><span class=n>max1</span><span class=p>,</span><span class=n>min1</span><span class=p>),</span><span class=n>Max</span><span class=o>-</span><span class=n>min</span><span class=p>(</span><span class=n>A</span><span class=p>[</span><span class=n>m</span><span class=p>,</span><span class=n>n</span><span class=o>-</span><span class=mi>1</span><span class=p>],</span><span class=n>max2</span><span class=p>,</span><span class=n>min2</span><span class=p>),</span><span class=c1>//递归的解决各类子问题
+</span></span></span><span class=line><span class=cl>             <span class=n>max</span><span class=err>←</span><span class=n>max</span><span class=p>(</span><span class=n>max1</span><span class=p>,</span><span class=n>max2</span><span class=p>),</span> <span class=n>min</span><span class=err>←</span><span class=n>min</span><span class=p>(</span><span class=n>min1</span><span class=p>,</span><span class=n>min2</span><span class=p>),</span><span class=c1>//将子问题的解合并为原问题的解
+</span></span></span><span class=line><span class=cl>             <span class=k>return</span><span class=p>.</span>
+</span></span></code></pre></td></tr></table></div></div><p>思路三：（非递归2）这个是对非递归的一点优化。</p><p>假如是偶数的话，可以两个一组的进行比较，如果是奇数个，先将第一个当作最大最小值，再先将二三比较依次，将其中较大的与前面较大的比较，较小的同理，最终得到结果。次数降低为[3*n/2]-2次，有了一定的优化效果。</p><h3 id=大整数乘法><a href=#%e5%a4%a7%e6%95%b4%e6%95%b0%e4%b9%98%e6%b3%95 class=header-anchor></a>大整数乘法</h3><blockquote><p>大整数乘法是指两个超过计算机整数类型范围的整数相乘。分治法是解决大整数乘法问题的有效方法。对于大整数乘法，我们可以将两个大整数分别拆分成高位和低位两部分，然后使用分治法递归地计算高位和低位的乘积，最后将结果合并起来即可。</p></blockquote><p>具体来说，我们可以将两个大整数X和Y分别拆分成A、B、C、D四个部分，然后按照以下公式计算它们的乘积：</p>$$
+XY = AC * 2^n + [(A-B)*(D-C) + AC + BD] * 2^(n/2) + BD
+$$<p>其中n表示X和Y的位数，AC、BD表示A、C和B、D的乘积，(A-B)*(D-C)表示交叉项的乘积。这样，我们就将一个规模为n的大整数乘法问题转化为了4个规模为n/2的子问题，可以使用递归方法求解。同时进行复杂度分析T(n)=3T(n/2)+O(n);因此该算法的时间复杂度为O(n^log2(3))。在实际应用中，该算法比传统方法更加高效。</p><p>注：这个为什么是3倍的T(n/2)我想了挺久，后来发现是对时间复杂度和主方法的理解模糊导致的。如果</p>$$
+XY = AC * 2^n +(AD + BC) * 2^(n/2) + BD;
+$$<p>的话，T(n)=4T(n/2)+O(n)；时间复杂度就成了O(n^2)，这个三倍的T（n/2)和四倍的主要在于XY中乘法操作的次数，因为在对两个大整数进行相乘时，也是先递归往下分成小的子问题，在四倍时，是分成了求AC，AD，BC，BD四个子问题，而在三倍时，分成了求AC，BD，以及（A-B）*（D-C）的三个子问题。这时候看分成几个子问题采用了基础操作计数法的思想。</p><blockquote><p>辨：基础操作计数法和渐进时间复杂度</p><p>基本操作计数法和渐进时间复杂度都是用来判断算法时间复杂度，但思路和应用场景不同。</p><p><strong>基本操作计数法</strong>是通过计算算法中基本操作执行的次数来估算时间复杂度。基本操作是指算法中执行次数最多的操作，通常是最内层循环的循环体。这种方法适用于<strong>顺序结构和循环结构</strong>的算法。</p><p><strong>渐进时间复杂度</strong>是指当输入规模趋近于无穷大时，算法的时间复杂度的增长速度。通常使用大O记号来表示渐进时间复杂度，例如O(n)、O(nlogn)、O(n^2)等。其中，n表示输入规模，logn表示以2为底的对数。<strong>渐进时间复杂度关注算法的增长趋势，不关注具体的执行时间</strong>。在实际应用中，我们通常使用渐进时间复杂度来评估算法的效率和优劣。</p><p>基本操作计数法适用于顺序结构和循环结构的算法，而渐进时间复杂度适用于各种类型的算法。在实际应用中，我们可以根据具体情况选择合适的方法来进行分析。</p><p>因此，基本操作计数法评出的时间复杂度和渐进时间复杂度之间没有直接关系。但是，在实际应用中，我们可以通过基本操作计数法评估出一个算法在特定输入规模下的执行效率，并根据其增长趋势来推断其渐进时间复杂度。</p></blockquote><p>矩阵乘法也和这个大整数乘法问题的思路相似，都是通过更改小问题规模的个数来降低时间复杂度。</p><h3 id=归并排序和快速排序><a href=#%e5%bd%92%e5%b9%b6%e6%8e%92%e5%ba%8f%e5%92%8c%e5%bf%ab%e9%80%9f%e6%8e%92%e5%ba%8f class=header-anchor></a>归并排序和快速排序</h3><blockquote><p>这两个排序方法都属于分治法，我们来看看这两个经典排序方法是如何运行分治法的，它们的差别在哪里。分治法不断利用递归往下分组的方法建议想成一个递归树。</p></blockquote><p><strong>归并排序思想</strong>：将待排序数组分成两个子数组，将每个子数组再分别分成两个数组，一直往下分直到不能分为止，由于每两个数组都是由一个数组分出来的，所以再利用辅助数组将两个数组重新合并，并且在合并的过程排好序（类似双指针算法）。也就是一个递归树，从最大的数组不断分到底层的子数组，子数组中只有一个数时，两两合并同时排序向上走，走到最上面时就已经排好序了。</p><p><strong>快速排序</strong>思想：先选择一个基准元素，将待排序数组划分为左右两个子数组，左边子数组中所有元素都小于基准元素，右边子数组中所有元素都大于基准元素。然后对左右子数组同样选择一个基准玄素，将子数组中小于基准元素放左边数组，大于放右边数组，依次往下，到达递归树的最底层时，顺序已经排好。</p><p>这样子看其实归并排序更接近与我们1中给出的分治法的模板，先分组，在处理。而快速排序是先处理，再分组。</p><p>来看看两种排序的代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=c1>//归并排序
+</span></span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>merge_sort</span><span class=p>(</span><span class=kt>int</span> <span class=n>q</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>l</span> <span class=o>&gt;=</span> <span class=n>r</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>mid</span> <span class=o>=</span> <span class=n>l</span> <span class=o>+</span> <span class=n>r</span> <span class=o>&gt;&gt;</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>merge_sort</span><span class=p>(</span><span class=n>q</span><span class=p>,</span> <span class=n>l</span><span class=p>,</span> <span class=n>mid</span><span class=p>),</span> <span class=n>merge_sort</span><span class=p>(</span><span class=n>q</span><span class=p>,</span> <span class=n>mid</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>k</span> <span class=o>=</span> <span class=mi>0</span><span class=p>,</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>j</span> <span class=o>=</span> <span class=n>mid</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;=</span> <span class=n>mid</span> <span class=o>&amp;&amp;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>q</span><span class=p>[</span><span class=n>j</span><span class=p>])</span> <span class=n>tmp</span><span class=p>[</span><span class=n>k</span> <span class=o>++</span> <span class=p>]</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>i</span> <span class=o>++</span> <span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=n>tmp</span><span class=p>[</span><span class=n>k</span> <span class=o>++</span> <span class=p>]</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>j</span> <span class=o>++</span> <span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;=</span> <span class=n>mid</span><span class=p>)</span> <span class=n>tmp</span><span class=p>[</span><span class=n>k</span> <span class=o>++</span> <span class=p>]</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>i</span> <span class=o>++</span> <span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>j</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>)</span> <span class=n>tmp</span><span class=p>[</span><span class=n>k</span> <span class=o>++</span> <span class=p>]</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>j</span> <span class=o>++</span> <span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>;</span> <span class=n>i</span> <span class=o>++</span><span class=p>,</span> <span class=n>j</span> <span class=o>++</span> <span class=p>)</span> <span class=n>q</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>tmp</span><span class=p>[</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>//快速排序
+</span></span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>quick_sort</span><span class=p>(</span><span class=kt>int</span> <span class=n>q</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>l</span> <span class=o>&gt;=</span> <span class=n>r</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>j</span> <span class=o>=</span> <span class=n>r</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>x</span> <span class=o>=</span> <span class=n>q</span><span class=p>[</span><span class=n>l</span> <span class=o>+</span> <span class=n>r</span> <span class=o>&gt;&gt;</span> <span class=mi>1</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;</span> <span class=n>j</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>do</span> <span class=n>i</span> <span class=o>++</span> <span class=p>;</span> <span class=k>while</span> <span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>x</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>do</span> <span class=n>j</span> <span class=o>--</span> <span class=p>;</span> <span class=k>while</span> <span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>x</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;</span> <span class=n>j</span><span class=p>)</span> <span class=n>swap</span><span class=p>(</span><span class=n>q</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>q</span><span class=p>[</span><span class=n>j</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>quick_sort</span><span class=p>(</span><span class=n>q</span><span class=p>,</span> <span class=n>l</span><span class=p>,</span> <span class=n>j</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>quick_sort</span><span class=p>(</span><span class=n>q</span><span class=p>,</span> <span class=n>j</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=err>作者：</span><span class=n>yxc</span>
+</span></span><span class=line><span class=cl><span class=err>链接：</span><span class=nl>https</span><span class=p>:</span><span class=c1>//www.acwing.com/activity/content/code/content/39790/
+</span></span></span><span class=line><span class=cl><span class=err>来源：</span><span class=n>AcWing</span>
+</span></span></code></pre></td></tr></table></div></div><p>这两种分治法排序的思想和代码已经实现了，然后就来分析一下时间复杂度。</p><p>对于归并排序，正常分成k份时，T(n)=t(n/k)+t(n-n/k)+cn；分成两份时最好T（n）=2*T（n/2）+cn，渐进时间复杂度为O（nlogn）</p><p>对于快速排序，由于这个时找基准元素，小的在左边，大的在右边，所以基准元素的选择和时间复杂度有着很大的关系，想象一下最差的T(n)=T(1)+T(n-1)+O(n)，我们每次选的基准元素是最小值或者最大值，那就需要O（n^2)的时间复杂度，是一件很糟糕的事情，最好的话当然是选择一个中间数作为基准点，T（n）=2*T（n/2）+O（n），时间复杂度最好就能到O（nlogn）了，这个也是和递归树的高度有关的。</p><blockquote><p>那为什么其实最常用的是快速排序呢？</p><p>理由如下：</p><ol><li><strong>速度快</strong>：快速排序的时间复杂度为O(nlogn)，这意味着它可以在很短的时间内对大量数据进行排序。相比之下，其他排序算法如堆排序和归并排序的时间复杂度也为O(nlogn)，但是快速排序通常比它们更快，因为它可以就地操作，而不需要创建任何辅助数组来保存临时值。</li><li><strong>占用资源少</strong>：快速排序使用的空间复杂度为O(logn)，这意味着它在内存占用方面比其他排序算法更加高效。</li><li><strong>局部性好</strong>：快速排序中的分区步骤通常具有很好的局部性，因为它访问前后附近的连续数组元素。这使得计算机硬件可以通过优化访问位置来提高效率。</li></ol></blockquote><h3 id=归并排序和逆序对><a href=#%e5%bd%92%e5%b9%b6%e6%8e%92%e5%ba%8f%e5%92%8c%e9%80%86%e5%ba%8f%e5%af%b9 class=header-anchor></a>归并排序和逆序对</h3><blockquote><p>逆序：给定自然数 1, ⋯ , n 的一个排列，如果 j > i 但 j 排 在 i 的前面则称 (j, i) 为该排列的一个逆序。</p></blockquote><p>分为两部分，求内部逆序数，求两个之间的逆序数。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=kt>void</span> <span class=nf>MergeSort</span><span class=p>(</span><span class=kt>int</span> <span class=n>r</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>low</span><span class=p>,</span> <span class=kt>int</span> <span class=n>high</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// 进行归并排序
+</span></span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>mid</span><span class=p>,</span> <span class=n>r1</span><span class=p>[</span><span class=mi>1000</span><span class=p>],</span> <span class=n>i</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>low</span> <span class=o>==</span> <span class=n>high</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>mid</span> <span class=o>=</span> <span class=p>(</span><span class=n>low</span> <span class=o>+</span> <span class=n>high</span><span class=p>)</span> <span class=o>/</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>// 划分
+</span></span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>		<span class=n>MergeSort</span><span class=p>(</span><span class=n>r</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>mid</span><span class=p>);</span> <span class=c1>// 递归求左子序列中逆序对
+</span></span></span><span class=line><span class=cl>		<span class=n>MergeSort</span><span class=p>(</span><span class=n>r</span><span class=p>,</span> <span class=n>mid</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>high</span><span class=p>);</span> <span class=c1>// 递归求右子序列中逆序对
+</span></span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>		<span class=n>Merge</span><span class=p>(</span><span class=n>r</span><span class=p>,</span> <span class=n>r1</span><span class=p>,</span> <span class=n>low</span><span class=p>,</span> <span class=n>mid</span><span class=p>,</span> <span class=n>high</span><span class=p>);</span> <span class=c1>// 合并
+</span></span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=n>low</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>high</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>r</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>r1</span><span class=p>[</span><span class=n>i</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>Merge</span><span class=p>(</span><span class=kt>int</span> <span class=n>r</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>r1</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>low</span><span class=p>,</span> <span class=kt>int</span> <span class=n>mid</span><span class=p>,</span> <span class=kt>int</span> <span class=n>high</span><span class=p>)</span> <span class=p>{</span> <span class=c1>// 合并子序列
+</span></span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>low</span><span class=p>,</span> <span class=n>j</span> <span class=o>=</span> <span class=n>mid</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>k</span> <span class=o>=</span> <span class=n>low</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;=</span> <span class=n>mid</span> <span class=o>&amp;&amp;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>high</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=p>(</span><span class=n>r</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;=</span> <span class=n>r</span><span class=p>[</span><span class=n>j</span><span class=p>])</span> <span class=p>{</span><span class=c1>// 取较小者放入r1[k]中
+</span></span></span><span class=line><span class=cl>			<span class=n>r1</span><span class=p>[</span><span class=n>k</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>r</span><span class=p>[</span><span class=n>i</span><span class=o>++</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=n>count</span> <span class=o>+=</span> <span class=n>mid</span> <span class=o>-</span> <span class=n>i</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>			<span class=c1>// 若左子序列中的数1大于右子序列的数2，则数1后面的数都大于数2
+</span></span></span><span class=line><span class=cl>			<span class=n>r1</span><span class=p>[</span><span class=n>k</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>r</span><span class=p>[</span><span class=n>j</span><span class=o>++</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>i</span> <span class=o>&lt;=</span> <span class=n>mid</span><span class=p>)</span> <span class=n>r1</span><span class=p>[</span><span class=n>k</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>r</span><span class=p>[</span><span class=n>i</span><span class=o>++</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=n>j</span> <span class=o>&lt;=</span> <span class=n>high</span><span class=p>)</span> <span class=n>r1</span><span class=p>[</span><span class=n>k</span><span class=o>++</span><span class=p>]</span> <span class=o>=</span> <span class=n>r</span><span class=p>[</span><span class=n>j</span><span class=o>++</span><span class=p>];</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=二分搜索问题><a href=#%e4%ba%8c%e5%88%86%e6%90%9c%e7%b4%a2%e9%97%ae%e9%a2%98 class=header-anchor></a>二分搜索问题</h3><blockquote><p>给定已按升序拍好序的n个元素a[0:n-1]，现要在这n个元素中找到一个特定的元素x。</p></blockquote><p>遍历直接查找的时间复杂度为O(n)。</p><p>分治可将时间复杂度降低到O(lgn)。</p><p>伪代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=k>template</span><span class=o>&lt;</span><span class=k>class</span> <span class=nc>Type</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=n>BinarySearch</span><span class=p>(</span><span class=n>Type</span> <span class=n>a</span><span class=p>[],</span><span class=k>const</span> <span class=n>Type</span><span class=o>&amp;</span><span class=n>x</span><span class=p>,</span><span class=kt>int</span> <span class=n>l</span><span class=p>,</span><span class=kt>int</span> <span class=n>x</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=n>r</span><span class=o>&gt;=</span><span class=n>l</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=kt>int</span> <span class=n>m</span><span class=o>=</span><span class=p>(</span><span class=n>l</span><span class=o>+</span><span class=n>r</span><span class=p>)</span><span class=o>/</span><span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>x</span><span class=o>==</span><span class=n>a</span><span class=p>[</span><span class=n>m</span><span class=p>])</span><span class=k>return</span> <span class=n>m</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>x</span><span class=o>&lt;</span><span class=n>a</span><span class=p>[</span><span class=n>m</span><span class=p>])</span><span class=n>r</span><span class=o>=</span><span class=n>m</span><span class=o>-</span><span class=mi>1</span><span class=p>;</span><span class=k>else</span> <span class=n>l</span><span class=o>=</span><span class=n>m</span><span class=o>+</span><span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=选择问题><a href=#%e9%80%89%e6%8b%a9%e9%97%ae%e9%a2%98 class=header-anchor></a>选择问题</h3><blockquote><p>寻找数组中第k小的元素。</p></blockquote><p>1）先排序，再可以直接找到第k小的元素。</p><p>2）利用快速排序的方法，筛选出比基准元素小的和比基准元素大的，再根据左右边的数量判断k在哪一边，按照这个思路往下推，直到找到为止。</p><p>对于1）的复杂度分析就略过了，这里重点看看2）</p><p>当左右大小相差不多时，可以得到以下表达式：T（n）&lt;= T（n/2）+ cn，n为2的幂次方的情况下，时间复杂度较好能达到O(n)，当然基准元素最好是要能选到中间的。代码如下。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-C++ data-lang=C++><span class=line><span class=cl><span class=n>T</span> <span class=nf>select</span> <span class=p>(</span><span class=n>T</span> <span class=n>a</span><span class=p>[],</span> <span class=kt>int</span> <span class=n>l</span><span class=p>,</span> <span class=kt>int</span> <span class=n>r</span><span class=p>,</span> <span class=kt>int</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>l</span> <span class=o>&gt;=</span> <span class=n>r</span><span class=p>)</span><span class=k>return</span> <span class=n>a</span><span class=p>[</span><span class=n>l</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>l</span><span class=p>,</span> <span class=n>j</span> <span class=o>=</span> <span class=n>r</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>T</span> <span class=n>pivot</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>while</span> <span class=p>(</span><span class=nb>true</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>do</span> <span class=p>{</span><span class=n>i</span><span class=o>++</span><span class=p>;}</span> <span class=k>while</span> <span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>&lt;</span> <span class=n>pivot</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=k>do</span> <span class=p>{</span><span class=n>j</span><span class=o>--</span><span class=p>;}</span> <span class=k>while</span> <span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>&gt;</span> <span class=n>pivot</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>		<span class=k>if</span> <span class=p>(</span><span class=n>i</span> <span class=o>&gt;=</span> <span class=n>j</span><span class=p>)</span><span class=k>break</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=n>swap</span><span class=p>(</span><span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>],</span> <span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>]);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>j</span> <span class=o>-</span> <span class=n>l</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>==</span> <span class=n>k</span><span class=p>)</span><span class=k>return</span> <span class=n>pivot</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=n>l</span><span class=p>]</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>pivot</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>i</span> <span class=o>-</span> <span class=n>l</span> <span class=o>+</span> <span class=mi>1</span> <span class=o>&lt;</span> <span class=n>k</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=k>return</span> <span class=n>select</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>j</span> <span class=o>+</span> <span class=mi>1</span><span class=p>,</span> <span class=n>r</span><span class=p>,</span> <span class=n>k</span> <span class=o>-</span> <span class=n>j</span> <span class=o>+</span> <span class=n>l</span> <span class=o>-</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=k>return</span> <span class=n>select</span><span class=p>(</span><span class=n>a</span><span class=p>,</span> <span class=n>l</span><span class=p>,</span> <span class=n>j</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>k</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=棋盘覆盖问题><a href=#%e6%a3%8b%e7%9b%98%e8%a6%86%e7%9b%96%e9%97%ae%e9%a2%98 class=header-anchor></a>棋盘覆盖问题</h3><blockquote><p>在一个2的k次方乘2的k次方个放个组成的棋盘上，恰有一个方格和其它方格不同，称该方格为一特殊方格，且称该棋盘为一特殊棋盘。在棋盘覆盖问题中，要用4种不同形态的L型骨牌覆盖给定的特殊棋盘上的特殊方格以外的所有方格，且任何两个L型骨牌不能重叠覆盖。</p></blockquote><p>递归式：T(k)=4T(k-1)+O(1);——>T(n)=4T(n/4)+c=O(n)；</p><p>本来只有一个位置是特殊位置，每次切分时，加上一个骨牌，将四个位置都变成特殊位置。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=kt>void</span> <span class=nf>chessBoard</span><span class=p>(</span><span class=kt>int</span> <span class=n>tr</span><span class=p>,</span> <span class=kt>int</span> <span class=n>tc</span><span class=p>,</span> <span class=kt>int</span> <span class=n>dr</span><span class=p>,</span> <span class=kt>int</span> <span class=n>dc</span><span class=p>,</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>//dr,dc残缺方块所在行列
+</span></span></span><span class=line><span class=cl>    <span class=c1>//tr,tc棋盘中左上角方格所在行列
+</span></span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>size</span> <span class=o>==</span> <span class=mi>1</span><span class=p>)</span> <span class=k>return</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>t</span> <span class=o>=</span> <span class=n>tile</span><span class=o>++</span><span class=p>,</span> <span class=c1>// L型骨牌个数
+</span></span></span><span class=line><span class=cl>	    <span class=n>s</span> <span class=o>=</span> <span class=n>size</span> <span class=o>/</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>// 子棋盘大小
+</span></span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=c1>// 覆盖左上角子棋盘
+</span></span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>dr</span> <span class=o>&lt;</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>&amp;&amp;</span> <span class=n>dc</span> <span class=o>&lt;</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 特殊方格在此子棋盘中
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span><span class=p>,</span> <span class=n>tc</span><span class=p>,</span> <span class=n>dr</span><span class=p>,</span> <span class=n>dc</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=p>{</span><span class=c1>// 此子棋盘中无特殊方格
+</span></span></span><span class=line><span class=cl>		<span class=c1>// 用 L型骨牌覆盖右下角
+</span></span></span><span class=line><span class=cl>		<span class=n>board</span><span class=p>[</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>tc</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 覆盖其余方格
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span><span class=p>,</span> <span class=n>tc</span><span class=p>,</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=c1>// 覆盖右上角子棋盘
+</span></span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>dr</span> <span class=o>&lt;</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>&amp;&amp;</span> <span class=n>dc</span> <span class=o>&gt;=</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 特殊方格在此子棋盘中
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>dr</span><span class=p>,</span> <span class=n>dc</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=p>{</span><span class=c1>// 此子棋盘中无特殊方格
+</span></span></span><span class=line><span class=cl>		<span class=c1>// 用L型骨牌覆盖左下角
+</span></span></span><span class=line><span class=cl>		<span class=n>board</span><span class=p>[</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>][</span><span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 覆盖其余方格
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=c1>// 覆盖左下角子棋盘
+</span></span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>dr</span> <span class=o>&gt;=</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>&amp;&amp;</span> <span class=n>dc</span> <span class=o>&lt;</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 特殊方格在此子棋盘中
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span><span class=p>,</span> <span class=n>dr</span><span class=p>,</span> <span class=n>dc</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=p>{</span><span class=c1>// 用 L型骨牌覆盖右上角
+</span></span></span><span class=line><span class=cl>		<span class=n>board</span><span class=p>[</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>][</span><span class=n>tc</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 覆盖其余方格
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span><span class=p>,</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=c1>// 覆盖右下角子棋盘
+</span></span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>dr</span> <span class=o>&gt;=</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span> <span class=o>&amp;&amp;</span> <span class=n>dc</span> <span class=o>&gt;=</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 特殊方格在此子棋盘中
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>dr</span><span class=p>,</span> <span class=n>dc</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>else</span> <span class=p>{</span><span class=c1>// 用 L型骨牌覆盖左上角
+</span></span></span><span class=line><span class=cl>		<span class=n>board</span><span class=p>[</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>][</span><span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>]</span> <span class=o>=</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=c1>// 覆盖其余方格
+</span></span></span><span class=line><span class=cl>		<span class=n>chessBoard</span><span class=p>(</span><span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tr</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>tc</span> <span class=o>+</span> <span class=n>s</span><span class=p>,</span> <span class=n>s</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>OutputBoard</span><span class=p>(</span><span class=kt>int</span> <span class=n>size</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>size</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>j</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;</span> <span class=n>size</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>setw</span> <span class=p>(</span><span class=mi>5</span><span class=p>)</span> <span class=o>&lt;&lt;</span> <span class=n>Board</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>		<span class=n>cout</span> <span class=o>&lt;&lt;</span> <span class=n>endl</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>        
+</span></span></code></pre></td></tr></table></div></div><h3 id=循环赛日程表><a href=#%e5%be%aa%e7%8e%af%e8%b5%9b%e6%97%a5%e7%a8%8b%e8%a1%a8 class=header-anchor></a>循环赛日程表</h3><blockquote><p>有n=2k个运动员进行网球循环赛，现在要设计一个日程表，满足以下要求：</p><p>1）每个选手必须和其它个选手各比赛一次。</p><p>2）每个选手一天只能赛一次。</p><p>3）循环赛一共进行n-1天。</p></blockquote><p>按照分治策略，所有的选手分成两半的情况下，n个选手的日程表由外n/2个选手就可以决定。</p><p>代码如下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c++ data-lang=c++><span class=line><span class=cl><span class=kt>void</span> <span class=nf>gametable</span><span class=p>(</span><span class=kt>int</span> <span class=n>k</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>a</span><span class=p>[</span><span class=mi>100</span><span class=p>][</span><span class=mi>100</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>temp</span><span class=p>,</span> <span class=n>i</span><span class=p>,</span> <span class=n>j</span><span class=p>,</span> <span class=n>p</span><span class=p>,</span> <span class=n>t</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=n>n</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>//两个参赛选手日程
+</span></span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=mi>1</span><span class=p>][</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=mi>2</span><span class=p>][</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=n>a</span><span class=p>[</span><span class=mi>2</span><span class=p>][</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=n>t</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>t</span> <span class=o>&lt;</span> <span class=n>k</span><span class=p>;</span> <span class=n>t</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>		<span class=c1>//迭代处理，依次处理2 ^ n....2 ^ k个选手的比赛日程
+</span></span></span><span class=line><span class=cl>	<span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=n>temp</span> <span class=o>=</span> <span class=n>n</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=n>n</span> <span class=o>=</span> <span class=n>n</span> <span class=o>*</span> <span class=mi>2</span><span class=p>;</span> <span class=c1>//填左下角元素
+</span></span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=n>temp</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=n>j</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>temp</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				<span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=n>temp</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>+</span> <span class=n>temp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>		<span class=c1>//左下角和左上角元素的对应关系
+</span></span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>temp</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=c1>//将左下角元素抄到右上角
+</span></span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=n>j</span> <span class=o>=</span> <span class=n>temp</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				<span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span> <span class=o>+</span> <span class=n>temp</span><span class=p>][(</span><span class=n>j</span> <span class=o>+</span> <span class=n>temp</span><span class=p>)</span> <span class=o>%</span> <span class=n>n</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=n>i</span> <span class=o>=</span> <span class=n>temp</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>			<span class=c1>//将左上角元素抄到右下角
+</span></span></span><span class=line><span class=cl>			<span class=k>for</span> <span class=p>(</span><span class=n>j</span> <span class=o>=</span> <span class=n>temp</span> <span class=o>+</span> <span class=mi>1</span><span class=p>;</span> <span class=n>j</span> <span class=o>&lt;=</span> <span class=n>n</span><span class=p>;</span> <span class=n>j</span><span class=o>++</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				<span class=n>a</span><span class=p>[</span><span class=n>i</span><span class=p>][</span><span class=n>j</span><span class=p>]</span> <span class=o>=</span> <span class=n>a</span><span class=p>[</span><span class=n>i</span> <span class=o>-</span> <span class=n>temp</span><span class=p>][</span><span class=n>j</span> <span class=o>-</span> <span class=n>temp</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=附><a href=#%e9%99%84 class=header-anchor></a>附：</h2><p>1.内容参考</p><p>佟鑫宇老师 天津大学智能与计算学部 2023秋 算法设计与分析 ppt</p><ol start=2><li></li></ol><p>考试考察重点：棋盘覆盖问题，归并排序，快速排序，选择问题。</p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/%E4%BA%8C%E5%88%86%E6%9F%A5%E6%89%BE%E8%AF%A6%E8%A7%A3/><div class=article-image><img src=/images/9cb924e8.jpg loading=lazy data-key data-hash=/images/9cb924e8.jpg></div><div class=article-details><h2 class=article-title>二分查找详解</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E7%BB%AA%E8%AE%BA-%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90/><div class=article-image><img src=/images/16f0389d.jpg loading=lazy data-key data-hash=/images/16f0389d.jpg></div><div class=article-details><h2 class=article-title>算法专题：绪论+算法分析</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E8%B4%AA%E5%BF%83%E6%B3%95/><div class=article-image><img src=/images/5180abbd.jpg loading=lazy data-key data-hash=/images/5180abbd.jpg></div><div class=article-details><h2 class=article-title>算法专题：贪心法</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E7%AE%97%E6%B3%95%E5%92%8C%E6%95%B0%E5%AD%A6%E7%9F%A5%E8%AF%86/><div class=article-image><img src=/images/28a3c037.jpg loading=lazy data-key data-hash=/images/28a3c037.jpg></div><div class=article-details><h2 class=article-title>算法专题：算法和数学知识</h2></div></a></article><article class=has-image><a href=/p/%E7%AE%97%E6%B3%95%E4%B8%93%E9%A2%98%E5%9B%9E%E6%BA%AF%E5%92%8C%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C/><div class=article-image><img src=/images/fe6815bb.jpg loading=lazy data-key data-hash=/images/fe6815bb.jpg></div><div class=article-details><h2 class=article-title>算法专题：回溯和分支定界</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

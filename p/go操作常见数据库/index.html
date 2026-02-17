@@ -1,0 +1,1139 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="Go操作常见数据库，包括MySQL、Redis、MongoDB等。"><title>Go操作常见数据库</title><link rel=canonical href=https://sutdown.github.io/p/go%E6%93%8D%E4%BD%9C%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E5%BA%93/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="Go操作常见数据库"><meta property='og:description' content="Go操作常见数据库，包括MySQL、Redis、MongoDB等。"><meta property='og:url' content='https://sutdown.github.io/p/go%E6%93%8D%E4%BD%9C%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E5%BA%93/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-02-18T00:00:00+00:00'><meta property='article:modified_time' content='2025-02-18T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/0f4e5750.jpg'><meta name=twitter:title content="Go操作常见数据库"><meta name=twitter:description content="Go操作常见数据库，包括MySQL、Redis、MongoDB等。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/0f4e5750.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#go操作mysql>Go操作MySQL</a><ul><li><a href=#连接>连接</a></li><li><a href=#crud>CRUD</a></li><li><a href=#mysql预处理>MySQL预处理</a></li><li><a href=#go实现mysql事务>Go实现MySQL事务</a></li></ul></li><li><a href=#sqlx库使用指南>sqlx库使用指南</a><ul><li><a href=#连接-1><strong>连接</strong></a></li><li><a href=#crud-1>CRUD</a></li><li><a href=#事务操作><strong>事务操作</strong></a></li><li><a href=#sqlxin的批量插入实例><strong>sqlx.In的批量插入实例</strong></a></li></ul></li><li><a href=#go-redis>go-redis</a><ul><li><a href=#redis介绍>redis介绍</a></li><li><a href=#go-redis库>go-redis库</a></li><li><a href=#redis-pipeline>Redis Pipeline</a></li><li><a href=#事务>事务</a></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/go%E6%93%8D%E4%BD%9C%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E5%BA%93/><img src=/images/0f4e5750.jpg loading=lazy alt="Featured image of post Go操作常见数据库"></a></div><div class=article-details><header class=article-category><a href=/categories/go/>Go</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/go%E6%93%8D%E4%BD%9C%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E5%BA%93/>Go操作常见数据库</a></h2><h3 class=article-subtitle>Go操作常见数据库，包括MySQL、Redis、MongoDB等。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-02-18T00:00:00Z>Feb 18, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 13 分钟</time></div></footer></div></header><section class=article-content><h2 id=go操作mysql><a href=#go%e6%93%8d%e4%bd%9cmysql class=header-anchor></a>Go操作MySQL</h2><h3 id=连接><a href=#%e8%bf%9e%e6%8e%a5 class=header-anchor></a>连接</h3><p>Go语言中的database/sql包提供了保证SQL或类SQL数据库的泛用接口，并不提供具体的数据库驱动，使用该包时至少注入一个数据库驱动。</p><p><strong>初始化连接：Ping()</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=k>go</span><span class=w> </span><span class=nx>get</span><span class=w> </span><span class=o>-</span><span class=nx>u</span><span class=w> </span><span class=nx>github</span><span class=p>.</span><span class=nx>com</span><span class=o>/</span><span class=k>go</span><span class=o>-</span><span class=nx>sql</span><span class=o>-</span><span class=nx>driver</span><span class=o>/</span><span class=nx>mysql</span><span class=w> 				  </span><span class=c1>// 下载依赖</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>Open</span><span class=p>(</span><span class=nx>driverName</span><span class=p>,</span><span class=w> </span><span class=nx>dataSourceName</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=nx>DB</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> </span><span class=c1>// 打开指定数据库，指定数据源</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>void</span><span class=w> </span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>sql</span><span class=p>.</span><span class=nx>DB</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>initDB</span><span class=p>()</span><span class=w> </span><span class=p>(</span><span class=nx>err</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>     </span><span class=c1>// 格式校验</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>dsn</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;root:root1234@tcp(127.0.0.1:13306)/sql_demo&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>db</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>sql</span><span class=p>.</span><span class=nf>Open</span><span class=p>(</span><span class=s>&#34;mysql&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>dsn</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 做完错误检查之后，确保db不为nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// CLose() 用来释放数据库连接相关的资源</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>defer</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 初始化连接</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Ping</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>db</span><span class=p>.</span><span class=nf>SetConnMaxLifetime</span><span class=p>(</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=o>*</span><span class=mi>10</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>db</span><span class=p>.</span><span class=nf>SetMaxOpenConns</span><span class=p>(</span><span class=mi>200</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>db</span><span class=p>.</span><span class=nf>SetMaxIdleConns</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>main</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=nf>initDB</span><span class=p>();</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;connect to db failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;connect to db success&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>其中<code>sql.DB</code>是表示连接的数据库对象（结构体实例），它保存了连接数据库相关的所有信息。它内部维护着一个具有零到多个底层连接的连接池，它可以安全地被多个goroutine同时使用。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// SetMaxOpenConns设置与数据库建立连接的最大数目。 如果n大于0且小于最大闲置连接数，会将最大闲置连接数减小到匹配最大开启连接数的限制。 如果n&lt;=0，不会限制最大开启连接数，默认为0（无限制）。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>SetMaxOpenConns</span><span class=p>(</span><span class=nx>n</span><span class=w> </span><span class=kt>int</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// SetMaxIdleConns设置连接池中的最大闲置连接数。 如果n大于最大开启连接数，则新的最大闲置连接数会减小到匹配最大开启连接数的限制。 如果n&lt;=0，不会保留闲置连接。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>SetMaxIdleConns</span><span class=p>(</span><span class=nx>n</span><span class=w> </span><span class=kt>int</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=crud><a href=#crud class=header-anchor></a>CRUD</h3><p>mySQL</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-mysql data-lang=mysql><span class=line><span class=cl><span class=k>CREATE</span><span class=w> </span><span class=k>DATABASE</span><span class=w> </span><span class=n>sql_test</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>use</span><span class=w> </span><span class=n>sql_test</span><span class=p>;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>CREATE</span><span class=w> </span><span class=k>TABLE</span><span class=w> </span><span class=o>`</span><span class=k>user</span><span class=o>`</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=o>`</span><span class=n>id</span><span class=o>`</span><span class=w> </span><span class=kt>BIGINT</span><span class=p>(</span><span class=mi>20</span><span class=p>)</span><span class=w> </span><span class=k>NOT</span><span class=w> </span><span class=no>NULL</span><span class=w> </span><span class=kp>AUTO_INCREMENT</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=o>`</span><span class=n>name</span><span class=o>`</span><span class=w> </span><span class=kt>VARCHAR</span><span class=p>(</span><span class=mi>20</span><span class=p>)</span><span class=w> </span><span class=k>DEFAULT</span><span class=w> </span><span class=s1>&#39;&#39;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=o>`</span><span class=n>age</span><span class=o>`</span><span class=w> </span><span class=kt>INT</span><span class=p>(</span><span class=mi>11</span><span class=p>)</span><span class=w> </span><span class=k>DEFAULT</span><span class=w> </span><span class=s1>&#39;0&#39;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>PRIMARY</span><span class=w> </span><span class=k>KEY</span><span class=p>(</span><span class=o>`</span><span class=n>id</span><span class=o>`</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=kp>ENGINE</span><span class=o>=</span><span class=n>InnoDB</span><span class=w> </span><span class=kp>AUTO_INCREMENT</span><span class=o>=</span><span class=mi>1</span><span class=w> </span><span class=k>DEFAULT</span><span class=w> </span><span class=kp>CHARSET</span><span class=o>=</span><span class=n>utf8mb4</span><span class=p>;</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>单行查询</p><p>QueryRow会在连接池里调用连接，达到最大连接数后停止，scan()会关闭连接。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>QueryRow</span><span class=p>(</span><span class=nx>query</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=w> </span><span class=o>...</span><span class=kd>interface</span><span class=p>{})</span><span class=w> </span><span class=o>*</span><span class=nx>Row</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>type</span><span class=w> </span><span class=nx>user</span><span class=w> </span><span class=kd>struct</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>id</span><span class=w> </span><span class=kt>int</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>age</span><span class=w> </span><span class=kt>int</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>name</span><span class=w> </span><span class=kt>string</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>queryROwDemo</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>sqlStr</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;select id, name, age from user where id=?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=kd>var</span><span class=w> </span><span class=nx>u</span><span class=w> </span><span class=nx>user</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>row</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>QueryRow</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>1</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>row</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>age</span><span class=p>)</span><span class=w> </span><span class=c1>// 关闭连接</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=o>!=</span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;scan failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>多行查询</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>Query</span><span class=p>(</span><span class=nx>query</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=w> </span><span class=o>...</span><span class=kd>interface</span><span class=p>{})</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=nx>Rows</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 查询多条数据示例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>queryMultiRowDemo</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;select id, name, age from user where id &gt; ?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>rows</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Query</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;query failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 非常重要：关闭rows释放持有的数据库链接</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 循环读取结果集中的数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Next</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=kd>var</span><span class=w> </span><span class=nx>u</span><span class=w> </span><span class=nx>user</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>age</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;scan failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;id:%d name:%s age:%d\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>age</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>插入数据，更新数据</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>Exec</span><span class=p>(</span><span class=nx>query</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=w> </span><span class=o>...</span><span class=kd>interface</span><span class=p>{})</span><span class=w> </span><span class=p>(</span><span class=nx>Result</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nf>LastInsertId</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nf>RowsAffected</span><span class=p>()</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=mysql预处理><a href=#mysql%e9%a2%84%e5%a4%84%e7%90%86 class=header-anchor></a>MySQL预处理</h3><p><strong>什么是预处理</strong></p><p>普通SQL语句执行过程：</p><ol><li>客户端对SQL语句进行占位符替换得到完整的SQL语句。</li><li>客户端发送完整SQL语句到MySQL服务端</li><li>MySQL服务端执行完整的SQL语句并将结果返回给客户端。</li></ol><p>预处理执行过程：</p><ol><li>把SQL语句分成两部分，命令部分与数据部分。</li><li>先把命令部分发送给MySQL服务端，MySQL服务端进行SQL预处理。</li><li>然后把数据部分发送给MySQL服务端，MySQL服务端对SQL语句进行占位符替换。</li><li>MySQL服务端执行完整的SQL语句并将结果返回给客户端。</li></ol><p><strong>为什么要预处理？</strong></p><ol><li>优化MySQL服务器重复执行SQL的方法，可以提升服务器性能，提前让服务器编译，一次编译多次执行，节省后续编译的成本。</li><li>避免SQL注入问题。</li></ol><p><strong>Go实现MySQL预处理</strong></p><p><code>Prepare</code>方法会先将sql语句发送给MySQL服务端，返回一个准备好的状态用于之后的查询和命令。返回值可以同时执行多个查询和命令。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// database/sql</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>Prepare</span><span class=p>(</span><span class=nx>query</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=nx>Stmt</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 预处理查询示例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>prepareQueryDemo</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;select id, name, age from user where id &gt; ?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>stmt</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Prepare</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;prepare failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nx>stmt</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>rows</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>stmt</span><span class=p>.</span><span class=nf>Query</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;query failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Close</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 遍历结果集的每一行</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Next</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=kd>var</span><span class=w> </span><span class=nx>u</span><span class=w> </span><span class=nx>user</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// Scan 方法用于从数据库查询结果中提取数据并存储到变量中。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rows</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span><span class=w> </span><span class=o>&amp;</span><span class=nx>u</span><span class=p>.</span><span class=nx>age</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;scan failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;id:%d name:%s age:%d\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>id</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>name</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>age</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>SQL注入</strong></p><p><strong>我们任何时候都不应该自己拼接SQL语句！</strong></p><h3 id=go实现mysql事务><a href=#go%e5%ae%9e%e7%8e%b0mysql%e4%ba%8b%e5%8a%a1 class=header-anchor></a>Go实现MySQL事务</h3><p>在MySQL中只有使用了<code>Innodb</code>数据库引擎的数据库或表才支持事务。事务处理可以用来维护数据库的完整性，保证成批的SQL语句要么全部执行，要么全部不执行。事务必须满足4个条件（ACID）：原子性（Atomicity，或称不可分割性）、一致性（Consistency）、隔离性（Isolation，又称独立性）、持久性（Durability）。</p><p><strong>事务相关方法</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>DB</span><span class=p>)</span><span class=w> </span><span class=nf>Begin</span><span class=p>()</span><span class=w> </span><span class=p>(</span><span class=o>*</span><span class=nx>Tx</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> 	</span><span class=c1>// 开始事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>tx</span><span class=w> </span><span class=o>*</span><span class=nx>Tx</span><span class=p>)</span><span class=w> </span><span class=nf>Commit</span><span class=p>()</span><span class=w> </span><span class=kt>error</span><span class=w>				</span><span class=c1>// 提交事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>tx</span><span class=w> </span><span class=o>*</span><span class=nx>Tx</span><span class=p>)</span><span class=w> </span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=kt>error</span><span class=w>			</span><span class=c1>// 回滚事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 实例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 事务操作示例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>transactionDemo</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>tx</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Begin</span><span class=p>()</span><span class=w> </span><span class=c1>// 开启事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>tx</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> 		</span><span class=c1>// 回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;begin trans failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr1</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;Update user set age=30 where id=?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ret1</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr1</span><span class=p>,</span><span class=w> </span><span class=mi>2</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=c1>// 回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;exec sql1 failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>affRow1</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ret1</span><span class=p>.</span><span class=nf>RowsAffected</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=c1>// 回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;exec ret1.RowsAffected() failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr2</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;Update user set age=40 where id=?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ret2</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr2</span><span class=p>,</span><span class=w> </span><span class=mi>3</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=c1>// 回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;exec sql2 failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>affRow2</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>ret2</span><span class=p>.</span><span class=nf>RowsAffected</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=c1>// 回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;exec ret1.RowsAffected() failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>affRow1</span><span class=p>,</span><span class=w> </span><span class=nx>affRow2</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>affRow1</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=nx>affRow2</span><span class=w> </span><span class=o>==</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;事务提交啦...&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Commit</span><span class=p>()</span><span class=w> </span><span class=c1>// 提交事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;事务回滚啦...&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;exec trans success!&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=sqlx库使用指南><a href=#sqlx%e5%ba%93%e4%bd%bf%e7%94%a8%e6%8c%87%e5%8d%97 class=header-anchor></a>sqlx库使用指南</h2><h3 id=连接-1><a href=#%e8%bf%9e%e6%8e%a5-1 class=header-anchor></a><strong>连接</strong></h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>go get github.com/jmoiron/sqlx <span class=c1># 下载sqlx依赖</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=s>&#34;fmt&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>_</span><span class=w> </span><span class=s>&#34;github.com/go-sql-driver/mysql&#34;</span><span class=w>  </span><span class=c1>// 不要忘了导入数据库驱动</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=s>&#34;github.com/jmoiron/sqlx&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>var</span><span class=w> </span><span class=nx>db</span><span class=w> </span><span class=o>*</span><span class=nx>sqlx</span><span class=p>.</span><span class=nx>DB</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>initDB</span><span class=p>()</span><span class=w> </span><span class=p>(</span><span class=nx>err</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>dsn</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;user:password@tcp(127.0.0.1:3306)/sql_test?charset=utf8mb4&amp;parseTime=True&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 也可以使用MustConnect连接不成功就panic</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>db</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>sqlx</span><span class=p>.</span><span class=nf>Connect</span><span class=p>(</span><span class=s>&#34;mysql&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>dsn</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;connect DB failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>db</span><span class=p>.</span><span class=nf>SetMaxOpenConns</span><span class=p>(</span><span class=mi>20</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>db</span><span class=p>.</span><span class=nf>SetMaxIdleConns</span><span class=p>(</span><span class=mi>10</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=crud-1><a href=#crud-1 class=header-anchor></a>CRUD</h3><p><strong>查询</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>u</span><span class=p>,</span><span class=w> </span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>1</span><span class=p>)</span><span class=w>				  </span><span class=c1>// select id, name, age from user where id=?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Select</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>users</span><span class=p>,</span><span class=w> </span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=w>	  </span><span class=c1>// select id, name, age from user where id &gt; ?</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>插入，更新和删除</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=cm>/* Exec：用于执行不返回行数据的SQL语句，例如INSERT、UPDATE和DELETE。 */</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>ret</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=s>&#34;沙河小王子&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>19</span><span class=p>)</span><span class=w> 	  </span><span class=c1>// insert into user(name, age) values (?,?)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>ret</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>39</span><span class=p>,</span><span class=w> </span><span class=mi>6</span><span class=p>)</span><span class=w>			 			 </span><span class=c1>// update user set age=? where id = ?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>ret</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=mi>6</span><span class=p>)</span><span class=w>								 </span><span class=c1>// delete from user where id = ?</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cm>/* 用于执行SQL语句，并使用命名参数（结构体或map）替代?占位符 */</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// DB.NamedExec方法用来绑定SQL语句与结构体或map中的同名字段。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>NamedExec</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}{</span><span class=w> </span><span class=s>&#34;name&#34;</span><span class=p>:</span><span class=w> </span><span class=s>&#34;七米&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;age&#34;</span><span class=p>:</span><span class=w> </span><span class=mi>28</span><span class=p>,</span><span class=w> </span><span class=p>})</span><span class=w>	</span><span class=c1>// INSERT、UPDATE、DELETE </span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rows</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>NamedQuery</span><span class=p>(</span><span class=nx>sqlStr</span><span class=p>,</span><span class=w> </span><span class=kd>map</span><span class=p>[</span><span class=kt>string</span><span class=p>]</span><span class=kd>interface</span><span class=p>{}{</span><span class=w> </span><span class=s>&#34;name&#34;</span><span class=p>:</span><span class=w> </span><span class=s>&#34;七米&#34;</span><span class=w> </span><span class=p>})</span><span class=w>	</span><span class=c1>// select</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=事务操作><a href=#%e4%ba%8b%e5%8a%a1%e6%93%8d%e4%bd%9c class=header-anchor></a><strong>事务操作</strong></h3><p>可以使用<code>sqlx</code>中提供的<code>db.Beginx()</code>和<code>tx.Exec()</code>方法。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>transactionDemo2</span><span class=p>()(</span><span class=nx>err</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>tx</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>db</span><span class=p>.</span><span class=nf>Beginx</span><span class=p>()</span><span class=w> </span><span class=c1>// 开启事务</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Printf</span><span class=p>(</span><span class=s>&#34;begin trans failed, err:%v\n&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=kd>func</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>p</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>recover</span><span class=p>();</span><span class=w> </span><span class=nx>p</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> </span><span class=c1>// 捕获到panic，回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nb>panic</span><span class=p>(</span><span class=nx>p</span><span class=p>)</span><span class=w> 			</span><span class=c1>// re-throw panic after Rollback</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;rollback&#34;</span><span class=p>)</span><span class=w>	</span><span class=c1>// 发生一个预期的错误，回滚</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>tx</span><span class=p>.</span><span class=nf>Rollback</span><span class=p>()</span><span class=w> 					</span><span class=c1>// err is non-nil; don&#39;t change it</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w> </span><span class=k>else</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Commit</span><span class=p>()</span><span class=w> 		</span><span class=c1>// err is nil; if Commit returns error update err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;commit&#34;</span><span class=p>)</span><span class=w> </span><span class=c1>// 没有任何错误</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr1</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;Update user set age=20 where id=?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>rs</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr1</span><span class=p>,</span><span class=w> </span><span class=mi>1</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rs</span><span class=p>.</span><span class=nf>RowsAffected</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>n</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;exec sqlStr1 failed&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>sqlStr2</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=s>&#34;Update user set age=50 where i=?&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>rs</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>sqlStr2</span><span class=p>,</span><span class=w> </span><span class=mi>5</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=o>!=</span><span class=kc>nil</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>rs</span><span class=p>.</span><span class=nf>RowsAffected</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>n</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=mi>1</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;exec sqlStr1 failed&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=sqlxin的批量插入实例><a href=#sqlxin%e7%9a%84%e6%89%b9%e9%87%8f%e6%8f%92%e5%85%a5%e5%ae%9e%e4%be%8b class=header-anchor></a><strong>sqlx.In的批量插入实例</strong></h3><p><strong>bindvars（绑定变量）</strong></p><p>查询占位符<code>?</code>在内部称为<strong>bindvars（查询占位符）</strong>,它非常重要。你应该始终使用它们向数据库发送值，因为它们可以防止SQL注入攻击。<code>database/sql</code>不尝试对查询文本进行任何验证；它与编码的参数一起按原样发送到服务器。除非驱动程序实现一个特殊的接口，否则在执行之前，查询是在服务器上准备的。因此<code>bindvars</code>是特定于数据库的:</p><ul><li>MySQL中使用<code>?</code></li><li>PostgreSQL使用枚举的<code>$1</code>、<code>$2</code>等bindvar语法</li><li>SQLite中<code>?</code>和<code>$1</code>的语法都支持</li><li>Oracle中使用<code>:name</code>的语法</li></ul><p><code>bindvars</code>的一个常见误解是，它们用来在sql语句中插入值。它们其实仅用于参数化，不允许更改SQL语句的结构。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// ？不能用来插入表名（做SQL语句中表名的占位符）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>db</span><span class=p>.</span><span class=nf>Query</span><span class=p>(</span><span class=s>&#34;SELECT * FROM ?&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;mytable&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w> 
+</span></span></span><span class=line><span class=cl><span class=c1>// ？也不能用来插入列名（做SQL语句中列名的占位符）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>db</span><span class=p>.</span><span class=nf>Query</span><span class=p>(</span><span class=s>&#34;SELECT ?, ? FROM people&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;name&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;location&#34;</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>自己拼接语句实现批量插入</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// BatchInsertUsers 自行构造批量插入的语句</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>BatchInsertUsers</span><span class=p>(</span><span class=nx>users</span><span class=w> </span><span class=p>[]</span><span class=o>*</span><span class=nx>User</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 存放 (?, ?) 的slice</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>valueStrings</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>make</span><span class=p>([]</span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>users</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 存放values的slice</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>valueArgs</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>make</span><span class=p>([]</span><span class=kd>interface</span><span class=p>{},</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>users</span><span class=p>)</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=mi>2</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 遍历users准备相关数据</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>users</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 此处占位符要与插入值的个数对应</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>valueStrings</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>valueStrings</span><span class=p>,</span><span class=w> </span><span class=s>&#34;(?, ?)&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>valueArgs</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>valueArgs</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>Name</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>valueArgs</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>valueArgs</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>Age</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 自行拼接要执行的具体语句</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>stmt</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;INSERT INTO user (name, age) VALUES %s&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>strings</span><span class=p>.</span><span class=nf>Join</span><span class=p>(</span><span class=nx>valueStrings</span><span class=p>,</span><span class=w> </span><span class=s>&#34;,&#34;</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>stmt</span><span class=p>,</span><span class=w> </span><span class=nx>valueArgs</span><span class=o>...</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>使用sqlx.In实现批量插入</strong></p><p>结构体实现<code>driver.Valuer</code>接口，参数通常为切片</p><ul><li><code>NamedExec</code> 更适合处理结构化的输入（如结构体或命名字段的 map），其优势在于能自动匹配结构体字段与 SQL 语句中的命名参数。映射更清晰，但是结构体也更复杂。</li><li><code>sqlx.In</code> 则更适合处理位置参数，适合用于将一组数据传递给 SQL 语句，并自动生成批量插入的 SQL 语句。</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=p>(</span><span class=nx>u</span><span class=w> </span><span class=nx>User</span><span class=p>)</span><span class=w> </span><span class=nf>Value</span><span class=p>()</span><span class=w> </span><span class=p>(</span><span class=nx>driver</span><span class=p>.</span><span class=nx>Value</span><span class=p>,</span><span class=w> </span><span class=kt>error</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=p>[]</span><span class=kd>interface</span><span class=p>{}{</span><span class=nx>u</span><span class=p>.</span><span class=nx>Name</span><span class=p>,</span><span class=w> </span><span class=nx>u</span><span class=p>.</span><span class=nx>Age</span><span class=p>},</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// BatchInsertUsers2 使用sqlx.In帮我们拼接语句和参数, 注意传入的参数是[]interface{}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>BatchInsertUsers2</span><span class=p>(</span><span class=nx>users</span><span class=w> </span><span class=p>[]</span><span class=kd>interface</span><span class=p>{})</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=p>,</span><span class=w> </span><span class=nx>_</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>sqlx</span><span class=p>.</span><span class=nf>In</span><span class=p>(</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=s>&#34;INSERT INTO user (name, age) VALUES (?), (?), (?)&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>users</span><span class=o>...</span><span class=p>,</span><span class=w> </span><span class=c1>// 如果arg实现了 driver.Valuer, sqlx.In 会通过调用 Value()来展开它</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span><span class=w> </span><span class=c1>// 查看生成的querystring</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>args</span><span class=p>)</span><span class=w>  </span><span class=c1>// 查看生成的args</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=o>...</span><span class=p>)</span><span class=w> </span><span class=c1>// 执行查询</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>使用NameExec实现批量插入</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// BatchInsertUsers3 使用NamedExec实现批量插入</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 参数通常是结构体或者map</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>BatchInsertUsers3</span><span class=p>(</span><span class=nx>users</span><span class=w> </span><span class=p>[]</span><span class=o>*</span><span class=nx>User</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>NamedExec</span><span class=p>(</span><span class=s>&#34;INSERT INTO user (name, age) VALUES (:name, :age)&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>users</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p><strong>sqlx.In的查询示例</strong></p><p>关于<code>sqlx.In</code>这里再补充一个用法，在<code>sqlx</code>查询语句中实现In查询和FIND_IN_SET函数。即实现<code>SELECT * FROM user WHERE id in (3, 2, 1);</code>和<code>SELECT * FROM user WHERE id in (3, 2, 1) ORDER BY FIND_IN_SET(id, '3,2,1');</code>。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// in查询 查询id在给定id集合中的数据。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// QueryByIDs 根据给定ID查询</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>QueryByIDs</span><span class=p>(</span><span class=nx>ids</span><span class=w> </span><span class=p>[]</span><span class=kt>int</span><span class=p>)(</span><span class=nx>users</span><span class=w> </span><span class=p>[]</span><span class=nx>User</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=kt>error</span><span class=p>){</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 动态填充id</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>sqlx</span><span class=p>.</span><span class=nf>In</span><span class=p>(</span><span class=s>&#34;SELECT name, age FROM user WHERE id IN (?)&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>ids</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// sqlx.In 返回带 `?` bindvar的查询语句, 我们使用Rebind()重新绑定。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 重新生成对应数据库的查询语句（如PostgreSQL 用 `$1`, `$2` bindvar）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>query</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Rebind</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Select</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>users</span><span class=p>,</span><span class=w> </span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=o>...</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// in查询和FIND_IN_SET函数 查询id在给定id集合的数据并维持给定id集合的顺序。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// QueryAndOrderByIDs 按照指定id查询并维护顺序</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>QueryAndOrderByIDs</span><span class=p>(</span><span class=nx>ids</span><span class=w> </span><span class=p>[]</span><span class=kt>int</span><span class=p>)(</span><span class=nx>users</span><span class=w> </span><span class=p>[]</span><span class=nx>User</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=kt>error</span><span class=p>){</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 动态填充id</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>strIDs</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nb>make</span><span class=p>([]</span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=nb>len</span><span class=p>(</span><span class=nx>ids</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>id</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=k>range</span><span class=w> </span><span class=nx>ids</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>strIDs</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nb>append</span><span class=p>(</span><span class=nx>strIDs</span><span class=p>,</span><span class=w> </span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Sprintf</span><span class=p>(</span><span class=s>&#34;%d&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>id</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>sqlx</span><span class=p>.</span><span class=nf>In</span><span class=p>(</span><span class=s>&#34;SELECT name, age FROM user WHERE id IN (?) ORDER BY FIND_IN_SET(id, ?)&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>ids</span><span class=p>,</span><span class=w> </span><span class=nx>strings</span><span class=p>.</span><span class=nf>Join</span><span class=p>(</span><span class=nx>strIDs</span><span class=p>,</span><span class=w> </span><span class=s>&#34;,&#34;</span><span class=p>))</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// sqlx.In 返回带 `?` bindvar的查询语句, 我们使用Rebind()重新绑定它</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>query</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Rebind</span><span class=p>(</span><span class=nx>query</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>DB</span><span class=p>.</span><span class=nf>Select</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>users</span><span class=p>,</span><span class=w> </span><span class=nx>query</span><span class=p>,</span><span class=w> </span><span class=nx>args</span><span class=o>...</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h2 id=go-redis><a href=#go-redis class=header-anchor></a>go-redis</h2><h3 id=redis介绍><a href=#redis%e4%bb%8b%e7%bb%8d class=header-anchor></a>redis介绍</h3><p>Redis（<strong>Remote Dictionary Server</strong>）是一个开源的<strong>内存数据库</strong>，支持<strong>键值（Key-Value）存储</strong>，可以用作<strong>缓存</strong>、<strong>消息队列</strong>、<strong>分布式锁</strong>等。它的特点是<strong>高性能、支持多种数据结构、持久化、分布式</strong>，适用于各种高并发场景。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-dockerfile data-lang=dockerfile><span class=line><span class=cl>docker run --name redis507 -p 6379:6379 -d redis:5.0.7 	 // 名为 redis507 的 5.0.7 版本的 redis server环境。<span class=err>
+</span></span></span><span class=line><span class=cl>docker run -it --network host --rm redis:5.0.7 redis-cli // 启动一个 redis-cli 连接上面的 redis server。<span class=err>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=go-redis库><a href=#go-redis%e5%ba%93 class=header-anchor></a>go-redis库</h3><p>go-redis 这个库来操作 Redis 数据库。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=kn>import</span><span class=w> </span><span class=s>&#34;github.com/redis/go-redis/v9&#34;</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 普通连接</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rdb</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>NewClient</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>Addr</span><span class=p>:</span><span class=w>     </span><span class=s>&#34;localhost:6379&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>Password</span><span class=p>:</span><span class=w> </span><span class=s>&#34;&#34;</span><span class=p>,</span><span class=w> </span><span class=c1>// 密码</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>DB</span><span class=p>:</span><span class=w>       </span><span class=mi>0</span><span class=p>,</span><span class=w>  </span><span class=c1>// 数据库</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>PoolSize</span><span class=p>:</span><span class=w> </span><span class=mi>20</span><span class=p>,</span><span class=w> </span><span class=c1>// 连接池大小</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 解析数据源字符串</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>opt</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>ParseURL</span><span class=p>(</span><span class=s>&#34;redis://&lt;user&gt;:&lt;pass&gt;@localhost:6379/&lt;db&gt;&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rdb</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>NewClient</span><span class=p>(</span><span class=nx>opt</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// TLS连接</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rdb</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>NewClient</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Options</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>TLSConfig</span><span class=p>:</span><span class=w> </span><span class=o>&amp;</span><span class=nx>tls</span><span class=p>.</span><span class=nx>Config</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>MinVersion</span><span class=p>:</span><span class=w> </span><span class=nx>tls</span><span class=p>.</span><span class=nx>VersionTLS12</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// Certificates: []tls.Certificate{cert},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// ServerName: &#34;your.domain.com&#34;,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Redis Sentinel模式</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rdb</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>NewFailoverClient</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>redis</span><span class=p>.</span><span class=nx>FailoverOptions</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>MasterName</span><span class=p>:</span><span class=w>    </span><span class=s>&#34;master-name&#34;</span><span class=p>,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>SentinelAddrs</span><span class=p>:</span><span class=w> </span><span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=s>&#34;:9126&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:9127&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:9128&#34;</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// Redis Cluster模式</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>rdb</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nf>NewClusterClient</span><span class=p>(</span><span class=o>&amp;</span><span class=nx>redis</span><span class=p>.</span><span class=nx>ClusterOptions</span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nx>Addrs</span><span class=p>:</span><span class=w> </span><span class=p>[]</span><span class=kt>string</span><span class=p>{</span><span class=s>&#34;:7000&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:7001&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:7002&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:7003&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:7004&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;:7005&#34;</span><span class=p>},</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// 若要根据延迟或随机路由命令，请启用以下命令之一</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// RouteByLatency: true,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=c1>// RouteRandomly: true,</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>基本操作</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// doCommand go-redis基本使用示例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>doCommand</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cancel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span><span class=w> </span><span class=mi>500</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nf>cancel</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 执行命令获取结果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>).</span><span class=nf>Result</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 先获取到命令对象</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>cmder</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>cmder</span><span class=p>.</span><span class=nf>Val</span><span class=p>())</span><span class=w> </span><span class=c1>// 获取值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>cmder</span><span class=p>.</span><span class=nf>Err</span><span class=p>())</span><span class=w> </span><span class=c1>// 获取错误</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 直接执行命令获取错误</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>10</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>).</span><span class=nf>Err</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 直接执行命令获取值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>value</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>).</span><span class=nf>Val</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>value</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>go-redis 还提供了一个执行任意命令或自定义命令的 Do 方法，特别是一些 go-redis 库暂时不支持的命令都可以使用该方法执行。具体使用方法如下。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// doDemo rdb.Do 方法使用示例</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>doDemo</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cancel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span><span class=w> </span><span class=mi>500</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Millisecond</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nf>cancel</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 直接执行命令获取错误</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Do</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;set&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>10</span><span class=p>,</span><span class=w> </span><span class=s>&#34;EX&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>3600</span><span class=p>).</span><span class=nf>Err</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 执行命令获取结果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Do</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;get&#34;</span><span class=p>,</span><span class=w> </span><span class=s>&#34;key&#34;</span><span class=p>).</span><span class=nf>Result</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>val</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>扫描or遍历所有key</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nx>vals</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Keys</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;user:*&#34;</span><span class=p>).</span><span class=nf>Result</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 将redis中所有以prefix:为前缀的key都扫描出来</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>keys</span><span class=p>,</span><span class=w> </span><span class=nx>cursor</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cursor</span><span class=p>,</span><span class=w> </span><span class=s>&#34;prefix:*&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>).</span><span class=nf>Result</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 但是如果需要扫描数百万的 key ，那速度就会比较慢。这种场景下你可以使用Scan命令来遍历所有符合要求的 key。</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>keys</span><span class=p>,</span><span class=w> </span><span class=nx>cursor</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cursor</span><span class=p>,</span><span class=w> </span><span class=s>&#34;prefix:*&#34;</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>).</span><span class=nf>Result</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 针对这种需要遍历大量key的场景，go-redis中提供了一个简化方法——Iterator</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// delKeysByMatch 按match格式扫描所有key并删除</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>delKeysByMatch</span><span class=p>(</span><span class=nx>match</span><span class=w> </span><span class=kt>string</span><span class=p>,</span><span class=w> </span><span class=nx>timeout</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Duration</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cancel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span><span class=w> </span><span class=nx>timeout</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>defer</span><span class=w> </span><span class=nf>cancel</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>iter</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Scan</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>,</span><span class=w> </span><span class=nx>match</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>).</span><span class=nf>Iterator</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>iter</span><span class=p>.</span><span class=nf>Next</span><span class=p>(</span><span class=nx>ctx</span><span class=p>)</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Del</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>iter</span><span class=p>.</span><span class=nf>Val</span><span class=p>()).</span><span class=nf>Err</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>iter</span><span class=p>.</span><span class=nf>Err</span><span class=p>();</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=redis-pipeline><a href=#redis-pipeline class=header-anchor></a>Redis Pipeline</h3><p>Redis Pipeline 允许通过使用单个 client-server-client 往返执行多个命令来提高性能。区别于一个接一个地执行100个命令，你可以将这些命令放入 pipeline 中，然后使用1次读写操作像执行单个命令一样执行它们。这样做的好处是节省了执行命令的网络往返时间（RTT）。</p><blockquote><p>pipeline和exec的区别是什么</p><p><strong>Pipeline</strong>：用于将多个命令打包并发送到 Redis，但并不立即执行命令。它是将命令排队的过程。</p><p><strong>Exec</strong>：用于执行 pipeline 中的命令，最终将这些命令发送到 Redis 服务器，并等待其执行结果。</p></blockquote><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=cm>/* exec */</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>pipe</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Pipeline</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>incr</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Incr</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;pipeline_counter&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>pipe</span><span class=p>.</span><span class=nf>Expire</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;pipeline_counter&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>cmds</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>ctx</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 在执行pipe.Exec之后才能获取到结果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>incr</span><span class=p>.</span><span class=nf>Val</span><span class=p>())</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=cm>/* pipeline */</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>var</span><span class=w> </span><span class=nx>incr</span><span class=w> </span><span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>IntCmd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>cmds</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Pipelined</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>pipe</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Pipeliner</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>incr</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Incr</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;pipelined_counter&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Expire</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;pipelined_counter&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nb>panic</span><span class=p>(</span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 在pipeline执行后获取到结果</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>incr</span><span class=p>.</span><span class=nf>Val</span><span class=p>())</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=事务><a href=#%e4%ba%8b%e5%8a%a1 class=header-anchor></a>事务</h3><p>Redis 是单线程执行命令的，因此单个命令始终是原子的，但是来自不同客户端的两个给定命令可以依次执行，例如在它们之间交替执行。但是，<code>Multi/exec</code>能够确保在<code>multi/exec</code>两个语句之间的命令之间没有其他客户端正在执行命令。</p><p>在这种场景我们需要使用 TxPipeline 或 TxPipelined 方法将 pipeline 命令使用 <code>MULTI</code> 和<code>EXEC</code>包裹起来。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// TxPipeline demo</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>pipe</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>TxPipeline</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>incr</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Incr</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tx_pipeline_counter&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>pipe</span><span class=p>.</span><span class=nf>Expire</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tx_pipeline_counter&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Exec</span><span class=p>(</span><span class=nx>ctx</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>incr</span><span class=p>.</span><span class=nf>Val</span><span class=p>(),</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// TxPipelined demo</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>var</span><span class=w> </span><span class=nx>incr2</span><span class=w> </span><span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>IntCmd</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>TxPipelined</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>pipe</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Pipeliner</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>incr2</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Incr</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tx_pipeline_counter&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Expire</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;tx_pipeline_counter&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=nx>incr2</span><span class=p>.</span><span class=nf>Val</span><span class=p>(),</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>watch</p><p>我们通常搭配 <code>WATCH</code>命令来执行事务操作。从使用<code>WATCH</code>命令监视某个 key 开始，直到执行<code>EXEC</code>命令的这段时间里，如果有其他用户抢先对被监视的 key 进行了替换、更新、删除等操作，那么当用户尝试执行<code>EXEC</code>的时候，事务将失败并返回一个错误，用户可以根据这个错误选择重试事务或者放弃事务。</p><p>Watch方法接收一个函数和一个或多个key作为参数。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=nf>Watch</span><span class=p>(</span><span class=nx>fn</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=o>*</span><span class=nx>Tx</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=p>,</span><span class=w> </span><span class=nx>keys</span><span class=w> </span><span class=o>...</span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// watchDemo 在key值不变的情况下将其值+1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>func</span><span class=w> </span><span class=nf>watchDemo</span><span class=p>(</span><span class=nx>ctx</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nx>Context</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Watch</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>tx</span><span class=w> </span><span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Tx</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=p>).</span><span class=nf>Int</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 假设操作耗时5秒</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 5秒内我们通过其他的客户端修改key，当前事务就会失败</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>time</span><span class=p>.</span><span class=nf>Sleep</span><span class=p>(</span><span class=mi>5</span><span class=w> </span><span class=o>*</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>TxPipelined</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>pipe</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Pipeliner</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=p>,</span><span class=w> </span><span class=nx>n</span><span class=o>+</span><span class=mi>1</span><span class=p>,</span><span class=w> </span><span class=nx>time</span><span class=p>.</span><span class=nx>Hour</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>},</span><span class=w> </span><span class=nx>key</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div><p>last，go-redis 官方文档中使用 <code>GET</code> 、<code>SET</code>和<code>WATCH</code>命令实现一个 INCR 命令的完整示例。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-go data-lang=go><span class=line><span class=cl><span class=c1>// 此处rdb为初始化的redis连接客户端</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>const</span><span class=w> </span><span class=nx>routineCount</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=mi>100</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 设置5秒超时</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>cancel</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>context</span><span class=p>.</span><span class=nf>WithTimeout</span><span class=p>(</span><span class=nx>context</span><span class=p>.</span><span class=nf>Background</span><span class=p>(),</span><span class=w> </span><span class=mi>5</span><span class=o>*</span><span class=nx>time</span><span class=p>.</span><span class=nx>Second</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>defer</span><span class=w> </span><span class=nf>cancel</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// increment 是一个自定义对key进行递增（+1）的函数</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 使用 GET + SET + WATCH 实现，类似 INCR</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>increment</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>key</span><span class=w> </span><span class=kt>string</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=nx>txf</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>tx</span><span class=w> </span><span class=o>*</span><span class=nx>redis</span><span class=p>.</span><span class=nx>Tx</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 获得当前值或零值</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=p>).</span><span class=nf>Int</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=o>&amp;&amp;</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 实际操作（乐观锁定中的本地操作）</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>n</span><span class=o>++</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 仅在监视的Key保持不变的情况下运行</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>_</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=p>=</span><span class=w> </span><span class=nx>tx</span><span class=p>.</span><span class=nf>TxPipelined</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=kd>func</span><span class=p>(</span><span class=nx>pipe</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>Pipeliner</span><span class=p>)</span><span class=w> </span><span class=kt>error</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=c1>// pipe 处理错误情况</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>pipe</span><span class=p>.</span><span class=nf>Set</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=p>,</span><span class=w> </span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=mi>0</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=kc>nil</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>})</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=c1>// 最多重试100次</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>for</span><span class=w> </span><span class=nx>retries</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>routineCount</span><span class=p>;</span><span class=w> </span><span class=nx>retries</span><span class=w> </span><span class=p>&gt;</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>retries</span><span class=o>--</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Watch</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=nx>txf</span><span class=p>,</span><span class=w> </span><span class=nx>key</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=nx>redis</span><span class=p>.</span><span class=nx>TxFailedErr</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=k>return</span><span class=w> </span><span class=nx>err</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=c1>// 乐观锁丢失</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>return</span><span class=w> </span><span class=nx>errors</span><span class=p>.</span><span class=nf>New</span><span class=p>(</span><span class=s>&#34;increment reached maximum number of retries&#34;</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 开启100个goroutine并发调用increment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=c1>// 相当于对key执行100次递增</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=kd>var</span><span class=w> </span><span class=nx>wg</span><span class=w> </span><span class=nx>sync</span><span class=p>.</span><span class=nx>WaitGroup</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>wg</span><span class=p>.</span><span class=nf>Add</span><span class=p>(</span><span class=nx>routineCount</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=k>for</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=mi>0</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=w> </span><span class=p>&lt;</span><span class=w> </span><span class=nx>routineCount</span><span class=p>;</span><span class=w> </span><span class=nx>i</span><span class=o>++</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=k>go</span><span class=w> </span><span class=kd>func</span><span class=p>()</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>defer</span><span class=w> </span><span class=nx>wg</span><span class=p>.</span><span class=nf>Done</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=k>if</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nf>increment</span><span class=p>(</span><span class=s>&#34;counter3&#34;</span><span class=p>);</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>!=</span><span class=w> </span><span class=kc>nil</span><span class=w> </span><span class=p>{</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>			</span><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;increment error:&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>		</span><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>	</span><span class=p>}()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=p>}</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>wg</span><span class=p>.</span><span class=nf>Wait</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=w> </span><span class=o>:=</span><span class=w> </span><span class=nx>rdb</span><span class=p>.</span><span class=nf>Get</span><span class=p>(</span><span class=nx>ctx</span><span class=p>,</span><span class=w> </span><span class=s>&#34;counter3&#34;</span><span class=p>).</span><span class=nf>Int</span><span class=p>()</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=nx>fmt</span><span class=p>.</span><span class=nf>Println</span><span class=p>(</span><span class=s>&#34;最终结果：&#34;</span><span class=p>,</span><span class=w> </span><span class=nx>n</span><span class=p>,</span><span class=w> </span><span class=nx>err</span><span class=p>)</span><span class=w>
+</span></span></span></code></pre></td></tr></table></div></div></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/go%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98/><div class=article-image><img src=/images/1c818466.jpg loading=lazy data-key data-hash=/images/1c818466.jpg></div><div class=article-details><h2 class=article-title>Go项目实战</h2></div></a></article><article class=has-image><a href=/p/go-web%E5%BC%80%E5%8F%91%E5%B8%B8%E7%94%A8%E7%BB%84%E4%BB%B6/><div class=article-image><img src=/images/d406f9d8.jpg loading=lazy data-key data-hash=/images/d406f9d8.jpg></div><div class=article-details><h2 class=article-title>Go Web开发常用组件</h2></div></a></article><article class=has-image><a href=/p/gin%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/><div class=article-image><img src=/images/56af4d46.jpg loading=lazy data-key data-hash=/images/56af4d46.jpg></div><div class=article-details><h2 class=article-title>Gin源码解析</h2></div></a></article><article class=has-image><a href=/p/go%E5%85%A5%E9%97%A8%E5%AD%A6%E4%B9%A0/><div class=article-image><img src=/images/69198360.jpg loading=lazy data-key data-hash=/images/69198360.jpg></div><div class=article-details><h2 class=article-title>go入门学习</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

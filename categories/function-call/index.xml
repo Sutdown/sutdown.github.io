@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Function Call on Sutdown</title><link>https://sutdown.github.io/categories/function-call/</link><description>Recent content in Function Call on Sutdown</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Thu, 08 Jan 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://sutdown.github.io/categories/function-call/index.xml" rel="self" type="application/rss+xml"/><item><title>MCP详解指南</title><link>https://sutdown.github.io/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/</link><pubDate>Thu, 08 Jan 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/</guid><description>&lt;img src="https://sutdown.github.io/images/31b7298e.jpg" alt="Featured image of post MCP详解指南" /&gt;&lt;p&gt;MCP在agent中是个并不陌生的词语，本文将从定义，作用，代码等多个角度尽量详细讲述它最为完整的用法。&lt;/p&gt;
+&lt;h2 id="mcp是什么"&gt;&lt;a href="#mcp%e6%98%af%e4%bb%80%e4%b9%88" class="header-anchor"&gt;&lt;/a&gt;MCP是什么？
+&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;MCP (Model Context Protocol)&lt;/strong&gt; 是由 Anthropic 公司推出的一个&lt;strong&gt;开放标准&lt;/strong&gt;，旨在解决 **AI 模型与外部数据源、工具（如本地文件、数据库、API）**之间的连接难题。它相当于为 AI 打造了一个“通用接口”，让开发者只需编写一次连接器，就能让不同的 AI 客户端（如 Claude、IDE 或其他助手）无缝、安全地访问各类实时数据和功能。&lt;/p&gt;
+&lt;p&gt;MCP可以理解成 在AI领域发明了USB接口，让模型和工具之间实现了标准化。MCP本质上是模型调用数据，那么它跟tool，function call有什么区别呢？&lt;/p&gt;
+&lt;h3 id="mcp-vs-function-call-vs-tool"&gt;&lt;a href="#mcp-vs-function-call-vs-tool" class="header-anchor"&gt;&lt;/a&gt;MCP VS function call VS tool
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;tool泛指模型可以调用的外部能力。&lt;/li&gt;
+&lt;li&gt;function calling 是一种模型和外部函数通信的结构化接口标准。调用过程中，模型会输出json格式告诉系统需要用到的函数工具，之后再由系统调用函数获得结果，然后给模型生成最终回复。&lt;/li&gt;
+&lt;li&gt;MCP 是一个”模型-工具生态“的标准化协议。
+&lt;ul&gt;
+&lt;li&gt;初始化：client启动server进程，询问server所支持的tools，资源文件等&lt;/li&gt;
+&lt;li&gt;运行：当我们调用LLM时，LLM用来确定使用哪些MCP server，MCP server执行对应的函数得到执行结果返回给client&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;strong&gt;维度&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;Function Calling (传统方式)&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;MCP (新一代标准)&lt;/strong&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;本质&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;模型输出能力&lt;/strong&gt;：模型根据你的指令生成一段 JSON，告诉你该调用哪个函数。&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;通用连接协议&lt;/strong&gt;：一套连接模型、客户端与数据源的标准框架。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;耦合度&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;紧耦合&lt;/strong&gt;：你需要为每个模型（OpenAI, Anthropic 等）写特定的 API 代码和 Schema。&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;解耦/插拔&lt;/strong&gt;：写一次 MCP Server，任何支持 MCP 的客户端（Claude, Cursor 等）都能直接用。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;执行位置&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;开发者端&lt;/strong&gt;：你需要自己写逻辑去解析 JSON 并运行函数。&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;客户端/Server 端&lt;/strong&gt;：逻辑封装在 MCP Server 中，客户端只需“插上”即可自动运行。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;交互模式&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;单次请求-响应&lt;/strong&gt;：模型给指令，你执行，给结果。&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;持续会话/动态发现&lt;/strong&gt;：支持资源订阅、实时更新和多工具链式调用。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;安全性&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;应用级控制&lt;/strong&gt;：安全性全靠你自己在代码里怎么写。&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;协议级隔离&lt;/strong&gt;：通过标准化的权限管理和本地进程隔离，更安全地访问私有数据。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="mcp的通信模式"&gt;&lt;a href="#mcp%e7%9a%84%e9%80%9a%e4%bf%a1%e6%a8%a1%e5%bc%8f" class="header-anchor"&gt;&lt;/a&gt;MCP的通信模式
+&lt;/h2&gt;&lt;p&gt;在 Model Context Protocol (MCP) 的标准规范中，通信主要基于 &lt;strong&gt;JSON-RPC 2.0&lt;/strong&gt; 协议，而其底层实现（Transport 层）主要通过三种常见的模式（或传输方式）来完成。&lt;/p&gt;
+&lt;p&gt;1.标准输入输出模式&lt;/p&gt;
+&lt;p&gt;MCP 宿主程序（如 Claude Desktop 或 IDE）直接启动 MCP 服务器作为一个子进程。双方通过操作系统的标准输入 (&lt;code&gt;stdin&lt;/code&gt;) 和标准输出 (&lt;code&gt;stdout&lt;/code&gt;) 流来交换 JSON-RPC 消息。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;适用场景&lt;/strong&gt;：本地文件系统操作、本地脚本运行、开发者在自己机器上调试工具。&lt;/p&gt;
+&lt;p&gt;2.HTTP+SSE 模式 (Server-Sent Events)&lt;/p&gt;
+&lt;p&gt;利用sse建立一个持久的单向连接，服务器可以随时向客户端推送消息&lt;/p&gt;
+&lt;p&gt;客户端通过标准的http请求发送消息到服务器&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;适用场景&lt;/strong&gt;：连接云端数据库、调用 SaaS 服务的 API、远程 AI Agent 的协作。&lt;/p&gt;
+&lt;p&gt;3.可流式传输的 HTTP 模式 (Streamable HTTP)&lt;/p&gt;
+&lt;p&gt;相比sse，处理大量并发请求时更高效&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;适用场景&lt;/strong&gt;：需要返回大量实时数据流（如实时日志、长文本生成）的复杂场景。&lt;/p&gt;
+&lt;h2 id="mcp的运行逻辑"&gt;&lt;a href="#mcp%e7%9a%84%e8%bf%90%e8%a1%8c%e9%80%bb%e8%be%91" class="header-anchor"&gt;&lt;/a&gt;MCP的运行逻辑
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;MCP client：负责启动并连接 Server，将用户的指令转发给 Server，并将 Server 返回的数据喂给 AI 大模型。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;MCP Server：负责连接具体的工具（如数据库、API、本地文件）&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;可以在本地用&lt;code&gt;@mcp.tool&lt;/code&gt;快速定义工具，也可以直接采用其它外部工具的mcp server。使用本地工具时，在握手阶段，server会自动将装饰器&lt;code&gt;@mcp.tool&lt;/code&gt;转换成由name，description，inputSchema的json结构返回；随后在决策阶段，mcp收到来自client的问题时，LLM识别出意图，能够回复client调用哪些函数，随后client将该结果发送给server端执行，server执行后将结果返回给client。&lt;/li&gt;
+&lt;li&gt;上段中的LLM识别意图 是在我们直接用大模型配置MCP的过程中主动执行的，那么在实际写代码的时候，这部分是如何实现的？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;strong&gt;步骤&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;参与方&lt;/strong&gt;&lt;/th&gt;
+&lt;th&gt;&lt;strong&gt;核心动作&lt;/strong&gt;&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;1. 发现&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Client $\leftrightarrow$ Server&lt;/td&gt;
+&lt;td&gt;确认有哪些工具可以用（握手）&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;2. 决策&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;LLM&lt;/td&gt;
+&lt;td&gt;决定用哪个工具，生成调用参数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;3. 执行&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;MCP Server&lt;/td&gt;
+&lt;td&gt;&lt;strong&gt;在本地/私有环境&lt;/strong&gt;执行代码，获取真实数据&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;4. 完成&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Client $\rightarrow$ LLM&lt;/td&gt;
+&lt;td&gt;将真实数据喂回模型，生成最终回复&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="代码实践"&gt;&lt;a href="#%e4%bb%a3%e7%a0%81%e5%ae%9e%e8%b7%b5" class="header-anchor"&gt;&lt;/a&gt;代码实践
+&lt;/h2&gt;&lt;h3 id="function-call调用流程"&gt;&lt;a href="#function-call%e8%b0%83%e7%94%a8%e6%b5%81%e7%a8%8b" class="header-anchor"&gt;&lt;/a&gt;function call调用流程
+&lt;/h3&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;span class="lnt"&gt;24
+&lt;/span&gt;&lt;span class="lnt"&gt;25
+&lt;/span&gt;&lt;span class="lnt"&gt;26
+&lt;/span&gt;&lt;span class="lnt"&gt;27
+&lt;/span&gt;&lt;span class="lnt"&gt;28
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;langchain_core.tools&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;tool&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;langchain_openai&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;ChatOpenAI&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;llm&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ChatOpenAI&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;model&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;deepseek-chat&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;api_key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;sk-xxxxx&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;base_url&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;https://api.deepseek.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nd"&gt;@tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;查询天气信息&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;query_weather&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;city_name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="sa"&gt;f&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="si"&gt;{&lt;/span&gt;&lt;span class="n"&gt;city_name&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;今天晴朗，气温 25 度，适合户外活动&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;llm_with_tools&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bind_tools&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="n"&gt;query_weather&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;user_question&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;北京今天天气怎么样？&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;messages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[{&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;role&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;user&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;content&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;user_question&lt;/span&gt;&lt;span class="p"&gt;}]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;response&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;llm_with_tools&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tool_calls&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 执行工具调用&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tool_calls&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;tool_result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;query_weather&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tool_calls&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;response&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tool_result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;final_response&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;llm_with_tools&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;messages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;final_response&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;content&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="独立的mcp示例"&gt;&lt;a href="#%e7%8b%ac%e7%ab%8b%e7%9a%84mcp%e7%a4%ba%e4%be%8b" class="header-anchor"&gt;&lt;/a&gt;独立的MCP示例
+&lt;/h3&gt;&lt;p&gt;MCP Server&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;span class="lnt"&gt;24
+&lt;/span&gt;&lt;span class="lnt"&gt;25
+&lt;/span&gt;&lt;span class="lnt"&gt;26
+&lt;/span&gt;&lt;span class="lnt"&gt;27
+&lt;/span&gt;&lt;span class="lnt"&gt;28
+&lt;/span&gt;&lt;span class="lnt"&gt;29
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;mcp.server&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Server&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;mcp.types&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;TextContent&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Server&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;demo-mcp-server&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nd"&gt;@server.tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;analyze_text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;Analyze text and detect whether it contains errors&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;analyze_text&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nb"&gt;str&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;error&amp;#34;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;❌ Detected error in text&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;✅ Text looks normal&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;# 保存到服务器状态&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;last_result&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nd"&gt;@server.resource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;memory://last_result&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;async&lt;/span&gt; &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;last_result&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;TextContent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;last_result&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;No result yet&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 4️⃣ 运行 MCP Server&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;__main__&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run_stdio&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;MCP client&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;mcp.client&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Client&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Client&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;python&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;mcp_server.py&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;text_to_check&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;There is an error in the system&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;call_tool&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;tool_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;analyze_text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;arguments&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;text&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;text_to_check&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;last_result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_resource&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;memory://last_result&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;Last result from resource:&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;last_result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="langchain和mcp"&gt;&lt;a href="#langchain%e5%92%8cmcp" class="header-anchor"&gt;&lt;/a&gt;langchain和MCP
+&lt;/h3&gt;&lt;p&gt;我们知道在MCP具体执行相应的server之前存在意图识别的过程，由于langchain的封装，意图识别的步骤不再需要人为完成，具体体现在当把tools绑定到agent时，langchain讲tools的schema注入agent prompt，再之后LLM看到user prompt时，能够自己判断需要的工具和对应的参数，然后由MCP server端执行。&lt;/p&gt;
+&lt;p&gt;具体步骤如下：&lt;/p&gt;
+&lt;p&gt;1 启动MCP server独立进程&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;npx @modelcontextprotocol/server-filesystem ./data
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;python mcp_server.py &lt;span class="c1"&gt;# 本地&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;2 初始化MCPClient&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;langchain_mcp&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;MCPClient&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;mcp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;MCPClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;python&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;mcp_server.py&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; &lt;span class="c1"&gt;# MCP Server 启动方式&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;tools&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;mcp&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get_tools&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="c1"&gt;# 获取MCP tools，拉取tool原信息（tool/description/args schema），转换成langchain的StructuredTool&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;3 agent调用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-python" data-lang="python"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;agent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;create_react_agent&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;llm&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;tools&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;prompt&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;prompt&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;# 修改prompt进行意图识别&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;agent&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;invoke&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;input&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;帮我分析这段文本：There is an error in the system&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="mcp局限"&gt;&lt;a href="#mcp%e5%b1%80%e9%99%90" class="header-anchor"&gt;&lt;/a&gt;MCP局限
+&lt;/h2&gt;&lt;p&gt;核心：关于tools的定义描述在prompt中会占用模型大量token。&lt;/p&gt;
+&lt;p&gt;对于该问题，Anthropic推出Agent Skills系统，这是一套动态加载的指令和脚本集合，采用渐进式披露，它可以教会AI如何完成特定任务。&lt;/p&gt;
+&lt;h2 id="综合"&gt;&lt;a href="#%e7%bb%bc%e5%90%88" class="header-anchor"&gt;&lt;/a&gt;综合
+&lt;/h2&gt;&lt;p&gt;MCP 的出现是为了让 Function Call 变得&lt;strong&gt;更通用、更易于扩展&lt;/strong&gt;，MCP 可以看作工具池，Function Call 是决策机制。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Function Call&lt;/strong&gt; 解决了 &lt;strong&gt;“模型如何告诉我们它想干什么”&lt;/strong&gt; 的格式问题。&lt;/p&gt;
+&lt;p&gt;function call是经过意图识别返回这个llm所需要用到的外部工具，返回json进行调用；MCP则是执行外部工具返回结果的过程。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;MCP&lt;/strong&gt; 解决了 &lt;strong&gt;“我们如何以统一的标准把各种工具和数据喂给模型”&lt;/strong&gt; 的架构问题。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在MCP server中，可以接收来自外界的工具 比如tavily搜索工具，google地图等，也可以接收本地工具，只要采用了mcp封装，服务端只要收到了需要运行的name和input schema，就能自动运行得到相应的结果。&lt;/li&gt;
+&lt;li&gt;在mcp client发送相应信息给server之前，需要llm进行意图识别，在langchain的create react agent中已经封装了相应的逻辑就无需手动识别，如果是自己写的agent注意进行意图识别然后调用相关的工具。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class="mermaid"&gt;
+flowchart TD
+A[用户输入] --&amp;gt; B[LLM]
+B --&amp;gt;|Function Call 意图识别| C[生成工具调用 JSON]
+C --&amp;gt; D[MCP Client]
+D --&amp;gt; E[MCP Server / 工具执行]
+E --&amp;gt; D
+D --&amp;gt; B[LLM 继续处理结果]
+B --&amp;gt; F[最终输出给用户]
+subgraph LLM层
+B
+C
+end
+subgraph MCP层
+D
+E
+end
+&lt;/pre&gt;
+&lt;h2 id="八股参考"&gt;&lt;a href="#%e5%85%ab%e8%82%a1%e5%8f%82%e8%80%83" class="header-anchor"&gt;&lt;/a&gt;八股参考
+&lt;/h2&gt;&lt;h3 id="1-mcp的核心组件"&gt;&lt;a href="#1-mcp%e7%9a%84%e6%a0%b8%e5%bf%83%e7%bb%84%e4%bb%b6" class="header-anchor"&gt;&lt;/a&gt;1 MCP的核心组件
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;MCP 服务器 (Server)&lt;/strong&gt;：数据的提供方。它负责连接具体的资源（如数据库、本地文件、API），并将其标准化。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;MCP 客户端 (Client)&lt;/strong&gt;：数据的消费者。通常是集成了 AI 的应用（如 Claude Desktop、IDE），负责发起请求。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;本地/远程主机 (Host)&lt;/strong&gt;：实际运行客户端并维持生命周期的环境。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="2-mcp服务端提供哪些类型的资源"&gt;&lt;a href="#2-mcp%e6%9c%8d%e5%8a%a1%e7%ab%af%e6%8f%90%e4%be%9b%e5%93%aa%e4%ba%9b%e7%b1%bb%e5%9e%8b%e7%9a%84%e8%b5%84%e6%ba%90" class="header-anchor"&gt;&lt;/a&gt;2 MCP服务端提供哪些类型的资源
+&lt;/h3&gt;&lt;p&gt;MCP 服务端提供的资源主要包括四类：&lt;strong&gt;工具执行结果&lt;/strong&gt;（如上一次分析或计算的结果）、&lt;strong&gt;全局或内部状态&lt;/strong&gt;（如 server.state、计数器、缓存）、&lt;strong&gt;静态数据&lt;/strong&gt;（如配置文件、系统信息）以及&lt;strong&gt;动态计算资源&lt;/strong&gt;（如实时时间或对状态数据的统计），本质上就是一组可被客户端查询的只读数据接口。&lt;/p&gt;
+&lt;p&gt;MCP包括的数据：Tool = 执行动作 + 可修改状态；Resource = 查询数据 + 返回结果&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Resources (资源)&lt;/strong&gt;：&lt;strong&gt;只读&lt;/strong&gt;的数据。比如读取一个本地文件内容、查看数据库表结构或获取日志。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Tools (工具)&lt;/strong&gt;：&lt;strong&gt;可执行&lt;/strong&gt;的操作。比如发送一封邮件、运行一段 Python 代码或修改某个系统设置。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="3-mcp支持哪些通信方式和协议"&gt;&lt;a href="#3-mcp%e6%94%af%e6%8c%81%e5%93%aa%e4%ba%9b%e9%80%9a%e4%bf%a1%e6%96%b9%e5%bc%8f%e5%92%8c%e5%8d%8f%e8%ae%ae" class="header-anchor"&gt;&lt;/a&gt;3 MCP支持哪些通信方式和协议
+&lt;/h3&gt;&lt;p&gt;MCP 建立在 JSON-RPC 2.0 基础之上，目前主要支持两种传输层协议：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;stdio (标准输入输出)&lt;/strong&gt;：最常用的本地连接方式，客户端通过子进程直接启动 Server 并通过管道通信。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SSE (Server-Sent Events)&lt;/strong&gt;：用于远程连接，基于 HTTP 协议实现服务器到客户端的流式传输。&lt;/li&gt;
+&lt;li&gt;可流式传输的 HTTP 模式 (Streamable HTTP)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="4-mcp中的工具是什么如何调用"&gt;&lt;a href="#4-mcp%e4%b8%ad%e7%9a%84%e5%b7%a5%e5%85%b7%e6%98%af%e4%bb%80%e4%b9%88%e5%a6%82%e4%bd%95%e8%b0%83%e7%94%a8" class="header-anchor"&gt;&lt;/a&gt;4 MCP中的工具是什么，如何调用
+&lt;/h3&gt;&lt;p&gt;工具是服务端注册的可执行模块，可以理解为 Server 提供的“能力单元”。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;调用过程&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;暴露&lt;/strong&gt;：Server 告诉 Client ：“我有 &lt;code&gt;read_file&lt;/code&gt; 这个工具”。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;决策&lt;/strong&gt;：LLM 通过 &lt;strong&gt;Function Calling&lt;/strong&gt; 决定使用该工具并生成参数。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求&lt;/strong&gt;：Client 向 Server 发送 &lt;code&gt;tools/call&lt;/code&gt; 请求。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;执行&lt;/strong&gt;：Server 运行代码并把结果传回给 Client，最终喂给 LLM&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="5-mcp客户端需要做什么"&gt;&lt;a href="#5-mcp%e5%ae%a2%e6%88%b7%e7%ab%af%e9%9c%80%e8%a6%81%e5%81%9a%e4%bb%80%e4%b9%88" class="header-anchor"&gt;&lt;/a&gt;5 MCP客户端需要做什么
+&lt;/h3&gt;&lt;p&gt;MCP 客户端的作用是负责发起工具调用和资源访问请求、管理通信协议，并获取 Server 执行结果，本身不执行工具逻辑，所有实际操作都在 MCP Server 端完成。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;生命周期管理&lt;/strong&gt;：负责启动、连接和关闭 MCP Server。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;权限管控&lt;/strong&gt;：在工具真正执行前，向用户询问是否允许执行（安全关卡）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;上下文聚合&lt;/strong&gt;：将 Server 返回的资源或工具结果转换为 LLM 能理解的消息格式（Prompt），并发送给大模型。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="参考链接"&gt;&lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="header-anchor"&gt;&lt;/a&gt;参考链接：
+&lt;/h2&gt;&lt;p&gt;1 &lt;a class="link" href="https://zhuanlan.zhihu.com/p/29001189476" target="_blank" rel="noopener"
+&gt;MCP (Model Context Protocol)，一篇就够了。 - 知乎&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2 &lt;a class="link" href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener"
+&gt;Introducing the Model Context Protocol&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;3 &lt;a class="link" href="https://mcpmarket.cn/" target="_blank" rel="noopener"
+&gt;MCP market&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;4 &lt;a class="link" href="https://learngraph.online/LearnGraph%201.X/module-11-subgraph-mermaid-mcp-agent-node-tool/11.3%20LangGraph%20MCP%20Integration.html" target="_blank" rel="noopener"
+&gt;langgraph And MCP&lt;/a&gt;&lt;/p&gt;</description></item></channel></rss>

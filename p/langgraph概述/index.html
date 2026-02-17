@@ -1,0 +1,827 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="LangGraph是一个用于构建状态ful多智能体应用的框架，基于图论的方式组织智能体的交互流程。"><title>langgraph概述</title><link rel=canonical href=https://sutdown.github.io/p/langgraph%E6%A6%82%E8%BF%B0/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="langgraph概述"><meta property='og:description' content="LangGraph是一个用于构建状态ful多智能体应用的框架，基于图论的方式组织智能体的交互流程。"><meta property='og:url' content='https://sutdown.github.io/p/langgraph%E6%A6%82%E8%BF%B0/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2025-12-26T00:00:00+00:00'><meta property='article:modified_time' content='2025-12-26T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/523b936a.jpg'><meta name=twitter:title content="langgraph概述"><meta name=twitter:description content="LangGraph是一个用于构建状态ful多智能体应用的框架，基于图论的方式组织智能体的交互流程。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/523b936a.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#python基础>python基础</a><ul><li><a href=#基础语法>基础语法</a></li><li><a href=#ai开发生态>AI开发生态</a></li></ul></li><li><a href=#基础>基础</a><ul><li><a href=#checker-pointer>Checker Pointer</a></li><li><a href=#生成环境部署>生成环境部署</a></li></ul></li><li><a href=#state-reducer-memory>state reducer memory</a><ul><li><a href=#checker-pointer-1>checker pointer</a></li><li><a href=#消息处理方式>消息处理方式</a></li><li><a href=#langgraph与langchain-memory>langgraph与langchain memory</a></li></ul></li><li><a href=#langgraph-图>langgraph 图</a><ul><li><a href=#state>state</a><ul><li><a href=#state-定义>state 定义</a></li><li><a href=#state-schema>State Schema</a></li><li><a href=#state-reducers>state reducers</a></li><li><a href=#reducer----add_messages>reducer &mdash; add_messages</a></li><li><a href=#multiple-schemas>Multiple Schemas</a></li><li><a href=#external-memory--sqlite-checkpointer>external memory &mdash; SQLite Checkpointer</a></li></ul></li></ul></li><li><a href=#human-in-the-loop>Human-in-the-loop</a><ul><li><a href=#breakpoints---断点>breakpoints - 断点</a></li><li><a href=#node-interrupt>Node Interrupt</a></li><li><a href=#stream>Stream</a></li><li><a href=#time-travel>Time travel</a></li></ul></li><li><a href=#memory>Memory</a><ul><li><a href=#store>Store</a></li><li><a href=#记忆的存储模式>记忆的存储模式</a></li><li><a href=#schema-profile>Schema Profile</a><ul><li><a href=#trustcall>trustcall</a></li></ul></li><li><a href=#profile-vs-collection>Profile vs Collection</a><ul><li><a href=#对比>对比</a></li><li><a href=#collection>Collection</a></li></ul></li></ul></li><li><a href=#高级图模式>高级图模式</a><ul><li><a href=#parallelization>Parallelization</a></li><li><a href=#sub--graph>Sub Graph</a><ul><li><a href=#节点和子图>节点和子图</a></li></ul></li><li><a href=#map-reduce>Map Reduce</a><ul><li><a href=#定义>定义</a></li><li><a href=#组成>组成</a></li><li><a href=#适用场景>适用场景</a></li></ul></li><li><a href=#map-reduce-vs-并行>Map-reduce VS 并行</a></li></ul></li><li><a href=#other>Other</a><ul><li><a href=#可视化图>可视化图</a></li><li><a href=#create_agent和手动构建stategraph>create_agent和手动构建stategraph</a></li></ul></li><li><a href=#参考资料>参考资料</a></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/langgraph%E6%A6%82%E8%BF%B0/><img src=/images/523b936a.jpg loading=lazy alt="Featured image of post langgraph概述"></a></div><div class=article-details><header class=article-category><a href=/categories/ai/>AI
+</a><a href=/categories/langgraph/>LangGraph</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/langgraph%E6%A6%82%E8%BF%B0/>langgraph概述</a></h2><h3 class=article-subtitle>LangGraph是一个用于构建状态ful多智能体应用的框架，基于图论的方式组织智能体的交互流程。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2025-12-26T00:00:00Z>Dec 26, 2025</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 15 分钟</time></div></footer></div></header><section class=article-content><h2 id=python基础><a href=#python%e5%9f%ba%e7%a1%80 class=header-anchor></a>python基础</h2><h3 id=基础语法><a href=#%e5%9f%ba%e7%a1%80%e8%af%ad%e6%b3%95 class=header-anchor></a>基础语法</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## list 管理对话历史</span>
+</span></span><span class=line><span class=cl><span class=n>messages</span> <span class=o>=</span> <span class=p>[{</span><span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;user&#34;</span><span class=p>,</span> <span class=s2>&#34;content&#34;</span><span class=p>:</span> <span class=s2>&#34;你好&#34;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>           <span class=p>{</span><span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;assistant&#34;</span><span class=p>,</span> <span class=s2>&#34;content&#34;</span><span class=p>:</span> <span class=s2>&#34;你好！有什么可以帮你的吗？&#34;</span><span class=p>}]</span>
+</span></span><span class=line><span class=cl><span class=c1>## dict agent状态管理</span>
+</span></span><span class=line><span class=cl><span class=n>agent_state</span> <span class=o>=</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;user_id&#34;</span><span class=p>:</span> <span class=s2>&#34;user_12345&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;session_id&#34;</span><span class=p>:</span> <span class=s2>&#34;sess_abc&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;messages&#34;</span><span class=p>:</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;user&#34;</span><span class=p>,</span> <span class=s2>&#34;content&#34;</span><span class=p>:</span> <span class=s2>&#34;帮我查天气&#34;</span><span class=p>},</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span><span class=s2>&#34;role&#34;</span><span class=p>:</span> <span class=s2>&#34;assistant&#34;</span><span class=p>,</span> <span class=s2>&#34;content&#34;</span><span class=p>:</span> <span class=s2>&#34;好的，请问是哪个城市？&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>],</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;context&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;intent&#34;</span><span class=p>:</span> <span class=s2>&#34;weather_query&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;location&#34;</span><span class=p>:</span> <span class=kc>None</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;confidence&#34;</span><span class=p>:</span> <span class=mf>0.92</span>
+</span></span><span class=line><span class=cl>    <span class=p>},</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;tool_calls&#34;</span><span class=p>:</span> <span class=p>[],</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;metadata&#34;</span><span class=p>:</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;start_time&#34;</span><span class=p>:</span> <span class=s2>&#34;2024-10-27 10:00:00&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;turn_count&#34;</span><span class=p>:</span> <span class=mi>1</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>## 元组 不可变数据</span>
+</span></span><span class=line><span class=cl><span class=n>message_format</span> <span class=o>=</span> <span class=p>(</span><span class=s2>&#34;role&#34;</span><span class=p>,</span> <span class=s2>&#34;content&#34;</span><span class=p>,</span> <span class=s2>&#34;timestamp&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1>## set 去重和快速查找</span>
+</span></span><span class=line><span class=cl><span class=n>user_interests</span> <span class=o>=</span> <span class=p>{</span><span class=s2>&#34;科技&#34;</span><span class=p>,</span> <span class=s2>&#34;旅游&#34;</span><span class=p>,</span> <span class=s2>&#34;美食&#34;</span><span class=p>,</span> <span class=s2>&#34;科技&#34;</span><span class=p>,</span> <span class=s2>&#34;运动&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>## 【嵌套TypedDict】LangGraph状态的标准定义方式</span>
+</span></span><span class=line><span class=cl><span class=c1>## 定义清晰的状态结构,便于团队协作和维护</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>AgentState</span><span class=p>(</span><span class=n>TypedDict</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=n>Message</span><span class=p>]</span>  <span class=c1># 消息列表,每个元素都是Message类型</span>
+</span></span><span class=line><span class=cl>    <span class=n>intent</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>next_node</span><span class=p>:</span> <span class=nb>str</span>
+</span></span></code></pre></td></tr></table></div></div><p>注意异常处理。</p><ul><li>方式1 try &mldr;raise&mldr; except ，</li><li>方式2 自定义异常，</li><li>方式3 with进行上下文管理，保证资源用完一定能够释放</li></ul><p>一般需要建立配置文件或者.env文件管理配置。</p><p>添加适当的日志管理。</p><p>装饰器是 Python 的"语法糖"，用于修改函数行为</p><h3 id=ai开发生态><a href=#ai%e5%bc%80%e5%8f%91%e7%94%9f%e6%80%81 class=header-anchor></a>AI开发生态</h3><blockquote><p><strong>Streamlit</strong>：快速构建Agent交互界面，展示对话流、状态可视化、调试工具</p><p><strong>ChromaDB</strong> ：最简单的向量数据库，适合本地开发和原型。</p></blockquote><ul><li>langchain：链式调用基础，构建LLM应用的基础框架</li><li>langgraph：利用状态图构建复杂的多智能体系统<ul><li>需要精确控制执行流程，复杂的条件分支和循环</li><li>生产环境的可靠性要求，可观测性和调试能力</li><li>需要human-in-the-loop</li></ul></li><li>CrewAI：专注于多智能体角色分工和任务编排，一般为顺序或者层级流程，角色分工清晰，适合写作，研究</li><li>AutoGen：多智能体自动对话和协作，支持代码执行，自动错误修复，支持人类参与，适合编程，数据分析等任务</li><li>Swarm：实验性项目，最小化实现</li></ul><p><strong>Gradio = 模型 Demo / Agent 快速展示</strong>
+<strong>Streamlit = 完整应用 / 数据产品 / 控制台级 UI</strong></p><div class=table-wrapper><table><thead><tr><th>维度</th><th>Gradio</th><th>Streamlit</th></tr></thead><tbody><tr><td>设计初衷</td><td><strong>让模型“马上能用”</strong></td><td><strong>把 Python 变成 Web App</strong></td></tr><tr><td>关注点</td><td>模型输入 → 输出</td><td>应用流程、状态、页面</td></tr><tr><td>思维方式</td><td>ML / Agent 导向</td><td>App / Data App 导向</td></tr><tr><td>学习成本</td><td>极低</td><td>中等</td></tr></tbody></table></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>LangGraph / LangChain   ← 核心逻辑
+</span></span><span class=line><span class=cl>        ↓
+</span></span><span class=line><span class=cl>      Gradio            ← Demo / 对话
+</span></span><span class=line><span class=cl>        ↓
+</span></span><span class=line><span class=cl>   Streamlit / FastAPI  ← 产品化
+</span></span></code></pre></td></tr></table></div></div><h2 id=基础><a href=#%e5%9f%ba%e7%a1%80 class=header-anchor></a>基础</h2><h3 id=checker-pointer><a href=#checker-pointer class=header-anchor></a>Checker Pointer</h3><p>Checkpointer 是 LangGraph 的 自动快照系统，在每个节点执行后保存状态，实现多轮对话和时间旅行。</p><p>跨会话对话记忆通过 <strong>Checkpointer + Thread ID</strong> 实现状态持久化和恢复。</p><ul><li>Checkpointer = 自动快照系统</li><li>保存时机：每个节点执行后</li><li>Thread = 隔离不同会话的状态容器</li><li>用途：多轮对话、状态持久化、时间旅行</li><li>生产环境：使用 PostgresSaver 或 RedisSaver</li></ul><p>链式架构，路由架构（分类器），agent（reAct架构，存在多次循环）</p><h3 id=生成环境部署><a href=#%e7%94%9f%e6%88%90%e7%8e%af%e5%a2%83%e9%83%a8%e7%bd%b2 class=header-anchor></a>生成环境部署</h3><ul><li>开发环境：可直接用InMemoryStore存储，单线程，本地访问，崩溃则停止</li><li>生产环境：用PostgreSQL/Redis存储，多进程/多线程并发，结构化日志和监控系统实现监控，错误时能够自动重启或者采用合适的降级策略，公网访问</li></ul><h2 id=state-reducer-memory><a href=#state-reducer-memory class=header-anchor></a>state reducer memory</h2><p>记忆起到的作用在于，让Agent从无状态服务变成有记忆的助手</p><ul><li>LangGraph 提供 <strong>Checkpointer（检查点器）</strong> 机制，在每个步骤后自动保存状态。</li><li>为了管理多个独立的对话，LangGraph 使用 <strong>Thread（线程）</strong> 概念。</li></ul><h3 id=checker-pointer-1><a href=#checker-pointer-1 class=header-anchor></a>checker pointer</h3><p>短期记忆一般针对单个对话线程，可以在该线程内的任何时间被回忆。</p><p>state会通过<strong>checkpointer</strong>持久化数据库中，哪怕会话中断也可以随时回复。记忆在图被调用时或者某个步骤完成时更新，并在某个步骤开始时读取。记忆中为了避免过长的消息列表，通常存在几种解决方案：1 固定窗口 - trim裁剪，2 总结摘要 - summarization，3 利用相关性进行语义过滤</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>class</span> <span class=nc>ConversationState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span> <span class=n>trim_messages</span><span class=p>(</span><span class=mi>20</span><span class=p>)]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>trim_messages</span><span class=p>(</span><span class=n>max_len</span><span class=p>:</span> <span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>reducer</span><span class=p>(</span><span class=n>old</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span> <span class=n>new</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]):</span>
+</span></span><span class=line><span class=cl>        <span class=n>merged</span> <span class=o>=</span> <span class=n>old</span> <span class=o>+</span> <span class=n>new</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>merged</span><span class=p>[</span><span class=o>-</span><span class=n>max_len</span><span class=p>:]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>reducer</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>summarizer_node</span><span class=p>(</span><span class=n>state</span><span class=p>:</span> <span class=n>ConversationState</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>state</span><span class=o>.</span><span class=n>messages</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mi>15</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>prompt</span> <span class=o>=</span> <span class=sa>f</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    当前摘要：
+</span></span></span><span class=line><span class=cl><span class=s2>    </span><span class=si>{</span><span class=n>state</span><span class=o>.</span><span class=n>summary</span> <span class=ow>or</span> <span class=s2>&#34;无&#34;</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    请将以下对话合并成一个更精炼的摘要：
+</span></span></span><span class=line><span class=cl><span class=s2>    </span><span class=si>{</span><span class=n>state</span><span class=o>.</span><span class=n>messages</span><span class=si>}</span><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>new_summary</span> <span class=o>=</span> <span class=n>llm</span><span class=p>(</span><span class=n>prompt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;summary&#34;</span><span class=p>:</span> <span class=n>new_summary</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=s2>&#34;messages&#34;</span><span class=p>:</span> <span class=p>[]</span>  <span class=c1># 清空窗口</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>semantic_filter</span><span class=p>(</span><span class=n>messages</span><span class=p>,</span> <span class=n>query_embedding</span><span class=p>,</span> <span class=n>k</span><span class=o>=</span><span class=mi>5</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>scored</span> <span class=o>=</span> <span class=p>[</span>
+</span></span><span class=line><span class=cl>        <span class=p>(</span><span class=n>cosine_sim</span><span class=p>(</span><span class=n>m</span><span class=o>.</span><span class=n>embedding</span><span class=p>,</span> <span class=n>query_embedding</span><span class=p>),</span> <span class=n>m</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>messages</span>
+</span></span><span class=line><span class=cl>    <span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=p>[</span><span class=n>m</span><span class=o>.</span><span class=n>content</span> <span class=k>for</span> <span class=n>_</span><span class=p>,</span> <span class=n>m</span> <span class=ow>in</span> <span class=nb>sorted</span><span class=p>(</span><span class=n>scored</span><span class=p>,</span> <span class=n>reverse</span><span class=o>=</span><span class=kc>True</span><span class=p>)[:</span><span class=n>k</span><span class=p>]]</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=消息处理方式><a href=#%e6%b6%88%e6%81%af%e5%a4%84%e7%90%86%e6%96%b9%e5%bc%8f class=header-anchor></a>消息处理方式</h3><ul><li>消息删除，基于meessage</li><li>消息过滤，节点返回</li><li>消息裁剪，基于token</li></ul><h3 id=langgraph与langchain-memory><a href=#langgraph%e4%b8%8elangchain-memory class=header-anchor></a>langgraph与langchain memory</h3><p>LangChain 和 LangGraph 解决的是“不同层级的记忆问题”</p><ul><li>LangChain：偏“认知层长期记忆”（semantic memory）</li><li>LangGraph：偏“系统层执行记忆”（execution state）</li></ul><p>LangChain Memory 体系本质在于<strong>如何把过去的信息提供给模型</strong>。langchain短期记忆对应memory，比如最近k条，对于会话的总结，限制token等方案；长期记忆则对应向量存储和各种数据库集成，通过retrievers，文档加载器，embedding，文档拆分等工具实现。</p><div class=table-wrapper><table><thead><tr><th>对比维度</th><th>LangChain Vector Memory</th><th>LangGraph Checkpointer</th></tr></thead><tbody><tr><td>关注点</td><td>语义</td><td>执行</td></tr><tr><td>是否 embedding</td><td>✅</td><td>❌</td></tr><tr><td>是否参与 prompt</td><td>✅</td><td>❌</td></tr><tr><td>是否可检索</td><td>✅</td><td>❌</td></tr><tr><td>是否能恢复执行</td><td>❌</td><td>✅</td></tr><tr><td>是否长期运行</td><td>⚠️（有限）</td><td>✅</td></tr></tbody></table></div><h2 id=langgraph-图><a href=#langgraph-%e5%9b%be class=header-anchor></a>langgraph 图</h2><blockquote><p>1 LangGraph 将 Agent 建模为<strong>状态机</strong>,执行过程是<strong>状态的连续转换</strong>。</p><p>2 <strong>State = 数据 + Channels + Reducers (技术核心)</strong></p><p>3 <strong>Node = State → State (函数式思维)</strong></p><p>4 <strong>Conditional Edge = 动态路由 (控制流的灵魂)</strong></p><p>5 <strong>Human-in-the-Loop = 可控性 (生产环境的必需品)</strong></p></blockquote><h3 id=state><a href=#state class=header-anchor></a>state</h3><p>LangGraph 的状态管理基于 <strong>TypedDict + Annotated + Reducer</strong> 的三层架构。</p><h4 id=state-定义><a href=#state-%e5%ae%9a%e4%b9%89 class=header-anchor></a>state 定义</h4><p>state是一种信息共享和上下文管理的工具，起源于状态机理论，广泛用于对话系统，任务自动化和复杂逻辑处理。</p><p>1 存储上下文信息，实现短期记忆</p><p>2 动态逻辑控制，决定系统的下一步行为</p><p>3 任务管理，存储中间的结果</p><p>4 通过存储状态，管理对话的分支逻辑</p><h4 id=state-schema><a href=#state-schema class=header-anchor></a>State Schema</h4><p>在定义state的过程中，存在三种方式：</p><ul><li>TypedDict：适用于简单快速开发，无运行时验证（性能最优）</li><li>Dataclass：需要默认值/方法，无运行时验证</li><li>Pydantic：会进行严格的运行时验证（安全性最好）</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span><span class=p>,</span> <span class=n>ConfigDict</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>datetime</span> <span class=kn>import</span> <span class=n>datetime</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>List</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>BaseState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;&#34;&#34;所有 State 的统一基类&#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>model_config</span> <span class=o>=</span> <span class=n>ConfigDict</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>validate_assignment</span><span class=o>=</span><span class=kc>True</span><span class=p>,</span>   <span class=c1># 赋值即校验</span>
+</span></span><span class=line><span class=cl>        <span class=n>extra</span><span class=o>=</span><span class=s2>&#34;forbid&#34;</span><span class=p>,</span>              <span class=c1># 禁止野字段</span>
+</span></span><span class=line><span class=cl>        <span class=n>frozen</span><span class=o>=</span><span class=kc>False</span>                <span class=c1># LangGraph 需要可变</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>trace</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>updated_at</span><span class=p>:</span> <span class=n>datetime</span> <span class=o>=</span> <span class=n>datetime</span><span class=o>.</span><span class=n>utcnow</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>InputState</span><span class=p>(</span><span class=n>BaseState</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>query</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span><span class=o>...</span><span class=p>,</span> <span class=n>description</span><span class=o>=</span><span class=s2>&#34;User original input&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>user_id</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>WorkingState</span><span class=p>(</span><span class=n>InputState</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># Planner</span>
+</span></span><span class=line><span class=cl>    <span class=n>plan</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=kc>None</span><span class=p>,</span> <span class=n>description</span><span class=o>=</span><span class=s2>&#34;High level plan generated by planner&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Retriever</span>
+</span></span><span class=line><span class=cl>    <span class=n>documents</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>default_factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>description</span><span class=o>=</span><span class=s2>&#34;Retrieved documents&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Memory / Reasoning</span>
+</span></span><span class=line><span class=cl>    <span class=n>thoughts</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>default_factory</span><span class=o>=</span><span class=nb>list</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>description</span><span class=o>=</span><span class=s2>&#34;Internal reasoning trace&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Control</span>
+</span></span><span class=line><span class=cl>    <span class=n>next_action</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>OutputState</span><span class=p>(</span><span class=n>WorkingState</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>answer</span><span class=p>:</span> <span class=nb>str</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span><span class=o>...</span><span class=p>,</span> <span class=n>description</span><span class=o>=</span><span class=s2>&#34;Final user-facing answer&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@model_validator</span><span class=p>(</span><span class=n>mode</span><span class=o>=</span><span class=s2>&#34;after&#34;</span><span class=p>)</span> <span class=c1># 在所有字段都准备好之后，对整个 State 的‘存在合法性’做最终审判。</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>check_ready</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=ow>not</span> <span class=bp>self</span><span class=o>.</span><span class=n>plan</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>raise</span> <span class=ne>ValueError</span><span class=p>(</span><span class=s2>&#34;Output generated without plan&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=bp>self</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=state-reducers><a href=#state-reducers class=header-anchor></a>state reducers</h4><p>Reducer 决定：当 state 的同一个字段被多次写入时，最终 state 应该长什么样。</p><p>在 LangGraph 里：</p><ul><li><strong>Node</strong>：负责“产生增量状态（partial state）”</li><li><strong>Reducer</strong>：负责“把多个增量状态合并成一个最终 state”</li></ul><p>常见reducer类型有：（也可以选择自定义，比如条件型，组合型，带日志等）</p><p>1 累加型，比如add_messages, 2 覆盖型，3 合并型，4 去重型，5 决策型</p><p><code>add_messages</code> 解决了对话系统中 <strong>状态覆盖导致历史丢失</strong> 的核心问题。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>List</span><span class=p>,</span> <span class=n>Annotated</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langgraph.graph</span> <span class=kn>import</span> <span class=n>add_messages</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>AgentState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span> <span class=n>add_messages</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>    <span class=n>current_step</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=reducer----add_messages><a href=#reducer----add_messages class=header-anchor></a>reducer &mdash; add_messages</h4><p>add meaaages主要用于合并消息。但同时能实现</p><ul><li>消息重写： 如果新消息的 <code>id</code> 与现有消息相同，会<strong>覆盖</strong>旧消息</li><li>消息删除：采用<strong>RemoveMessage</strong>，可以实现滑动窗口，删除敏感信息，清理无关对话历史，优化上下文长度</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## 手动方式</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>State</span><span class=p>(</span><span class=n>TypedDict</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span><span class=nb>list</span><span class=p>[</span><span class=n>AnyMessage</span><span class=p>],</span> <span class=n>add_messages</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 快捷方式（推荐）</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>State</span><span class=p>(</span><span class=n>MessagesState</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>pass</span>  <span class=c1># 自动包含 messages 字段</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>result</span> <span class=o>=</span> <span class=n>add_messages</span><span class=p>(</span><span class=n>initial_messages</span><span class=p>,</span> <span class=n>new_message</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>delete_messages</span> <span class=o>=</span> <span class=p>[</span><span class=n>RemoveMessage</span><span class=p>(</span><span class=nb>id</span><span class=o>=</span><span class=n>m</span><span class=o>.</span><span class=n>id</span><span class=p>)</span> <span class=k>for</span> <span class=n>m</span> <span class=ow>in</span> <span class=n>messages</span><span class=p>[:</span><span class=o>-</span><span class=mi>2</span><span class=p>]]</span>
+</span></span></code></pre></td></tr></table></div></div><h4 id=multiple-schemas><a href=#multiple-schemas class=header-anchor></a>Multiple Schemas</h4><p>Multiple Schemas = 在同一个 LangGraph 中，为不同阶段 / 不同节点 / 不同角色使用不同的 State Schema。Schema 是“视图（View）”，不是“存储（Storage）”。<strong>只能看到自己需要的字段，只被允许返回自己负责的字段。</strong></p><ol><li><strong>Private State（私有状态）</strong>：节点间可以传递私有数据，不暴露给外部</li><li><strong>Input Schema（输入模式）</strong>：限定用户输入的字段</li><li><strong>Output Schema（输出模式）</strong>：限定返回给用户的字段</li><li><strong>Internal State（内部状态）</strong>：图内部使用的完整状态</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## 在node中</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_node</span><span class=p>(</span><span class=s2>&#34;planner&#34;</span><span class=p>,</span> <span class=n>planner_node</span><span class=p>,</span> <span class=n>input_schema</span><span class=o>=</span><span class=n>PlannerState</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_node</span><span class=p>(</span><span class=s2>&#34;executor&#34;</span><span class=p>,</span> <span class=n>executor_node</span><span class=p>,</span> <span class=n>input_schema</span><span class=o>=</span><span class=n>ExecutorState</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_node</span><span class=p>(</span><span class=s2>&#34;reviewer&#34;</span><span class=p>,</span> <span class=n>reviewer_node</span><span class=p>,</span> <span class=n>input_schema</span><span class=o>=</span><span class=n>ReviewerState</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 在state中</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ConversationState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>messages</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span> <span class=n>add_messages</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>PlanningState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>plan</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ExecutionState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>observations</span><span class=p>:</span> <span class=n>Annotated</span><span class=p>[</span><span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>],</span> <span class=n>add_messages</span><span class=p>]</span> <span class=o>=</span> <span class=p>[]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ReviewState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>final_answer</span><span class=p>:</span> <span class=nb>str</span> <span class=o>|</span> <span class=kc>None</span> <span class=o>=</span> <span class=kc>None</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## State Nesting（嵌套 State），本质是 组合（composition）而不是继承</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>GlobalState</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span> 
+</span></span><span class=line><span class=cl>    <span class=n>conversation</span><span class=p>:</span> <span class=n>ConversationState</span> <span class=o>=</span> <span class=n>ConversationState</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>planning</span><span class=p>:</span> <span class=n>PlanningState</span> <span class=o>=</span> <span class=n>PlanningState</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>execution</span><span class=p>:</span> <span class=n>ExecutionState</span> <span class=o>=</span> <span class=n>ExecutionState</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>review</span><span class=p>:</span> <span class=n>ReviewState</span> <span class=o>=</span> <span class=n>ReviewState</span><span class=p>()</span> 
+</span></span></code></pre></td></tr></table></div></div><h4 id=external-memory--sqlite-checkpointer><a href=#external-memory--sqlite-checkpointer class=header-anchor></a>external memory &mdash; SQLite Checkpointer</h4><p><strong>SQLite</strong> 是一个轻量级的嵌入式数据库：</p><ul><li>不需要独立的数据库服务器</li><li>整个数据库存储在单个文件中</li><li>性能优秀，广泛应用（被 Andrej Karpathy 称为"超级流行"）</li><li>Python 内置支持</li></ul><p><strong>SqliteSaver 的作用：</strong></p><ul><li>自动创建必要的数据库表</li><li>保存图的每一步状态（checkpoint）</li><li>支持状态查询和恢复</li><li>管理多个对话线程（thread）</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>sqlite3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 创建内存数据库（程序结束后消失）</span>
+</span></span><span class=line><span class=cl><span class=n>conn</span> <span class=o>=</span> <span class=n>sqlite3</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=s2>&#34;:memory:&#34;</span><span class=p>,</span> <span class=n>check_same_thread</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 下载示例数据库（如果不存在）</span>
+</span></span><span class=line><span class=cl><span class=err>!</span><span class=n>mkdir</span> <span class=o>-</span><span class=n>p</span> <span class=n>state_db</span> <span class=o>&amp;&amp;</span> <span class=p>[</span> <span class=err>!</span> <span class=o>-</span><span class=n>f</span> <span class=n>state_db</span><span class=o>/</span><span class=n>example</span><span class=o>.</span><span class=n>db</span> <span class=p>]</span> <span class=o>&amp;&amp;</span> <span class=n>wget</span> <span class=o>-</span><span class=n>P</span> <span class=n>state_db</span> <span class=n>https</span><span class=p>:</span><span class=o>//</span><span class=n>github</span><span class=o>.</span><span class=n>com</span><span class=o>/</span><span class=n>langchain</span><span class=o>-</span><span class=n>ai</span><span class=o>/</span><span class=n>langchain</span><span class=o>-</span><span class=n>academy</span><span class=o>/</span><span class=n>raw</span><span class=o>/</span><span class=n>main</span><span class=o>/</span><span class=n>module</span><span class=o>-</span><span class=mi>2</span><span class=o>/</span><span class=n>state_db</span><span class=o>/</span><span class=n>example</span><span class=o>.</span><span class=n>db</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 连接到本地数据库文件</span>
+</span></span><span class=line><span class=cl><span class=n>db_path</span> <span class=o>=</span> <span class=s2>&#34;state_db/example.db&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>conn</span> <span class=o>=</span> <span class=n>sqlite3</span><span class=o>.</span><span class=n>connect</span><span class=p>(</span><span class=n>db_path</span><span class=p>,</span> <span class=n>check_same_thread</span><span class=o>=</span><span class=kc>False</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langgraph.checkpoint.sqlite</span> <span class=kn>import</span> <span class=n>SqliteSaver</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 创建 checkpointer</span>
+</span></span><span class=line><span class=cl><span class=n>memory</span> <span class=o>=</span> <span class=n>SqliteSaver</span><span class=p>(</span><span class=n>conn</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>CREATE</span> <span class=n>TABLE</span> <span class=n>checkpoints</span> <span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>thread_id</span> <span class=n>TEXT</span><span class=p>,</span>      <span class=o>--</span> <span class=n>对话线程</span> <span class=n>ID</span>
+</span></span><span class=line><span class=cl>    <span class=n>checkpoint_id</span> <span class=n>TEXT</span><span class=p>,</span>  <span class=o>--</span> <span class=n>检查点</span> <span class=n>ID</span>
+</span></span><span class=line><span class=cl>    <span class=n>state</span> <span class=n>BLOB</span><span class=p>,</span>          <span class=o>--</span> <span class=n>序列化的状态数据</span>
+</span></span><span class=line><span class=cl>    <span class=n>timestamp</span> <span class=n>DATETIME</span>   <span class=o>--</span> <span class=n>时间戳</span>
+</span></span><span class=line><span class=cl><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=human-in-the-loop><a href=#human-in-the-loop class=header-anchor></a>Human-in-the-loop</h2><p>人类协作目前存在两种方式：</p><p>一是在图的编译时手动添加断点，常见的是interrupt+update state+invoke</p><p>二是利用stream输出，在输出中的过程中捕捉特定的状态输出</p><p>三是时间旅行，回到特定的状态，修改状态，创建新的分支执行</p><p>前两种都是在于一次的运行中存在的中断，第三种侧重于分支。</p><h3 id=breakpoints---断点><a href=#breakpoints---%e6%96%ad%e7%82%b9 class=header-anchor></a>breakpoints - 断点</h3><p>在图的执行过程中设置断点，主动暂停等待人工干预。</p><p>三大应用场景：审批，调试，编辑</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## interrupt_before 审批，在某个节点或工具真正执行之前，强制暂停整个 Graph 的运行。</span>
+</span></span><span class=line><span class=cl><span class=c1>## interrupt_after 调试，某个节点执行完成之后，立刻中断流程</span>
+</span></span><span class=line><span class=cl><span class=c1>## update_state 在前两者到达的中断状态下，你可以人为修改 State，然后让 Graph 继续跑。</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## interrupt 负责“停”，update_state 负责“改”，invoke 负责“继续”</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span> <span class=o>=</span> <span class=n>builder</span><span class=o>.</span><span class=n>compile</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>interrupt_before</span><span class=o>=</span><span class=p>[</span><span class=s2>&#34;payment_tool&#34;</span><span class=p>],</span>  <span class=c1># 在支付前暂停</span>
+</span></span><span class=line><span class=cl>    <span class=n>checkpointer</span><span class=o>=</span><span class=n>memory</span> <span class=c1># breakpoint依赖状态持久化，会将当前状态保存倒checkpoint</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>update_state</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>thread_id</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span><span class=s2>&#34;approved&#34;</span><span class=p>:</span> <span class=kc>True</span><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=n>thread_id</span><span class=o>=</span><span class=n>thread_id</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=node-interrupt><a href=#node-interrupt class=header-anchor></a>Node Interrupt</h3><p>当 Graph 运行到某个 Node 时，主动暂停，让外部（人类 / 系统）介入，然后再决定是否继续。</p><p>interrupt() (推荐)：可在代码任意位置调用</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langgraph.errors</span> <span class=kn>import</span> <span class=n>Interrupt</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>node</span><span class=p>(</span><span class=n>state</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=ow>not</span> <span class=n>state</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=s2>&#34;approved&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>raise</span> <span class=n>Interrupt</span><span class=p>(</span><span class=s2>&#34;waiting for approval&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>state</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=stream><a href=#stream class=header-anchor></a>Stream</h3><p>对于langgraph：</p><ul><li>默认为执行事件试图，包括节点前，节点结束，中断，工具使用前，工具使用后状态；</li><li>updates为state增量视图，在每个node执行完返回当前node修改的字段</li><li>values为完整state试图，在每个node执行完返回完整的字段</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=k>for</span> <span class=n>event</span> <span class=ow>in</span> <span class=n>graph</span><span class=o>.</span><span class=n>stream</span><span class=p>(</span><span class=n>inputs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=o>...</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>update</span> <span class=ow>in</span> <span class=n>graph</span><span class=o>.</span><span class=n>stream</span><span class=p>(</span><span class=n>inputs</span><span class=p>,</span> <span class=n>stream_mode</span><span class=o>=</span><span class=s2>&#34;updates&#34;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>update</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=time-travel><a href=#time-travel class=header-anchor></a>Time travel</h3><p>LangGraph 的 Time Travel = 对 Graph 执行过程中每一次 State 的快照做版本化存储，并允许你回到任意历史点继续执行。</p><p>前提：checkerpointer， thread ID</p><p>能力：状态快照，回到过去，改写未来</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>current</span> <span class=o>=</span> <span class=n>graph</span><span class=o>.</span><span class=n>get_state</span><span class=p>(</span><span class=n>thread_id</span><span class=p>)</span> <span class=c1># 可以查看当前value和历史history state</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>current</span><span class=o>.</span><span class=n>values</span><span class=p>)</span> <span class=c1># 当前状态</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>snapshot</span> <span class=ow>in</span> <span class=n>current</span><span class=o>.</span><span class=n>history</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>snapshot</span><span class=o>.</span><span class=n>values</span><span class=p>,</span> <span class=n>snapshot</span><span class=o>.</span><span class=n>branch_id</span><span class=p>)</span> <span class=c1># 历史状态</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>set_pointer</span><span class=p>(</span><span class=n>thread_id</span><span class=p>,</span> <span class=n>snapshot</span><span class=o>=</span><span class=n>current</span><span class=o>.</span><span class=n>history</span><span class=p>[</span><span class=mi>1</span><span class=p>])</span> <span class=c1># 回到step之后的快照</span>
+</span></span><span class=line><span class=cl><span class=c1>## TODO 这里可以用update state更新状态</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>update_state</span><span class=p>(</span><span class=n>thread_id</span><span class=p>,</span> <span class=p>{</span><span class=s2>&#34;count&#34;</span><span class=p>:</span> <span class=mi>100</span><span class=p>,</span> <span class=s2>&#34;note&#34;</span><span class=p>:</span> <span class=s2>&#34;corrected after step1&#34;</span><span class=p>})</span> <span class=c1># 修改state</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span><span class=kc>None</span><span class=p>,</span> <span class=n>thread_id</span><span class=o>=</span><span class=n>thread_id</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=memory><a href=#memory class=header-anchor></a>Memory</h2><p><a class=link href=https://learngraph.online/LearnGraph%201.X/module-6-memory-system/6.5%20Conclusion.html target=_blank rel=noopener>记忆系统</a></p><p><strong>短期记忆 + 长期记忆</strong> 的架构</p><ul><li>Checkpointer：保存对话历史（短期）</li><li>Store：保存用户信息（长期）</li><li>两者配合实现完整的记忆系统</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=err>┌─────────────────────────────────────</span><span class=o>-</span><span class=err>────┐</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>           <span class=n>Memory</span> <span class=n>Agent</span>                   <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>                                          <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>┌────────────────────────────────────┐</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=n>短期记忆</span> <span class=p>(</span><span class=n>MemorySaver</span><span class=p>)</span>            <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=o>-</span> <span class=n>对话历史</span>                        <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=o>-</span> <span class=n>当前会话状态</span>                     <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>└────────────────────────────────────┘</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>                                          <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>┌────────────────────────────────────┐</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=n>长期记忆</span> <span class=p>(</span><span class=n>InMemoryStore</span><span class=p>)</span>          <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>┌──────────────────────────────┐</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>│</span> <span class=n>Profile</span> <span class=p>(</span><span class=n>语义记忆</span><span class=p>)</span> <span class=o>-</span> <span class=n>profile</span><span class=err>，</span><span class=n>collection</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>└──────────────────────────────┘</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>┌──────────────────────────────┐</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>│</span> <span class=n>ToDo</span> <span class=n>Collection</span> <span class=p>(</span><span class=n>语义记忆</span><span class=p>)</span>    <span class=err>│</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>└──────────────────────────────┘</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>┌──────────────────────────────┐</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>│</span> <span class=n>Instructions</span> <span class=p>(</span><span class=n>程序性记忆</span><span class=p>)</span>     <span class=err>│</span>  <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>│</span>   <span class=err>└──────────────────────────────┘</span> <span class=err>│</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>│</span>  <span class=err>└────────────────────────────────────┘</span>  <span class=err>│</span>
+</span></span><span class=line><span class=cl><span class=err>└────────────────────────────────────────</span><span class=o>-</span><span class=err>─┘</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=store><a href=#store class=header-anchor></a>Store</h3><p>in memory store</p><ul><li>在内存中保存数据</li><li>适合开发和测试</li><li>生产环境通常使用持久化存储（如数据库</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## 创建内存存储实例</span>
+</span></span><span class=line><span class=cl><span class=n>in_memory_store</span> <span class=o>=</span> <span class=n>InMemoryStore</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## put - 保存数据</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>put</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>namespace</span><span class=p>:</span> <span class=nb>tuple</span><span class=p>,</span>      <span class=c1># 命名空间（元组）</span>
+</span></span><span class=line><span class=cl>    <span class=n>key</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span>              <span class=c1># 键（字符串）</span>
+</span></span><span class=line><span class=cl>    <span class=n>value</span><span class=p>:</span> <span class=nb>dict</span>            <span class=c1># 值（字典）</span>
+</span></span><span class=line><span class=cl><span class=p>)</span> <span class=o>-&gt;</span> <span class=kc>None</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=n>user_id</span> <span class=o>=</span> <span class=s2>&#34;1&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>namespace_for_memory</span> <span class=o>=</span> <span class=p>(</span><span class=n>user_id</span><span class=p>,</span> <span class=s2>&#34;memories&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>key</span> <span class=o>=</span> <span class=nb>str</span><span class=p>(</span><span class=n>uuid</span><span class=o>.</span><span class=n>uuid4</span><span class=p>())</span>
+</span></span><span class=line><span class=cl><span class=n>value</span> <span class=o>=</span> <span class=p>{</span><span class=s2>&#34;food_preference&#34;</span><span class=p>:</span> <span class=s2>&#34;I like pizza&#34;</span><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>in_memory_store</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>namespace_for_memory</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## search - 获取用户所有记忆</span>
+</span></span><span class=line><span class=cl><span class=n>memories</span> <span class=o>=</span> <span class=n>in_memory_store</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=n>namespace_for_memory</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>memories</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>dict</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## get - 获取特定的一条记忆</span>
+</span></span><span class=line><span class=cl><span class=n>memory</span> <span class=o>=</span> <span class=n>in_memory_store</span><span class=o>.</span><span class=n>get</span><span class=p>(</span><span class=n>namespace_for_memory</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>memory</span><span class=o>.</span><span class=n>dict</span><span class=p>())</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=记忆的存储模式><a href=#%e8%ae%b0%e5%bf%86%e7%9a%84%e5%ad%98%e5%82%a8%e6%a8%a1%e5%bc%8f class=header-anchor></a>记忆的存储模式</h3><p>热路径：在用户等待响应的过程中执行的操作。</p><ol><li>实时记忆，每次对话都会提取记忆，增加延迟，适用于对话频率低的情况</li><li>实现简单，无需考虑并发</li></ol><p>冷路径：用消息队列， LangGraph 的 <a class=link href=https://langchain-ai.github.io/langgraph/how-tos/background-execution/ target=_blank rel=noopener>Background Execution</a>，定义处理记忆更新等方式实现</p><ol><li>后台异步处理，响应速度快，适用于大规模or响应速度快的场景</li><li>实现复杂，有延迟</li></ol><h3 id=schema-profile><a href=#schema-profile class=header-anchor></a>Schema Profile</h3><p>1 简单模式：typedict + with_structured_output()</p><p>2 复杂模式：<a class=link href=https://learngraph.online/LearnGraph%201.X/module-6-memory-system/6.3%20Memory%20Schema%20Profile.html#%E5%AE%8C%E6%95%B4%E6%A1%88%E4%BE%8B%E4%BB%A3%E7%A0%81-%E5%8F%AF%E7%9B%B4%E6%8E%A5%E8%BF%90%E8%A1%8C target=_blank rel=noopener><strong>trustcall</strong></a>（<a class=link href=https://github.com/hinthornw/trustcall target=_blank rel=noopener>Trustcall</a> 是一个专门用于<strong>创建和更新 JSON Schema</strong> 的开源库，由 LangChain 团队的 <a class=link href=https://github.com/hinthornw target=_blank rel=noopener>Will Fu-Hinthorn</a> 开发。）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>┌─────────────────────────────────────────────┐
+</span></span><span class=line><span class=cl>│           Trustcall Workflow                │
+</span></span><span class=line><span class=cl>│                                             │
+</span></span><span class=line><span class=cl>│  1. 接收输入                                │
+</span></span><span class=line><span class=cl>│     - 新的对话消息                          │
+</span></span><span class=line><span class=cl>│     - 现有的 Schema（如果有）               │
+</span></span><span class=line><span class=cl>│                                             │
+</span></span><span class=line><span class=cl>│  2. 分析变化                                │
+</span></span><span class=line><span class=cl>│     - 识别新信息                            │
+</span></span><span class=line><span class=cl>│     - 识别需要更新的字段                    │
+</span></span><span class=line><span class=cl>│                                             │
+</span></span><span class=line><span class=cl>│  3. 生成 JSON Patch                         │
+</span></span><span class=line><span class=cl>│     - 创建精确的更新操作                    │
+</span></span><span class=line><span class=cl>│     - 只修改变化的部分                      │
+</span></span><span class=line><span class=cl>│                                             │
+</span></span><span class=line><span class=cl>│  4. 应用 Patch                              │
+</span></span><span class=line><span class=cl>│     - 更新现有 Schema                       │
+</span></span><span class=line><span class=cl>│     - 保留未变化的信息                      │
+</span></span><span class=line><span class=cl>│                                             │
+</span></span><span class=line><span class=cl>│  5. 验证结果                                │
+</span></span><span class=line><span class=cl>│     - 确保符合 Schema 定义                  │
+</span></span><span class=line><span class=cl>│     - 如果失败，自动修正                    │
+</span></span><span class=line><span class=cl>└─────────────────────────────────────────────┘
+</span></span></code></pre></td></tr></table></div></div><h4 id=trustcall><a href=#trustcall class=header-anchor></a>trustcall</h4><blockquote><p>Trustcall 是一个让 LLM 在“结构化信息抽取 / 状态写入”场景中，输出“可验证、可约束、可合并”的结果的工具库。定位在于解决 LLM 在“写结构化状态”这件事上的不可信问题。</p></blockquote><p>当agent需要稳定profile，为长期记忆时，可以采用trustcall</p><p>Profile 模式（enable_inserts=False）和 Collection 模式（enable_inserts=True）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1>## 定义shcema</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>UserProfile</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>name</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>interests</span><span class=p>:</span> <span class=n>List</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span><span class=n>default_factory</span><span class=o>=</span><span class=nb>list</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>expertise_level</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 创建extractor，输出一定符合Pydantic/JSON Schema</span>
+</span></span><span class=line><span class=cl><span class=n>profile_extractor</span> <span class=o>=</span> <span class=n>create_extractor</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>UserProfile</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>description</span><span class=o>=</span><span class=s2>&#34;&#34;&#34;
+</span></span></span><span class=line><span class=cl><span class=s2>    Extract stable user profile information from conversation.
+</span></span></span><span class=line><span class=cl><span class=s2>
+</span></span></span><span class=line><span class=cl><span class=s2>    Rules:
+</span></span></span><span class=line><span class=cl><span class=s2>    - Only extract explicit facts
+</span></span></span><span class=line><span class=cl><span class=s2>    - Do NOT guess or infer
+</span></span></span><span class=line><span class=cl><span class=s2>    - Ignore temporary tasks or moods
+</span></span></span><span class=line><span class=cl><span class=s2>    &#34;&#34;&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 在agent中调用</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>extract_profile</span><span class=p>(</span><span class=n>llm</span><span class=p>,</span> <span class=n>user_input</span><span class=p>:</span> <span class=nb>str</span><span class=p>,</span> <span class=n>existing_profile</span><span class=p>:</span> <span class=n>UserProfile</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>profile</span> <span class=o>=</span> <span class=n>profile_extractor</span><span class=o>.</span><span class=n>invoke</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>llm</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>user_input</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>        <span class=n>existing</span><span class=o>=</span><span class=n>existing_profile</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>profile</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=profile-vs-collection><a href=#profile-vs-collection class=header-anchor></a>Profile vs Collection</h3><h4 id=对比><a href=#%e5%af%b9%e6%af%94 class=header-anchor></a>对比</h4><ul><li>Profile = 稳定的“用户画像 / Agent 自我认知”</li><li>Collection = 可增长、可回放、可组合的“事实条目集合”</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-text data-lang=text><span class=line><span class=cl>Profile 模式（5.3）              Collection 模式（5.4）
+</span></span><span class=line><span class=cl>    ↓                               ↓
+</span></span><span class=line><span class=cl>┌────────────────┐            ┌────────────────┐
+</span></span><span class=line><span class=cl>│  用户资料      │            │  记忆 1        │
+</span></span><span class=line><span class=cl>│  ┌──────────┐  │            │  content: ...  │
+</span></span><span class=line><span class=cl>│  │ name     │  │            └────────────────┘
+</span></span><span class=line><span class=cl>│  │ location │  │            ┌────────────────┐
+</span></span><span class=line><span class=cl>│  │ interests│  │            │  记忆 2        │
+</span></span><span class=line><span class=cl>│  └──────────┘  │            │  content: ...  │
+</span></span><span class=line><span class=cl>│  单一对象      │            └────────────────┘
+</span></span><span class=line><span class=cl>└────────────────┘            ┌────────────────┐
+</span></span><span class=line><span class=cl>                              │  记忆 3        │
+</span></span><span class=line><span class=cl>更新 = 修改字段                │  content: ...  │
+</span></span><span class=line><span class=cl>                              └────────────────┘
+</span></span><span class=line><span class=cl>                              多个独立对象
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>                              更新 = 修改现有项
+</span></span><span class=line><span class=cl>                              插入 = 添加新项
+</span></span></code></pre></td></tr></table></div></div><h4 id=collection><a href=#collection class=header-anchor></a>Collection</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pydantic</span> <span class=kn>import</span> <span class=n>BaseModel</span><span class=p>,</span> <span class=n>Field</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>Memory</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>content</span><span class=p>:</span> <span class=nb>str</span>
+</span></span><span class=line><span class=cl>    <span class=n>category</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>str</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>      <span class=c1># 可选的类别</span>
+</span></span><span class=line><span class=cl>    <span class=n>importance</span><span class=p>:</span> <span class=n>Optional</span><span class=p>[</span><span class=nb>int</span><span class=p>]</span> <span class=o>=</span> <span class=kc>None</span>    <span class=c1># 可选的重要性评分</span>
+</span></span><span class=line><span class=cl>    <span class=n>timestamp</span><span class=p>:</span> <span class=n>datetime</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span><span class=n>default_factory</span><span class=o>=</span><span class=n>datetime</span><span class=o>.</span><span class=n>now</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MemoryCollection</span><span class=p>(</span><span class=n>BaseModel</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>memories</span><span class=p>:</span> <span class=nb>list</span><span class=p>[</span><span class=n>Memory</span><span class=p>]</span> <span class=o>=</span> <span class=n>Field</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>        <span class=n>description</span><span class=o>=</span><span class=s2>&#34;A list of memories about the user.&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>model</span> <span class=o>=</span> <span class=n>ChatOpenAI</span><span class=p>(</span><span class=n>model</span><span class=o>=</span><span class=s2>&#34;gpt-5-nano&#34;</span><span class=p>,</span> <span class=n>temperature</span><span class=o>=</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>model_with_structure</span> <span class=o>=</span> <span class=n>model</span><span class=o>.</span><span class=n>with_structured_output</span><span class=p>(</span><span class=n>MemoryCollection</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>memory_collection</span> <span class=o>=</span> <span class=n>model_with_structure</span><span class=o>.</span><span class=n>invoke</span><span class=p>([</span>
+</span></span><span class=line><span class=cl>    <span class=n>HumanMessage</span><span class=p>(</span><span class=s2>&#34;My name is Lance. I like to bike.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>])</span>    
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>mem</span> <span class=ow>in</span> <span class=n>memory_collection</span><span class=o>.</span><span class=n>memories</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=n>mem</span><span class=o>.</span><span class=n>model_dump</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 保存到store</span>
+</span></span><span class=line><span class=cl><span class=n>key</span> <span class=o>=</span> <span class=nb>str</span><span class=p>(</span><span class=n>uuid</span><span class=o>.</span><span class=n>uuid4</span><span class=p>())</span>  <span class=c1># 生成唯一 ID</span>
+</span></span><span class=line><span class=cl><span class=n>value</span> <span class=o>=</span> <span class=n>memory_collection</span><span class=o>.</span><span class=n>memories</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span><span class=o>.</span><span class=n>model_dump</span><span class=p>()</span>
+</span></span><span class=line><span class=cl><span class=n>in_memory_store</span><span class=o>.</span><span class=n>put</span><span class=p>(</span><span class=n>namespace_for_memory</span><span class=p>,</span> <span class=n>key</span><span class=p>,</span> <span class=n>value</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=高级图模式><a href=#%e9%ab%98%e7%ba%a7%e5%9b%be%e6%a8%a1%e5%bc%8f class=header-anchor></a>高级图模式</h2><h3 id=parallelization><a href=#parallelization class=header-anchor></a>Parallelization</h3><p>核心在于让多个节点在同一时间步内并行执行,充分利用计算资源。</p><p>在state上可以采取Reducer机制解决并行冲突，比如覆盖，拼接，去重，合并，<strong>自定义</strong></p><h3 id=sub--graph><a href=#sub--graph class=header-anchor></a>Sub Graph</h3><p><strong>子图就是在一个大 Graph 内部的“可重用小 Graph”</strong>，它本身也有节点、状态和执行逻辑，可以像普通 Node 一样被调用。</p><p>特点：可重用，可嵌套，可调试</p><p>适用场景：</p><ul><li>独立的业务逻辑</li><li>需要状态隔离</li><li>可复用的流程</li><li>并行执行</li></ul><h4 id=节点和子图><a href=#%e8%8a%82%e7%82%b9%e5%92%8c%e5%ad%90%e5%9b%be class=header-anchor></a>节点和子图</h4><blockquote><p>节点是执行单元，主要做“具体操作”；子图是逻辑单元，管理“执行流程和状态”，支持嵌套、复用和局部 Time Travel。</p></blockquote><div class=table-wrapper><table><thead><tr><th>特性</th><th>Node</th><th>子图 (Subgraph)</th></tr></thead><tbody><tr><td>定义粒度</td><td>单个执行单元</td><td>一段<strong>可重用</strong>、独立的 Graph</td></tr><tr><td>State 管理</td><td>只能访问父 Graph 的 State</td><td>有自己的内部 State，可隔离或映射到父 Graph</td></tr><tr><td>可组合性</td><td>父 Graph 执行它 → 完</td><td>可以嵌套调用，组合成更大 Graph</td></tr><tr><td>可复用性</td><td>复用性低，逻辑固定</td><td>可以在多个父 Graph 中复用子图</td></tr><tr><td>Time Travel / checkpoint</td><td>依赖父 Graph，粒度粗</td><td>内部可独立 <strong>checkpoint</strong>，局部 <strong>Time Travel</strong></td></tr><tr><td>调试可观测性</td><td>只能 stream 单节点变化</td><td>内部也可 stream / updates / events</td></tr><tr><td>嵌套深度</td><td>通常是“叶子节点”</td><td>可以包含多个节点，甚至子图<strong>嵌套</strong>子图</td></tr></tbody></table></div><h3 id=map-reduce><a href=#map-reduce class=header-anchor></a>Map Reduce</h3><h4 id=定义><a href=#%e5%ae%9a%e4%b9%89 class=header-anchor></a>定义</h4><p><strong>Map-Reduce 是一种将任务拆分成“多个小任务（Map）”，并最终汇总结果（Reduce）的方法</strong>。
+在 LangGraph 中，它被用来处理<strong>批量输入、并行子任务</strong>，最终合并到父 Graph 的状态。</p><h4 id=组成><a href=#%e7%bb%84%e6%88%90 class=header-anchor></a>组成</h4><p>1 有Map function接受输入列表，执行节点或者子图；Reduce Function收集map阶段所有结果聚合</p><p>2 每个map任务有独立的state</p><h4 id=适用场景><a href=#%e9%80%82%e7%94%a8%e5%9c%ba%e6%99%af class=header-anchor></a>适用场景</h4><ul><li>需要对多个数据项执行相同操作（如批量翻译、批量摘要）</li><li>任务可以自然分解为独立子任务（如分段处理文档）</li><li>需要从多个候选结果中筛选（如生成多个答案选最佳）</li><li>数据量大，需要并行加速（如分析多个数据源）</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langgraph.graph</span> <span class=kn>import</span> <span class=n>StateGraph</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>langgraph.checkpoint.memory</span> <span class=kn>import</span> <span class=n>MemorySaver</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>typing</span> <span class=kn>import</span> <span class=n>TypedDict</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 父 Graph 的 State</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>ParentState</span><span class=p>(</span><span class=n>TypedDict</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>inputs</span><span class=p>:</span> <span class=nb>list</span>
+</span></span><span class=line><span class=cl>    <span class=n>results</span><span class=p>:</span> <span class=nb>list</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 定义 Map 子图：对每个元素做操作</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>map_task</span><span class=p>(</span><span class=n>item</span><span class=p>:</span> <span class=nb>int</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>item</span> <span class=o>*</span> <span class=mi>2</span>  <span class=c1># 简单倍数处理</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 定义 Reduce 节点</span>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>reduce_task</span><span class=p>(</span><span class=n>state</span><span class=p>:</span> <span class=n>ParentState</span><span class=p>,</span> <span class=n>map_outputs</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=c1># 汇总所有 Map 输出</span>
+</span></span><span class=line><span class=cl>    <span class=n>state</span><span class=p>[</span><span class=s2>&#34;results&#34;</span><span class=p>]</span> <span class=o>=</span> <span class=n>map_outputs</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>state</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 构建父 Graph</span>
+</span></span><span class=line><span class=cl><span class=n>builder</span> <span class=o>=</span> <span class=n>StateGraph</span><span class=p>(</span><span class=n>ParentState</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## Map-Reduce 节点</span>
+</span></span><span class=line><span class=cl><span class=n>builder</span><span class=o>.</span><span class=n>add_map_reduce</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>name</span><span class=o>=</span><span class=s2>&#34;map_reduce_example&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>items_key</span><span class=o>=</span><span class=s2>&#34;inputs&#34;</span><span class=p>,</span>          <span class=c1># 输入列表</span>
+</span></span><span class=line><span class=cl>    <span class=n>map_func</span><span class=o>=</span><span class=n>map_task</span><span class=p>,</span>           <span class=c1># Map</span>
+</span></span><span class=line><span class=cl>    <span class=n>reduce_func</span><span class=o>=</span><span class=n>reduce_task</span>      <span class=c1># Reduce</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>builder</span><span class=o>.</span><span class=n>set_entry_point</span><span class=p>(</span><span class=s2>&#34;map_reduce_example&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>graph</span> <span class=o>=</span> <span class=n>builder</span><span class=o>.</span><span class=n>compile</span><span class=p>(</span><span class=n>checkpointer</span><span class=o>=</span><span class=n>MemorySaver</span><span class=p>())</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 执行</span>
+</span></span><span class=line><span class=cl><span class=n>res</span> <span class=o>=</span> <span class=n>graph</span><span class=o>.</span><span class=n>invoke</span><span class=p>({</span><span class=s2>&#34;inputs&#34;</span><span class=p>:</span> <span class=p>[</span><span class=mi>1</span><span class=p>,</span><span class=mi>2</span><span class=p>,</span><span class=mi>3</span><span class=p>,</span><span class=mi>4</span><span class=p>],</span> <span class=s2>&#34;results&#34;</span><span class=p>:</span> <span class=p>[]})</span>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=n>res</span><span class=p>)</span>  <span class=c1># {&#39;inputs&#39;: [1,2,3,4], &#39;results&#39;: [2,4,6,8]}</span>
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>graph</span><span class=o>.</span><span class=n>add_conditional_edges</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=s2>&#34;source_node&#34;</span><span class=p>,</span>           <span class=c1># 源节点</span>
+</span></span><span class=line><span class=cl>    <span class=n>condition_function</span><span class=p>,</span>      <span class=c1># 返回 Send 列表的函数</span>
+</span></span><span class=line><span class=cl>    <span class=p>[</span><span class=s2>&#34;target_node&#34;</span><span class=p>]</span>         <span class=c1># 目标节点（Send 指向的节点）</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=map-reduce-vs-并行><a href=#map-reduce-vs-%e5%b9%b6%e8%a1%8c class=header-anchor></a>Map-reduce VS 并行</h3><p>类比 send vs add edge</p><p>动态处理任务 vs 静态处理任务</p><h2 id=other><a href=#other class=header-anchor></a>Other</h2><h3 id=可视化图><a href=#%e5%8f%af%e8%a7%86%e5%8c%96%e5%9b%be class=header-anchor></a>可视化图</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>display</span><span class=p>(</span><span class=n>Image</span><span class=p>(</span><span class=n>graph</span><span class=o>.</span><span class=n>get_graph</span><span class=p>()</span><span class=o>.</span><span class=n>draw_mermaid_png</span><span class=p>()))</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=create_agent和手动构建stategraph><a href=#create_agent%e5%92%8c%e6%89%8b%e5%8a%a8%e6%9e%84%e5%bb%bastategraph class=header-anchor></a>create_agent和手动构建stategraph</h3><p><code>create_agent</code> 是“行为封装”，<code>StateGraph</code> 是“流程编排”
+两者不是同一层级的东西，而是 可以叠加使用 的。</p><div class=table-wrapper><table><thead><tr><th>维度</th><th><code>create_agent</code></th><th>手动 <code>StateGraph</code></th></tr></thead><tbody><tr><td>抽象层级</td><td>高（Agent 行为）</td><td>低（执行流程）</td></tr><tr><td>关注点</td><td>怎么思考 / 用工具</td><td>怎么走流程 / 管状态</td></tr><tr><td>控制权</td><td>交给 LLM</td><td>交给开发者</td></tr><tr><td>可预测性</td><td>低</td><td>高</td></tr><tr><td>适合角色</td><td>单点智能体</td><td>系统级编排</td></tr></tbody></table></div><h2 id=参考资料><a href=#%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99 class=header-anchor></a>参考资料</h2><p>1 <a class=link href=https://learngraph.online/LearnGraph%201.X/module-0-python-fundamentals/0.1%20Python%20basics.html target=_blank rel=noopener>learnGraph.online</a></p><p>2 <a class=link href=https://github.com/Sutdown/AI-agents target=_blank rel=noopener>AI-agents</a></p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/mcp%E8%AF%A6%E8%A7%A3%E6%8C%87%E5%8D%97/><div class=article-image><img src=/images/31b7298e.jpg loading=lazy data-key data-hash=/images/31b7298e.jpg></div><div class=article-details><h2 class=article-title>MCP详解指南</h2></div></a></article><article class=has-image><a href=/p/%E5%9F%BA%E4%BA%8Elangchain%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%E5%B8%B8%E8%A7%81%E7%94%A8%E6%B3%95/><div class=article-image><img src=/images/7d388d79.jpg loading=lazy data-key data-hash=/images/7d388d79.jpg></div><div class=article-details><h2 class=article-title>基于langchain源码剖析常见用法</h2></div></a></article><article class=has-image><a href=/p/code-agent/><div class=article-image><img src=/images/92dbc608.jpg loading=lazy data-key data-hash=/images/92dbc608.jpg></div><div class=article-details><h2 class=article-title>Code Agent</h2></div></a></article><article class=has-image><a href=/p/llm_cookbook-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/><div class=article-image><img src=/images/f874fc13.jpg loading=lazy data-key data-hash=/images/f874fc13.jpg></div><div class=article-details><h2 class=article-title>LLM_cookbook 面向开发者的大模型入门教程</h2></div></a></article><article class=has-image><a href=/p/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%8E%9F%E7%90%86%E4%BB%8Etransformer%E5%88%B0llm/><div class=article-image><img src=/images/9d46bfff.jpg loading=lazy data-key data-hash=/images/9d46bfff.jpg></div><div class=article-details><h2 class=article-title>大模型原理：从transformer到llm</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tool on Sutdown</title><link>https://sutdown.github.io/categories/tool/</link><description>Recent content in Tool on Sutdown</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 01 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://sutdown.github.io/categories/tool/index.xml" rel="self" type="application/rss+xml"/><item><title>cuda安装和入门使用</title><link>https://sutdown.github.io/p/cuda%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E4%BD%BF%E7%94%A8/</link><pubDate>Wed, 01 Oct 2025 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/cuda%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E4%BD%BF%E7%94%A8/</guid><description>&lt;img src="https://sutdown.github.io/images/92b6c170.jpg" alt="Featured image of post cuda安装和入门使用" /&gt;&lt;h2 id="cuda工具包"&gt;&lt;a href="#cuda%e5%b7%a5%e5%85%b7%e5%8c%85" class="header-anchor"&gt;&lt;/a&gt;CUDA工具包：
+&lt;/h2&gt;&lt;p&gt;选择cuda版本时，注意先在NVIDIA中看电脑显卡支持的CUDA版本。&lt;/p&gt;
+&lt;p&gt;完整的 CUDA 开发工具集，&lt;strong&gt;包含编译器、库、驱动等&lt;/strong&gt;，提供 CUDA 开发环境（编译 CUDA 代码、运行 CUDA 程序）。&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://blog.csdn.net/m0_45447650/article/details/123704930?ops_request_misc=%7B%22request%5Fid%22%3A%2273bcbdc64daa1636ccb9138633e142ca%22%2C%22scm%22%3A%2220140713.130102334..%22%7D&amp;amp;request_id=73bcbdc64daa1636ccb9138633e142ca&amp;amp;biz_id=0&amp;amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-123704930-null-null.142%5ev102%5econtrol&amp;amp;utm_term=cuda&amp;amp;spm=1018.2226.3001.4187" target="_blank" rel="noopener"
+&gt;CUDA安装教程（超详细）-CSDN博客&lt;/a&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;C:&lt;span class="se"&gt;\U&lt;/span&gt;sers&lt;span class="se"&gt;\n&lt;/span&gt;ame&amp;gt;nvcc -V
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;nvcc: NVIDIA &lt;span class="o"&gt;(&lt;/span&gt;R&lt;span class="o"&gt;)&lt;/span&gt; Cuda compiler driver
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Copyright &lt;span class="o"&gt;(&lt;/span&gt;c&lt;span class="o"&gt;)&lt;/span&gt; 2005-2023 NVIDIA Corporation
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Built on Wed_Feb__8_05:53:42_Coordinated_Universal_Time_2023
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Cuda compilation tools, release 12.1, V12.1.66
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Build cuda_12.1.r12.1/compiler.32415258_0
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;strong&gt;声明：系统 CUDA 版本可以高于 PyTorch 编译版本&lt;/strong&gt;，且在多数情况下推荐这么做（尤其是新显卡），只要保证系统 CUDA 版本 ≥ PyTorch 要求的最低版本即可。这不会影响项目的正常运行，还可能带来更好的硬件适配性。&lt;/p&gt;
+&lt;h2 id="pytorch相关包"&gt;&lt;a href="#pytorch%e7%9b%b8%e5%85%b3%e5%8c%85" class="header-anchor"&gt;&lt;/a&gt;Pytorch相关包：
+&lt;/h2&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;上述本质为预编译的 PyTorch 及其依赖库，&lt;strong&gt;仅包含运行时组件&lt;/strong&gt;。有预编译的 &lt;code&gt;torch._C&lt;/code&gt; 等二进制文件（依赖 CUDA 库），核心作用在于让 PyTorch 能调用 GPU 进行计算（依赖 CUDA 运行时）。&lt;/p&gt;</description></item><item><title>WSL2简单安装过程以及注意事项</title><link>https://sutdown.github.io/p/wsl2%E7%AE%80%E5%8D%95%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E4%BB%A5%E5%8F%8A%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</link><pubDate>Sun, 01 Jun 2025 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/wsl2%E7%AE%80%E5%8D%95%E5%AE%89%E8%A3%85%E8%BF%87%E7%A8%8B%E4%BB%A5%E5%8F%8A%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</guid><description>&lt;img src="https://sutdown.github.io/images/9b58737b.jpg" alt="Featured image of post WSL2简单安装过程以及注意事项" /&gt;&lt;h2 id="前置"&gt;&lt;a href="#%e5%89%8d%e7%bd%ae" class="header-anchor"&gt;&lt;/a&gt;前置：
+&lt;/h2&gt;&lt;p&gt;控制面板&amp;mdash;程序&amp;mdash;程序与功能 勾选 适用于Linux的Windows子系统 和 虚拟机平台（随后重启）&lt;/p&gt;
+&lt;p&gt;之后如果出现 &lt;code&gt;由于未安装所需的特性，无法启动操作。 错误代码: Wsl/InstallDistro/Service/RegisterDistro/CreateVm/HCS/HCS_E_SERVICE_NOT_AVAILABLE&lt;/code&gt;是由于虚拟机平台未成功打开，可 以管理员身份 打开 &lt;code&gt;PowerShell&lt;/code&gt; 执行以下命令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 启用 WSL 功能&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 启用虚拟机平台&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# 启用 Hyper-V（部分系统需要）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;dism.exe /online /enable-feature /featurename:Hyper-V /all /norestart
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="安装过程"&gt;&lt;a href="#%e5%ae%89%e8%a3%85%e8%bf%87%e7%a8%8b" class="header-anchor"&gt;&lt;/a&gt;安装过程：
+&lt;/h2&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl --install 该步骤需要输入 用户名 和两次相同密码
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl --list --verbose 可以查看可用的linux发行版
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl --install Ubuntuxxx 选择发行版安装
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl 启动wsl
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="验证安装"&gt;&lt;a href="#%e9%aa%8c%e8%af%81%e5%ae%89%e8%a3%85" class="header-anchor"&gt;&lt;/a&gt;验证安装：
+&lt;/h2&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl --status
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;wsl --list --verbose
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="注意事项"&gt;&lt;a href="#%e6%b3%a8%e6%84%8f%e4%ba%8b%e9%a1%b9" class="header-anchor"&gt;&lt;/a&gt;注意事项：
+&lt;/h2&gt;&lt;p&gt;在第二步查看可用发行版时，容易出现 &lt;code&gt;无法从“https://raw.githubusercontent.com/microsoft/WSL/master/distributions/DistributionInfo.json”提取列表分发。无法解析服务器的名称或地址 错误代码: Wsl/WININET_E_NAME_NOT_RESOLVED&lt;/code&gt;该问题，主要问题在于DNS污染，由于每次域名访问网站时会先查询本机的DNS，因此修改本机hosts文件即可，具体过程如下：&lt;/p&gt;
+&lt;p&gt;1 &lt;a class="link" href="https://www.ipaddress.com/website/raw.githubusercontent.com/" target="_blank" rel="noopener"
+&gt;raw.githubusercontent.com - GitHub · Build and ship software on a single, collaborative platform · GitHub&lt;/a&gt;该网站中可查询最新可用的&lt;code&gt;raw.githubusercontent.com&lt;/code&gt;de ipv4地址&lt;/p&gt;
+&lt;p&gt;2 以管理员权限打开本机hosts文件（一般位置在&lt;code&gt;C:\Windows\System32\drivers\etc&lt;/code&gt;），文件最后加上&lt;code&gt; IP地址 raw.githubusercontent.com&lt;/code&gt;即可，无需重启。&lt;/p&gt;
+&lt;h2 id="额外操作"&gt;&lt;a href="#%e9%a2%9d%e5%a4%96%e6%93%8d%e4%bd%9c" class="header-anchor"&gt;&lt;/a&gt;额外操作：
+&lt;/h2&gt;&lt;p&gt;1 &lt;code&gt;vscode&lt;/code&gt; 安装插件&lt;code&gt;wsl&lt;/code&gt;，能够更方便的进行项目开发。&lt;/p&gt;
+&lt;p&gt;2 wsl默认安装到C盘，该方案可以迁移至其它盘&lt;a class="link" href="https://www.cnblogs.com/Chary/p/18072267" target="_blank" rel="noopener"
+&gt;WSL默认安装目录 - CharyGao - 博客园&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id="推荐文章"&gt;&lt;a href="#%e6%8e%a8%e8%8d%90%e6%96%87%e7%ab%a0" class="header-anchor"&gt;&lt;/a&gt;推荐文章：
+&lt;/h2&gt;&lt;p&gt;1 [无法访问https://raw.githubusercontent.com/xx的解决方案（2025.2亲测有效）_raw.githubusercontent com-CSDN博客](&lt;a class="link" href="https://blog.csdn.net/qq_73162098/article/details/145330440?ops_request_misc=%7B%22request%5Fid%22%3A%2215197b98d7c0420d5d962a1e6fa77eed%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fall.%22%7D&amp;amp;request_id=15197b98d7c0420d5d962a1e6fa77eed&amp;amp;biz_id=0&amp;amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-2-145330440-null-null.142%5ev102%5econtrol&amp;amp;utm_term=" target="_blank" rel="noopener"
+&gt;https://blog.csdn.net/qq_73162098/article/details/145330440?ops_request_misc=%7B%22request%5Fid%22%3A%2215197b98d7c0420d5d962a1e6fa77eed%22%2C%22scm%22%3A%2220140713.130102334.pc%5Fall.%22%7D&amp;request_id=15197b98d7c0420d5d962a1e6fa77eed&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-2-145330440-null-null.142^v102^control&amp;utm_term=&lt;/a&gt;无法从“https%3A%2F%2Fraw.githubusercontent.com%2Fmicrosoft%2FWSL%2Fmaster%2Fdistributions%2FDistributionInfo.json”提取列表分发。无法解析服务器的名称或地址 错误代码%3A Wsl%2FWININET_E_NAME_NOT_RESOLVED&amp;amp;spm=1018.2226.3001.4187)&lt;/p&gt;
+&lt;p&gt;2 &lt;a class="link" href="https://www.cnblogs.com/Chary/p/18072267" target="_blank" rel="noopener"
+&gt;WSL默认安装目录 - CharyGao - 博客园&lt;/a&gt;&lt;/p&gt;</description></item><item><title>Docker</title><link>https://sutdown.github.io/p/docker/</link><pubDate>Sun, 29 Dec 2024 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/docker/</guid><description>&lt;img src="https://sutdown.github.io/images/8671a211.jpg" alt="Featured image of post Docker" /&gt;&lt;h2 id="docker"&gt;&lt;a href="#docker" class="header-anchor"&gt;&lt;/a&gt;Docker
+&lt;/h2&gt;&lt;p&gt;（宿主机上的一个进程）&lt;/p&gt;
+&lt;p&gt;docker使用&lt;strong&gt;namespace&lt;/strong&gt;去提供称为容器的工作空间&lt;/p&gt;
+&lt;p&gt;docker引擎在linux中会使用以下命名空间：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;pid 进程id，进程隔离 (process id)&lt;/li&gt;
+&lt;li&gt;net 管理网络接口 (networking)&lt;/li&gt;
+&lt;li&gt;ipc 管理进程间通信资源 (interprocess communication)&lt;/li&gt;
+&lt;li&gt;mnt 管理文件系统挂载(mount)&lt;/li&gt;
+&lt;li&gt;uts 隔离内核和版本证明 （unix timesharing system)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;cd /proc/&lt;/p&gt;
+&lt;p&gt;cd 1&lt;/p&gt;
+&lt;p&gt;ll ns/&lt;/p&gt;
+&lt;p&gt;容器的命名空间和宿主机的命名空间是隔离的&lt;/p&gt;
+&lt;p&gt;man手册&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;control groups&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;限制应用的资源集合&lt;/p&gt;
+&lt;p&gt;允许docker引擎共享容器的硬件资源&lt;/p&gt;
+&lt;p&gt;限制，控制，分离一个进程组的资源&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;union file sysytem&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;通过创建层使得它能轻量级和快&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;container format&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;docker引擎包含namespace,control groups和union file system将这三者进行一个封装，称为container format，这个默认的容器格式是libcontainer.&lt;/p&gt;
+&lt;p&gt;dockerfile&lt;/p&gt;
+&lt;p&gt;docker build -t my-node-app . 构建镜像&lt;/p&gt;
+&lt;p&gt;docker pull&lt;/p&gt;
+&lt;p&gt;docker run -p 3000:3000 my-node-app 允许基于镜像的容器&lt;/p&gt;</description></item></channel></rss>

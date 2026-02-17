@@ -1,0 +1,633 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'><meta name=description content="leveldb memtable(skiplist) 源码阅读，包括跳表的实现、写入操作、内存占用等。"><title>leveldb源码阅读2 memtable(skiplist)</title><link rel=canonical href=https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB2-memtableskiplist/><link rel=stylesheet href=/scss/style.min.e99cacdfab3d9a5b701f58688b2e6aadbc69a6f5d7ee5c79ce234e92e117e59e.css><meta property='og:title' content="leveldb源码阅读2 memtable(skiplist)"><meta property='og:description' content="leveldb memtable(skiplist) 源码阅读，包括跳表的实现、写入操作、内存占用等。"><meta property='og:url' content='https://sutdown.github.io/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB2-memtableskiplist/'><meta property='og:site_name' content='Sutdown'><meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2024-10-02T00:00:00+00:00'><meta property='article:modified_time' content='2024-10-02T00:00:00+00:00'><meta property='og:image' content='https://sutdown.github.io/images/14d3f3e6.jpg'><meta name=twitter:title content="leveldb源码阅读2 memtable(skiplist)"><meta name=twitter:description content="leveldb memtable(skiplist) 源码阅读，包括跳表的实现、写入操作、内存占用等。"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content='https://sutdown.github.io/images/14d3f3e6.jpg'><link rel="shortcut icon" href=/favicon.svg></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=https://avatars.githubusercontent.com/Sutdown width=300 height=300 class=site-logo loading=lazy alt=Avatar></a></figure><div class=site-meta><h1 class=site-name><a href=/>Sutdown</a></h1><h2 class=site-description>白日依山尽，黄河入海流。</h2></div></header><ol class=menu-social><li><a href=https://github.com/Sutdown target=_blank title=GitHub rel=me><svg class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://www.xiaohongshu.com/user/profile/67c68dd4000000000a03f378 target=_blank title=Xiaohongshu rel=me><svg t="1768107575281" class="icon" viewBox="0 0 1024 1024" p-id="8009" width="200" height="200"><path d="M996.152 56.513c-7.986-10.852-17.61-20.885-28.871-28.87C944.143 10.442 916.09.0 885.377.0H138.419c-30.715.0-59.176 10.443-82.314 27.642-10.852 7.986-20.885 17.61-28.87 28.87C10.444 79.448.001 107.703.001 138.623V885.58c0 30.715 10.442 59.176 27.641 81.905 7.986 10.852 17.61 20.885 28.871 28.87 23.138 17.2 51.19 27.643 81.904 27.643h746.959c30.714.0 59.175-10.443 81.904-27.642 10.852-7.986 20.885-17.61 28.87-28.87 17.2-23.139 27.643-51.19 27.643-81.905V138.622c0-30.92-10.852-59.175-27.642-82.11zm-629.633 410.54c16.38-36.241 34.81-71.87 52.213-107.497h59.995c-14.743 29.28-31.124 57.947-41.566 85.794 24.366-1.433 46.48-2.662 72.484-4.095-13.923 27.847-26.209 52.623-38.494 77.398-1.639 3.276-3.277 6.757-4.915 10.033-12.9 25.8-12.9 26.004 15.767 26.62 3.071.0 5.938.41 11.466 1.022-7.985 15.767-15.152 30.1-22.728 44.228-1.229 2.253-4.71 4.915-6.962 4.915-21.09.0-42.385.614-63.475-1.639-15.152-1.638-21.09-13.309-15.152-27.642 7.166-17.814 15.766-35.219 23.752-52.828 2.662-6.143 5.528-12.08 9.42-21.09-11.673.0-20.272.206-28.872.0-24.776-1.023-33.17-12.285-22.933-35.218zM76.171 658.299c-12.695-22.114-24.16-42.59-35.832-63.065.0-2.458 22.933-72.485 17.814-151.726h63.065s2.253 148.45-45.047 214.791zm147.222-7.985c.614 37.061-24.98 37.061-24.98 37.061H162.17l-38.085-50.37h39.928v-277.45h59.994c0 90.915-.204 199.846-.614 290.76zm87.227 4.71c-28.666-25.186-44.227-100.333-43.818-211.925h59.175c-4.504 58.765 14.538 137.187 14.538 137.187s-17.404 38.495-29.895 74.737zm129.817 26.004c-1.638 3.071-6.757 5.938-10.443 6.142-27.847.41-55.9.205-87.842.205 12.081-24.16 22.114-43.818 30.92-61.018h95.621c-10.647 20.885-19.042 38.085-28.256 54.67zm244.481 6.552h-215.2c10.442-20.68 29.075-57.537 29.075-57.537h61.428V441.87h-38.29v-58.766h138.622v57.947h-37.88v189.196h62.245v57.333zm284.615-43.409c0 43.409-42.385 42.18-42.385 42.18h-55.285l-23.138-49.756 59.995.205s.614-45.047.0-60.609c-.41-13.105-7.576-21.5-20.886-21.704-26.618-.615-53.442-.205-82.722-.205v132.274h-59.38V555.1h-59.995v-61.222h58.356v-51.804h-38.7v-57.947h39.315v-24.571h59.994l.41 24.57h47.708s44.024-1.023 44.228 41.77c.205 12.697.41 54.263.41 68.187 50.575-.205 72.075 10.033 72.075 45.25V644.17zm-25.39-200.46H912.2v-30.507c0-11.057 5.528-21.295 14.947-27.233 10.647-6.757 25.39-11.057 39.314 2.252.614.41 1.024 1.024 1.433 1.638 19.247 20.27 4.095 53.852-23.752 53.852z" fill="#cdcdcd" p-id="8010"/><path d="M805.521 493.878h39.723v-52.01h-40.132z" fill="#cdcdcd" p-id="8011"/></svg></a></li><li><a href=https://www.zhihu.com/people/mcgyfw target=_blank title=Zhihu rel=me><svg t="1768107284785" class="icon" viewBox="0 0 1024 1024" p-id="2041" width="200" height="200"><path d="M351.791182 562.469462h192.945407c0-45.367257-21.3871-71.939449-21.3871-71.939449L355.897709 490.530013c3.977591-82.182744 7.541767-187.659007 8.816806-226.835262h159.282726s-.86367-67.402109-18.578124-67.402109-279.979646.0-279.979646.0 16.850783-88.141456 39.318494-127.053698c0 0-83.60514-4.510734-112.121614 106.962104S81.344656 355.077018 76.80834 367.390461s24.62791 5.832845 36.941354.0c12.313443-5.832845 68.050885-25.924439 84.252893-103.69571h86.570681c1.165546 49.28652 4.596691 200.335724 3.515057 226.835262H109.86113c-25.275663 18.147312-33.701566 71.939449-33.701566 71.939449H279.868105c-8.497535 56.255235-23.417339 128.763642-44.275389 167.210279-33.05279 60.921511-50.55235 116.65793-169.802314 212.576513.0.0-19.442818 14.257725 40.829917 9.073656 60.273758-5.185093 117.305683-20.739347 156.840094-99.807147 20.553105-41.107233 41.805128-93.250824 58.386782-146.138358l-.055259.185218 167.855986 193.263655s22.035876-51.847855 5.832845-108.880803L371.045711 650.610918l-42.1244 31.157627-.045025.151449c11.69946-41.020252 20.11206-81.5749 22.726607-116.858498C351.665315 564.212152 351.72876 563.345412 351.791182 562.469462z" fill="#777" p-id="2042"/><path d="M584.918753 182.033893v668.840094h70.318532l28.807093 80.512708 121.875768-80.512708h153.600307L959.520453 182.033893h-374.6017zM887.150192 778.934538h-79.837326l-99.578949 65.782216-23.537066-65.782216h-24.855084L659.341766 256.673847h227.807403V778.934538z" fill="#777" p-id="2043"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg>
+<span>Home</span></a></li><li><a href=/archives/><svg class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+<span>Archives</span></a></li><li><a href=/about/><svg class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+<span>About</span></a></li><li><a href=/links/><svg class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg>
+<span>Links</span></a></li><li><a href=/travelling/><svg class="icon" viewBox="0 0 1024 1024"><path d="M691.73 162H332.27c-78.239.0-141.892 63.648-141.892 141.892V682.27c0 36.508 29.704 66.216 66.216 66.216h56.212l-46.078 56.757L220.65 862h582.698l-46.078-56.757-46.078-56.757h56.212c36.512.0 66.216-29.709 66.216-66.216V303.892C833.622 225.648 769.969 162 691.73 162zm0 56.757c46.942.0 85.135 38.189 85.135 85.135v113.513H540.378V218.757H691.73zm-359.46.0h151.351v198.649H247.135V303.892c0-46.946 38.194-85.135 85.135-85.135zm304.599 586.486H339.834l46.078-56.757h252.176l46.078 56.757h-47.297zM767.405 691.73h-510.81c-5.127.0-9.459-4.333-9.459-9.459V474.162h529.73V682.27c-.001 5.127-4.334 9.46-9.461 9.46z" fill="#787878"/><path d="M346.459 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/><path d="M677.541 587.676m-47.297.0a47.297 47.297.0 1094.594.0 47.297 47.297.0 10-94.594.0z" fill="#787878"/></svg>
+<span>Travelling</span></a></li><li class=menu-bottom-section><ol class=menu><li id=dark-mode-toggle><svg class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<svg class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg>
+<span>暗色模式</span></li></ol></li></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ul><li><a href=#前言>前言</a></li><li><a href=#正文>正文</a><ul><li><a href=#memtable>memtable</a></li><li><a href=#arenah>arena.h</a><ul><li><a href=#结构>结构</a></li><li><a href=#内存池特点>内存池特点</a></li></ul></li><li><a href=#randomh>random.h</a></li><li><a href=#skiplisth>skiplist.h</a><ul><li><a href=#skiplist的结构>skiplist的结构</a></li><li><a href=#指令重排>指令重排</a></li><li><a href=#skiplist的查找>skiplist的查找</a></li><li><a href=#接口insertcontains>接口：Insert，Contains</a></li></ul></li><li><a href=#memtableh>memtable.h</a><ul><li><a href=#mentable-class>mentable class</a></li><li><a href=#memtableiterator-class>MemTableIterator class</a></li></ul></li></ul></li></ul></nav></div></section></aside><main class="main full-width"><article class="has-image main-article"><header class=article-header><div class=article-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB2-memtableskiplist/><img src=/images/14d3f3e6.jpg loading=lazy alt="Featured image of post leveldb源码阅读2 memtable(skiplist)"></a></div><div class=article-details><header class=article-category><a href=/categories/leveldb/>LevelDB</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB2-memtableskiplist/>leveldb源码阅读2 memtable(skiplist)</a></h2><h3 class=article-subtitle>leveldb memtable(skiplist) 源码阅读，包括跳表的实现、写入操作、内存占用等。</h3></div><footer class=article-time><div><svg class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg>
+<time class=article-time--published datetime=2024-10-02T00:00:00Z>Oct 02, 2024</time></div><div><svg class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+<time class=article-time--reading>阅读时长: 16 分钟</time></div></footer></div></header><section class=article-content><h2 id=前言><a href=#%e5%89%8d%e8%a8%80 class=header-anchor></a>前言</h2><p>leveldb是一个<strong>写性能十分优秀</strong>的存储引擎，是典型的LSM树(Log Structured-Merge Tree)实现。LSM树的核心思想就是<strong>放弃部分读的性能，换取最大的写入能力</strong>。</p><p><em>leveldb如何读写的呢</em></p><p>LSM树写性能极高的原理，简单地来说就是尽量减少随机写的次数。对于每次写入操作，并不是直接将最新的数据驻留在磁盘中，而是将其拆分成（1）一次日志文件的顺序写（2）一次内存中的数据插入。leveldb正是实践了这种思想，将数据首先更新在<strong>内存</strong>中，当内存中的数据<strong>达到一定的阈值</strong>，将这部分数据真正刷新到<strong>磁盘</strong>文件中，因而获得了极高的写性能（顺序写60MB/s, 随机写45MB/s）。</p><p>由于LSM树读性能并不好，尤其是高并发读，因此采用了<strong>布隆过滤器</strong>减少不必要的查找，布隆过滤器下一篇讲。</p><p>leveldb的内存结构用的是跳表，该文讲讲写入时涉及到的memtablde。</p><h2 id=正文><a href=#%e6%ad%a3%e6%96%87 class=header-anchor></a>正文</h2><h3 id=memtable><a href=#memtable class=header-anchor></a>memtable</h3><p>leveldb的一次写入操作并不是直接将数据刷新到磁盘文件，而是首先写入到内存中作为代替，memtable就是一个在内存中进行数据组织与维护的结构。memtable中，所有的数据按<strong>用户定义的排序方法</strong>排序之后按序存储，等到其存储内容的容量达到阈值时（默认为4MB），便将其转换成一个<strong>不可修改</strong>的memtable，与此同时创建一个新的memtable，供用户继续进行读写操作。memtable底层使用了一种<a class=link href=https://zh.wikipedia.org/wiki/%e8%b7%b3%e8%b7%83%e5%88%97%e8%a1%a8 target=_blank rel=noopener>跳表skiplist</a>数据结构，这种数据结构效率可以比拟二叉查找树，绝大多数操作的时间复杂度为O(log n)。</p><p>在memtable.h中</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=cm>/*这个头文件定义了LevelDB中的数据格式，包括键值对的编码方式、序列化和反序列化操作。它通常涉及到如何存储和检索数据的结构信息，比如内部的版本控制和时间戳等。*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;db/dbformat.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cm>/*skiplist.h 定义了跳表（Skip List）数据结构。LevelDB 使用跳表作为 MemTable 的实现，以提供快速的插入、查找和删除操作。*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;db/skiplist.h&#34;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cm>/*这个头文件是 LevelDB 的主要接口定义，包括数据库的打开、关闭、读写等操作的函数原型。它提供了与用户交互的 API，用户通过这些接口来操作 LevelDB 数据库。*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;leveldb/db.h&#34;</span><span class=cp> 
+</span></span></span><span class=line><span class=cl><span class=cm>/*arena.h 提供了内存池（Memory Arena）管理的实现。它用于高效地管理内存分配和释放，减少内存碎片。LevelDB 中的 MemTable 和其他结构体会使用内存池来加速内存操作，尤其是在高频率的写入场景下。*/</span>
+</span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&#34;util/arena.h&#34;</span><span class=cp> 
+</span></span></span></code></pre></td></tr></table></div></div><p>由于skiplist中也会用到arena.h，因此先看看这个内存管理的文件。</p><h3 id=arenah><a href=#arenah class=header-anchor></a>arena.h</h3><p><a class=link href=https://www.myway5.com/index.php/2017/07/17/leveldb-varint-arena/ target=_blank rel=noopener>arena和variant的讲解</a></p><blockquote><p>Arena是leveldb中管理内存分配的类。所有的内存分配都通过Arena申请，可以根据申请的内存大小使用不同的内存分配策略，也可以避免过多的内存碎片问题，并且在内存释放时统一使用Arena来释放，方便管理。</p></blockquote><p>先看看arena的类。</p><h4 id=结构><a href=#%e7%bb%93%e6%9e%84 class=header-anchor></a>结构</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>Arena</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=n>Arena</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Arena</span><span class=p>(</span><span class=k>const</span> <span class=n>Arena</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>Arena</span><span class=o>&amp;</span> <span class=k>operator</span><span class=o>=</span><span class=p>(</span><span class=k>const</span> <span class=n>Arena</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=o>~</span><span class=n>Arena</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Return a pointer to a newly allocated memory block of &#34;bytes&#34; bytes.记得更新alloc_ptr的指针和alloc_bytes_remaining_的大小
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=nf>Allocate</span><span class=p>(</span><span class=n>size_t</span> <span class=n>bytes</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Allocate memory with the normal alignment guarantees provided by malloc. 字节对齐
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=nf>AllocateAligned</span><span class=p>(</span><span class=n>size_t</span> <span class=n>bytes</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Returns an estimate of the total memory usage of data allocated
+</span></span></span><span class=line><span class=cl>  <span class=c1>// by the arena. 剩余可用内存
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=nf>MemoryUsage</span><span class=p>()</span> <span class=k>const</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>memory_usage_</span><span class=p>.</span><span class=n>load</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>memory_order_relaxed</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=n>AllocateFallback</span><span class=p>(</span><span class=n>size_t</span> <span class=n>bytes</span><span class=p>);</span> <span class=c1>// 处理无法在内存块中分配的情况，用于分配新内存块
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=nf>AllocateNewBlock</span><span class=p>(</span><span class=n>size_t</span> <span class=n>block_bytes</span><span class=p>);</span> <span class=c1>// 分配新内存块
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Allocation state
+</span></span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=n>alloc_ptr_</span><span class=p>;</span> <span class=c1>// 当前可分配指针
+</span></span></span><span class=line><span class=cl>  <span class=n>size_t</span> <span class=n>alloc_bytes_remaining_</span><span class=p>;</span> <span class=c1>// 当前分配块的剩余字节
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Array of new[] allocated memory blocks 以及分配内存块的数组
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>vector</span><span class=o>&lt;</span><span class=kt>char</span><span class=o>*&gt;</span> <span class=n>blocks_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// Total memory usage of the arena.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 利用原子存储可用内存，因为顺序不影响，因此使用的是松散模型
+</span></span></span><span class=line><span class=cl>  <span class=c1>// TODO(costan): This member is accessed via atomics, but the others are
+</span></span></span><span class=line><span class=cl>  <span class=c1>//               accessed without any locking. Is this OK?
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>size_t</span><span class=o>&gt;</span> <span class=n>memory_usage_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p>一般函数的核心是在private中，public中是对private中的包装然后向外提供接口。</p><p><strong>private</strong>中包含两个处理分配内存的函数，一个内存指针，一份分配块可用内存书，一个已用内存，还有一个存储内存块的vector&lt;char*>数组，这个数组也跟skiplist中每个结点的char*指针是同源的。</p><p>需要<strong>初始化</strong>的肯定是内存指针alloc_ptr_，alloc_bytes_remaining_, memory_usage_这三部分，需要<strong>析构</strong>的也就是vector&lt;char*>中的内存，这都是在堆中分配的。</p><p>然后便是<strong>两个私有函数</strong>的实现了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=kt>char</span><span class=o>*</span> <span class=n>Arena</span><span class=o>::</span><span class=n>AllocateNewBlock</span><span class=p>(</span><span class=n>size_t</span> <span class=n>block_bytes</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=n>result</span> <span class=o>=</span> <span class=k>new</span> <span class=kt>char</span><span class=p>[</span><span class=n>block_bytes</span><span class=p>];</span> <span class=c1>// 分配char*
+</span></span></span><span class=line><span class=cl>  <span class=n>blocks_</span><span class=p>.</span><span class=n>push_back</span><span class=p>(</span><span class=n>result</span><span class=p>);</span> <span class=c1>// 传入数组
+</span></span></span><span class=line><span class=cl>  <span class=n>memory_usage_</span><span class=p>.</span><span class=n>fetch_add</span><span class=p>(</span><span class=n>block_bytes</span> <span class=o>+</span> <span class=k>sizeof</span><span class=p>(</span><span class=kt>char</span><span class=o>*</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>                          <span class=n>std</span><span class=o>::</span><span class=n>memory_order_relaxed</span><span class=p>);</span> <span class=c1>// 调整大小
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>char</span><span class=o>*</span> <span class=n>Arena</span><span class=o>::</span><span class=n>AllocateFallback</span><span class=p>(</span><span class=n>size_t</span> <span class=n>bytes</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>bytes</span> <span class=o>&gt;</span> <span class=n>kBlockSize</span> <span class=o>/</span> <span class=mi>4</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// Object is more than a quarter of our block size.  Allocate it separately
+</span></span></span><span class=line><span class=cl>    <span class=c1>// 内存比较大时，分配特定大小然后传入数组
+</span></span></span><span class=line><span class=cl>    <span class=c1>// to avoid wasting too much space in leftover bytes.
+</span></span></span><span class=line><span class=cl>    <span class=kt>char</span><span class=o>*</span> <span class=n>result</span> <span class=o>=</span> <span class=n>AllocateNewBlock</span><span class=p>(</span><span class=n>bytes</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// We waste the remaining space in the current block.
+</span></span></span><span class=line><span class=cl>  <span class=c1>// 内存比较小时，为了避免内存碎片，会直接分配一个新的块，然后更细剩余内存和指针位置
+</span></span></span><span class=line><span class=cl>  <span class=n>alloc_ptr_</span> <span class=o>=</span> <span class=n>AllocateNewBlock</span><span class=p>(</span><span class=n>kBlockSize</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>alloc_bytes_remaining_</span> <span class=o>=</span> <span class=n>kBlockSize</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=n>result</span> <span class=o>=</span> <span class=n>alloc_ptr_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>alloc_ptr_</span> <span class=o>+=</span> <span class=n>bytes</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>alloc_bytes_remaining_</span> <span class=o>-=</span> <span class=n>bytes</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>有个问题，这个arena是为链表中每个结点的char*还是一个结点每层的char*</p><p>破案，肯定不会是每个结点的char*，这个在node中是自己存储了的，那肯定是后者，这个也能从skiplist的newNode()函数中看出来。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=k>typename</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Node</span><span class=o>*</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>NewNode</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>int</span> <span class=n>height</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=k>const</span> <span class=n>node_memory</span> <span class=o>=</span> <span class=n>arena_</span><span class=o>-&gt;</span><span class=n>AllocateAligned</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>      <span class=k>sizeof</span><span class=p>(</span><span class=n>Node</span><span class=p>)</span> <span class=o>+</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>Node</span><span class=o>*&gt;</span><span class=p>)</span> <span class=o>*</span> <span class=p>(</span><span class=n>height</span> <span class=o>-</span> <span class=mi>1</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nf>new</span> <span class=p>(</span><span class=n>node_memory</span><span class=p>)</span> <span class=n>Node</span><span class=p>(</span><span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div></blockquote><p>这个其实也就是leveldb的内存池。特点如下</p><h4 id=内存池特点><a href=#%e5%86%85%e5%ad%98%e6%b1%a0%e7%89%b9%e7%82%b9 class=header-anchor></a>内存池特点</h4><ul><li>提供性能，可以批量分配内存，同时内存块连续分配，缓存利用率提高</li><li>降低内存碎片，内存大时直接分配，内存小时使用现有内存块</li><li>可以自动释放分配的内存块，实现RALL功能，便于实现内存管理中的构造和析构</li><li>原子操作可以保证线程安全。</li></ul><h3 id=randomh><a href=#randomh class=header-anchor></a>random.h</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=n>seed_</span><span class=p>;</span> <span class=c1>// 存储种子的值
+</span></span></span><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=nf>Next</span><span class=p>();</span> <span class=c1>// 生成并返回下一个随机数。使用线性同余法（LCG）算法更新种子值并计算随机数。
+</span></span></span><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=nf>Uniform</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>);</span> <span class=c1>//
+</span></span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=nf>OneIn</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>);</span> <span class=c1>// 以1/n的概率返回true，其余时间返回false
+</span></span></span><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=nf>Skewed</span><span class=p>(</span><span class=kt>int</span> <span class=n>max_log</span><span class=p>);</span> <span class=c1>// 返回一个带偏斜的随机数。首先从范围[0, max_log]中均匀选择一个基数，然后生成该基数位数的随机数，从而产生在[0, 2^max_log - 1]范围内的数字，具有对小数字的指数偏好。
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=nf>Next</span><span class=p>()</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>uint32_t</span> <span class=n>M</span> <span class=o>=</span> <span class=mi>2147483647L</span><span class=p>;</span>  <span class=c1>// 2^31-1
+</span></span></span><span class=line><span class=cl>    <span class=k>static</span> <span class=k>const</span> <span class=kt>uint64_t</span> <span class=n>A</span> <span class=o>=</span> <span class=mi>16807</span><span class=p>;</span>        <span class=c1>// 乘数
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>product</span> <span class=o>=</span> <span class=n>seed_</span> <span class=o>*</span> <span class=n>A</span><span class=p>;</span> <span class=c1>// 计算乘积
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// 计算新的种子值
+</span></span></span><span class=line><span class=cl>    <span class=n>seed_</span> <span class=o>=</span> <span class=k>static_cast</span><span class=o>&lt;</span><span class=kt>uint32_t</span><span class=o>&gt;</span><span class=p>((</span><span class=n>product</span> <span class=o>&gt;&gt;</span> <span class=mi>31</span><span class=p>)</span> <span class=o>+</span> <span class=p>(</span><span class=n>product</span> <span class=o>&amp;</span> <span class=n>M</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 确保新的种子在有效范围内
+</span></span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>seed_</span> <span class=o>&gt;</span> <span class=n>M</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>seed_</span> <span class=o>-=</span> <span class=n>M</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>seed_</span><span class=p>;</span> <span class=c1>// 返回生成的随机数
+</span></span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 不直接调用系统函数的部分原因在于，性能优化，减少外部依赖
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint32_t</span> <span class=nf>Skewed</span><span class=p>(</span><span class=kt>int</span> <span class=n>max_log</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>Uniform</span><span class=p>(</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=n>Uniform</span><span class=p>(</span><span class=n>max_log</span> <span class=o>+</span> <span class=mi>1</span><span class=p>));</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=c1>// 这个通过两次的uniform，达到了负载均衡中的偏斜的目的，生成的随机数更小。
+</span></span></span></code></pre></td></tr></table></div></div><h3 id=skiplisth><a href=#skiplisth class=header-anchor></a>skiplist.h</h3><p><a class=link href=https://www.qtmuniao.com/2020/07/03/leveldb-data-structures-skip-list/ target=_blank rel=noopener>skiplist</a></p><blockquote><p>LevelDB 中对 SkipList 的实现增加了多线程并发访问方面的优化的代码，提供以下保证：</p><ol><li>Write：在修改跳表时，需要在用户代码侧加锁。</li><li>Read：在访问跳表（查找、遍历）时，只需保证跳表不被其他线程销毁即可，不必额外加锁。</li></ol></blockquote><p>跳表的提出，为William Pugh在1990年提出，论文为<a class=link href=https://15721.courses.cs.cmu.edu/spring2018/papers/08-oltpindexes1/pugh-skiplists-cacm1990.pdf target=_blank rel=noopener>skiplist</a>.</p><blockquote><p>文章中说到：</p><p>跳表是一种可以取代平衡树的数据结构。跳表使用<strong>概率均衡</strong>而非严格均衡策略，从而<strong>相对于平衡树，大大简化和加速了元素的插入和删除</strong>。</p></blockquote><p><em>概率均衡是什么？这个问题后面解决，我们先看看跳表是什么</em></p><p>简单来说：<strong>跳表就是带有额外指针的链表</strong>。</p><h4 id=skiplist的结构><a href=#skiplist%e7%9a%84%e7%bb%93%e6%9e%84 class=header-anchor></a>skiplist的结构</h4><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// (省略版)
+</span></span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>SkipList</span><span class=p>{</span>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=nc>Node</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 接收比较器和内存池
+</span></span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=n>SkipList</span><span class=p>(</span><span class=n>Comparator</span> <span class=n>cmp</span><span class=p>,</span> <span class=n>Arena</span><span class=o>*</span> <span class=n>arena</span><span class=p>);</span>    
+</span></span><span class=line><span class=cl>  <span class=c1>// 禁止拷贝和构造
+</span></span></span><span class=line><span class=cl>  <span class=n>SkipList</span><span class=p>(</span><span class=k>const</span> <span class=n>SkipList</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>SkipList</span><span class=o>&amp;</span> <span class=k>operator</span><span class=o>=</span><span class=p>(</span><span class=k>const</span> <span class=n>SkipList</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Insert</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=nf>Contains</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=k>const</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>class</span> <span class=nc>Iterator</span><span class=p>{...};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 有些函数
+</span></span></span><span class=line><span class=cl>    <span class=n>Comparator</span> <span class=k>const</span> <span class=n>compare_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>Arena</span><span class=o>*</span> <span class=k>const</span> <span class=n>arena_</span><span class=p>;</span>  <span class=c1>// Arena used for allocations of nodes
+</span></span></span><span class=line><span class=cl>    <span class=n>Node</span><span class=o>*</span> <span class=k>const</span> <span class=n>head_</span><span class=p>;</span> <span class=c1>// 链表
+</span></span></span><span class=line><span class=cl>    <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=kt>int</span><span class=o>&gt;</span> <span class=n>max_height_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>Random</span> <span class=n>rnd_</span><span class=p>;</span> <span class=c1>// Read/written only by Insert().
+</span></span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=nc>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Node</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=nf>Node</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>k</span><span class=p>)</span> <span class=o>:</span> <span class=n>key</span><span class=p>(</span><span class=n>k</span><span class=p>)</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>  <span class=n>Key</span> <span class=k>const</span> <span class=n>key</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 适用于数据一致性
+</span></span></span><span class=line><span class=cl>  <span class=n>Node</span><span class=o>*</span> <span class=nf>Next</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>n</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>next_</span><span class=p>[</span><span class=n>n</span><span class=p>].</span><span class=n>load</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>memory_order_acquire</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>SetNext</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>Node</span><span class=o>*</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>n</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>    <span class=n>next_</span><span class=p>[</span><span class=n>n</span><span class=p>].</span><span class=n>store</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>memory_order_release</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 不保证其它操作顺序，保护共享资源，适用于性能优先
+</span></span></span><span class=line><span class=cl>  <span class=n>Node</span><span class=o>*</span> <span class=nf>NoBarrier_Next</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>n</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>next_</span><span class=p>[</span><span class=n>n</span><span class=p>].</span><span class=n>load</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>memory_order_relaxed</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>NoBarrier_SetNext</span><span class=p>(</span><span class=kt>int</span> <span class=n>n</span><span class=p>,</span> <span class=n>Node</span><span class=o>*</span> <span class=n>x</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>assert</span><span class=p>(</span><span class=n>n</span> <span class=o>&gt;=</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>next_</span><span class=p>[</span><span class=n>n</span><span class=p>].</span><span class=n>store</span><span class=p>(</span><span class=n>x</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>memory_order_relaxed</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>     <span class=c1>// 原子存储下一个结点的指针
+</span></span></span><span class=line><span class=cl>  <span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>Node</span><span class=o>*&gt;</span> <span class=n>next_</span><span class=p>[</span><span class=mi>1</span><span class=p>];</span> 
+</span></span><span class=line><span class=cl><span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=/img/images/2.jpg loading=lazy alt=2></p><p>初始结点数目为n，加入的额外指针数也大致为n</p><p>感觉看了结构还是不太明了，再看看构造：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=k>typename</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Node</span><span class=o>*</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>NewNode</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=kt>int</span> <span class=n>height</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>char</span><span class=o>*</span> <span class=k>const</span> <span class=n>node_memory</span> <span class=o>=</span> <span class=n>arena_</span><span class=o>-&gt;</span><span class=n>AllocateAligned</span><span class=p>(</span><span class=k>sizeof</span><span class=p>(</span><span class=n>Node</span><span class=p>)</span> <span class=o>+</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>std</span><span class=o>::</span><span class=n>atomic</span><span class=o>&lt;</span><span class=n>Node</span><span class=o>*&gt;</span><span class=p>)</span> <span class=o>*</span> <span class=p>(</span><span class=n>height</span> <span class=o>-</span> <span class=mi>1</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=nf>new</span> <span class=p>(</span><span class=n>node_memory</span><span class=p>)</span> <span class=n>Node</span><span class=p>(</span><span class=n>key</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>**对比平衡树：**跳表在保证同样查询效率的情况下，使用了一种很巧妙的转化，大大简化了插入的实现。我们不能保证所有的插入请求在 key 空间具有很好地随机性，或者说均衡性；但我们可以控制每个节点其他维度的均衡性。比如，跳表中每个节点的指针数分布的概率均衡。</p><p><strong>插入节点</strong>的时间复杂度为查找的时间复杂度 <code>O(log2n)</code>，与修改指针的复杂度 <code>O(1)</code> 之和，即也为 <code>O(log2n)</code>，<strong>删除过程和插入类似</strong>，也可以转化为查找和修改指针值，因此复杂度也为 <code>O(log2n)</code>。</p><p>跳表对外提供的接口</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=c1>// 插入 key 到跳表中.
+</span></span></span><span class=line><span class=cl><span class=c1>// 要求: 不能够插入和跳表中的节点判等的 key.
+</span></span></span><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Insert</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 当且仅当跳表中有和给定 key 判等的节点才返回真.
+</span></span></span><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Contains</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=k>const</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 返回给定跳表的迭代器
+</span></span></span><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kr>inline</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Iterator</span><span class=o>::</span><span class=n>Iterator</span><span class=p>(</span><span class=k>const</span> <span class=n>SkipList</span><span class=o>*</span> <span class=n>list</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>inline函数的作用</p><p>内部链接：所有匿名命名空间里的东西（哪怕声明成extern） + 标记成static的变量、变量模板、函数、函数模板 + 不是模板不是inline没有volatile或extern修饰的常量（const和constexpr）。（符号不能被编译单元看见，所以可能出现多个不同的实体）</p><p>外部链接：非static函数、枚举和类天生有外部链接，除非在匿名命名空间里 + 排除内部链接规定的之后剩下的所有模板</p><ol><li>省去参数传递，和函数调用，直接内联到原位置。</li><li>c++17新加了通常情况下模板变量和inline变量是外部链接的规定，因此加上inline解决了模板变量常量链接性上的问题</li></ol></blockquote><h4 id=指令重排><a href=#%e6%8c%87%e4%bb%a4%e9%87%8d%e6%8e%92 class=header-anchor></a>指令重排</h4><p>详细可见这篇文章<a class=link href=https://github.com/Sutdown/Note/blob/main/cpp_knowledge/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3c%2B%2B11---6.3%E5%8E%9F%E5%AD%90%E7%B1%BB%E5%9E%8B%E5%92%8C%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C.md target=_blank rel=noopener>深入理解C++11：原子类型和原子操作</a></p><ol><li><code>std::memory_order_relaxed</code>：不对重排做限制，只保证相关共享内存访问的原子性。（只关心操作的原子性不关心操作顺序）</li><li><code>std::memory_order_acquire</code>: 用在 load 时，保证同线程中该 load 之后的对相关内存读写语句不会被重排到 load 之前，并且其他线程中对同样内存用了 store release 都对其可见。（适用于加载，读取资源能看到之前的写入）</li><li><code>std::memory_order_release</code>：用在 store 时，保证同线程中该 store 之后的对相关内存的读写语句不会被重排到 store 之前，并且该线程的所有修改对用了 load acquire 的其他线程都可见。（适用于确保写入之后，对共享数据的修改能够被其它线程看到）</li></ol><h4 id=skiplist的查找><a href=#skiplist%e7%9a%84%e6%9f%a5%e6%89%be class=header-anchor></a>skiplist的查找</h4><p><img src=/img/images/3.jpg loading=lazy alt=3></p><p>见该图，有几个关键函数：代码还挺容易看懂的，这里直接给出来就不解释了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=k>typename</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Node</span><span class=o>*</span><span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> 
+</span></span><span class=line><span class=cl><span class=n>COmparator</span><span class=o>&gt;::</span><span class=n>FindGreaterOrEqual</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=n>Node</span><span class=o>**</span> <span class=n>prev</span><span class=p>)</span> <span class=k>const</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>Node</span><span class=o>*</span> <span class=n>x</span> <span class=o>=</span> <span class=n>head_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>level</span> <span class=o>=</span> <span class=n>GetMaxHeight</span><span class=p>()</span> <span class=o>-</span> <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>while</span><span class=p>(</span><span class=nb>true</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>        <span class=n>Node</span><span class=o>*</span> <span class=n>next</span> <span class=o>=</span> <span class=n>x</span><span class=o>-&gt;</span><span class=n>Next</span><span class=p>(</span><span class=n>level</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span><span class=p>(</span><span class=n>KeyIsafterNode</span><span class=p>(</span><span class=n>key</span><span class=p>,</span><span class=n>next</span><span class=p>)){</span>
+</span></span><span class=line><span class=cl>            <span class=n>x</span> <span class=o>=</span> <span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span><span class=k>else</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=c1>// 存储了每一行中在key前面的那个那个函数
+</span></span></span><span class=line><span class=cl>            <span class=k>if</span><span class=p>(</span><span class=n>prev</span> <span class=o>!=</span> <span class=k>nullptr</span><span class=p>)</span><span class=n>prev</span><span class=p>[</span><span class=n>level</span><span class=p>]</span> <span class=o>=</span> <span class=n>x</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span><span class=p>(</span><span class=n>level</span> <span class=o>==</span> <span class=mi>0</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>                <span class=k>return</span> <span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span><span class=k>else</span><span class=p>{</span>
+</span></span><span class=line><span class=cl>                <span class=n>level</span><span class=o>--</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>KeyIsAfterNode</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>,</span> <span class=n>Node</span><span class=o>*</span> <span class=n>n</span><span class=p>)</span> <span class=k>const</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// null n is considered infinite
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=p>(</span><span class=n>n</span> <span class=o>!=</span> <span class=k>nullptr</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=n>compare_</span><span class=p>(</span><span class=n>n</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>,</span> <span class=n>key</span><span class=p>)</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 后面还有个SkipList&lt;Key, Comparator&gt;::FindLessThan(const Key&amp; key) const，感觉和上面那个思路差不多，都是遍历。
+</span></span></span><span class=line><span class=cl><span class=c1>// findlast同理，找x-&gt;Next为空的即可
+</span></span></span></code></pre></td></tr></table></div></div><p>都写到这了，感觉iterator还是可以拿出来说说，虽然代码不难，不过贵在为skiplist量身定制。</p><p>哦不对，还是没必要，它里面就是一些Next(), Prev()之类的函数，然后封装一下链表的指针和一些其它函数找到的值，都不怎么长，没什么说的必要。</p><p>在SkipList类里面设置一个iterator真妙啊，这样无论是找前面结点后面结点，开头结点街尾节点等都可以直接调用到函数，结构清晰，思路满分。</p><blockquote><p>作者唠嗑：</p><p>有种好奇妙的感觉，差不多一个月前还对很多东西一无所知，当时随便写了些跳表，json之类的小项目，不过那会都是第一次接触，看的我可迷茫，今天在leveldb里面又看到跳表了，两次的实现方式不怎么一样。我记得之前的优点在于使用了c++17之类的新特性，leveldb好像是14年开源的，所以当时写的时候就还没怎么用上。这个skiplist的优点在于自己定制了iterator和arena内存管理，一个月前看的那个都还是现成的。</p><p>而且iterator和arena这两个和当初学mytinystl源码里的iterator和allocator有点点相似，不过明显这个简单多了，stl里面都有了一千行左右貌似，这才一两百行）。</p><p>知识之间产生联系的感觉实在是太好了。</p></blockquote><h4 id=接口insertcontains><a href=#%e6%8e%a5%e5%8f%a3insertcontains class=header-anchor></a>接口：Insert，Contains</h4><p>铺垫完了，最后两个接口实现这个skiplist就结束了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>template</span><span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Insert</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=n>Node</span><span class=o>*</span> <span class=n>prev</span><span class=p>[</span><span class=n>KMaxHeight</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>	<span class=c1>//找大于或等于 key 的第一个节点，
+</span></span></span><span class=line><span class=cl>	<span class=c1>//并将每行的前一个节点存储在 prev 数组中。
+</span></span></span><span class=line><span class=cl>	<span class=n>Node</span><span class=o>*</span> <span class=n>x</span> <span class=o>=</span> <span class=n>FindGreaterOrEqual</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>prev</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=n>assert</span><span class=p>(</span><span class=n>x</span> <span class=o>==</span> <span class=k>nullptr</span> <span class=o>||</span> <span class=o>!</span><span class=n>Equal</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>x</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1>// 随机化高度，使结点在不同层中的
+</span></span></span><span class=line><span class=cl>	<span class=kt>int</span> <span class=n>height</span> <span class=o>=</span> <span class=n>RandomHeight</span><span class=p>();</span>
+</span></span><span class=line><span class=cl>	<span class=k>if</span> <span class=p>(</span><span class=n>height</span> <span class=o>&gt;</span> <span class=n>GetMaxHeight</span><span class=p>())</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>		<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=n>GetMaxHeight</span><span class=p>();</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>height</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>			<span class=n>prev</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=n>head</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>		<span class=p>}</span>
+</span></span><span class=line><span class=cl>		<span class=n>max_height_</span><span class=p>.</span><span class=n>store</span><span class=p>(</span><span class=n>height</span><span class=p>,</span> <span class=n>std</span><span class=o>::</span><span class=n>memory_order_relaxed</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	<span class=n>x</span> <span class=o>=</span> <span class=n>NewNode</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>height</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=n>height</span><span class=p>;</span> <span class=n>i</span><span class=o>++</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 优先性能，更新了指针
+</span></span></span><span class=line><span class=cl>        <span class=c1>// 优先性能
+</span></span></span><span class=line><span class=cl>		<span class=n>x</span><span class=o>-&gt;</span><span class=n>NoBarrier_SetNext</span><span class=p>(</span><span class=n>i</span><span class=p>,</span> <span class=n>prev</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>-&gt;</span><span class=n>NoBarrier_Next</span><span class=p>(</span><span class=n>i</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>        <span class=c1>// 优先数据一致性
+</span></span></span><span class=line><span class=cl>		<span class=n>prev</span><span class=p>[</span><span class=n>i</span><span class=p>]</span><span class=o>-&gt;</span><span class=n>SetNext</span><span class=p>(</span><span class=n>i</span><span class=p>,</span> <span class=n>x</span><span class=p>);</span> 
+</span></span><span class=line><span class=cl>	<span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>似懂非懂，再看看图。</p><p><img src=/img/images/4.jpg loading=lazy alt=4></p><p>contain简单。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>template</span> <span class=o>&lt;</span><span class=k>typename</span> <span class=n>Key</span><span class=p>,</span> <span class=k>class</span> <span class=nc>Comparator</span><span class=o>&gt;</span>
+</span></span><span class=line><span class=cl><span class=kt>bool</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=n>Key</span><span class=p>,</span> <span class=n>Comparator</span><span class=o>&gt;::</span><span class=n>Contains</span><span class=p>(</span><span class=k>const</span> <span class=n>Key</span><span class=o>&amp;</span> <span class=n>key</span><span class=p>)</span> <span class=k>const</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=n>Node</span><span class=o>*</span> <span class=n>x</span> <span class=o>=</span> <span class=n>FindGreaterOrEqual</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=k>nullptr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>x</span> <span class=o>!=</span> <span class=k>nullptr</span> <span class=o>&amp;&amp;</span> <span class=n>Equal</span><span class=p>(</span><span class=n>key</span><span class=p>,</span> <span class=n>x</span><span class=o>-&gt;</span><span class=n>key</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>true</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=nb>false</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><blockquote><p>cy，可以再了解一下它的定制random随机机制，放前面和arena一块吧。</p></blockquote><p>核心数据结构了解清楚了，那就直接上memtable了</p><h3 id=memtableh><a href=#memtableh class=header-anchor></a>memtable.h</h3><p>看着两百多行还挺少的，结果看懵了，画张图我再理解一下：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>class</span> <span class=nc>InternalKeyComparator</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MemTableIterator</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>先看到两个没定义的类，然后找了一下，在<strong>dbformat.h</strong>文件中。</p><blockquote><p>dbformat.h：主要用于定义和管理数据在存储中的组织方式。其中包含：</p><ol><li>键值对格式，key，value</li><li>内部表示，LevelDB使用一种特殊的内部格式来管理和存储数据，例如，如何将键值对组织在 SSTable 文件中，以便于高效查找和迭代。</li><li><code>dbformat</code>可能涉及到版本信息，确保不同版本的LevelDB能够正确处理和解释数据。这对于数据迁移和升级是至关重要的。</li><li>在写入和读取过程中，<code>dbformat</code>也帮助管理数据的切分和合并，确保性能和存储效率。</li></ol><p><code>dbformat</code>在LevelDB中扮演着核心角色，它确保数据在存储和检索过程中的一致性和高效性，支持数据库的基本功能与性能优化。涉及的函数层面较多，因此仅在其它函数提到时去看，不单独讲解。</p></blockquote><p><img src=/img/images/5.jpg loading=lazy alt=5></p><h4 id=mentable-class><a href=#mentable-class class=header-anchor></a>mentable class</h4><p>看上图，大概知道memtable中有三个类，从mentable class讲起。</p><p>同样，我们先看这个类的private part:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl> <span class=k>friend</span> <span class=k>class</span> <span class=nc>MemTableIterator</span><span class=p>;</span> 
+</span></span><span class=line><span class=cl> <span class=k>friend</span> <span class=k>class</span> <span class=nc>MemTableBackwardIterator</span><span class=p>;</span>  <span class=c1>// 迭代器可以直接访问
+</span></span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>这里可以想到一个问题，在skiplist中，是将迭代器作为skiplist内嵌的一个类，但是这里是采用友元的方式，那么如何评价这两种方式？
+</span></span></span><span class=line><span class=cl><span class=cm>1.友元可以保持清晰的接口，将迭代器和mentable的实现分配，是代码易于维护，同时如果其它类的迭代器也可以用这个，那么可以直接被复用。但是友元会增加类之间的依赖性，设计更加复杂。
+</span></span></span><span class=line><span class=cl><span class=cm>2.内嵌迭代器比较适用于迭代器和类的关系极其紧密，并且迭代器功能简单的时候。
+</span></span></span><span class=line><span class=cl><span class=cm>所以整体来说，迭代器逻辑复杂并且和类相对独立，建议友元；迭代器逻辑简单并且和类紧密相关，建议内嵌。
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>struct</span> <span class=nc>KeyComparator</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>const</span> <span class=n>InternalKeyComparator</span> <span class=n>comparator</span><span class=p>;</span> <span class=c1>// 定义键的比较规则
+</span></span></span><span class=line><span class=cl>   <span class=k>explicit</span> <span class=nf>KeyComparator</span><span class=p>(</span><span class=k>const</span> <span class=n>InternalKeyComparator</span><span class=o>&amp;</span> <span class=n>c</span><span class=p>)</span> <span class=o>:</span> <span class=n>comparator</span><span class=p>(</span><span class=n>c</span><span class=p>)</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>   <span class=kt>int</span> <span class=nf>operator</span><span class=p>()(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>a</span><span class=p>,</span> <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>b</span><span class=p>)</span> <span class=k>const</span><span class=p>;</span> <span class=c1>// 重载实现具体逻辑
+</span></span></span><span class=line><span class=cl> <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=k>typedef</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span><span class=p>,</span> <span class=n>KeyComparator</span><span class=o>&gt;</span> <span class=n>Table</span><span class=p>;</span> <span class=c1>// 存储类型，比较类型
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=o>~</span><span class=n>MemTable</span><span class=p>();</span>  <span class=c1>// 设计的目的是为了确保 MemTable 的对象只能通过调用 Unref() 方法来删除，防止外部代码直接删除对象，确保内存管理的安全性。
+</span></span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl> <span class=n>KeyComparator</span> <span class=n>comparator_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> <span class=kt>int</span> <span class=n>refs_</span><span class=p>;</span> <span class=c1>// 引用计数，管理memtable的生命周期
+</span></span></span><span class=line><span class=cl><span class=cm>/*
+</span></span></span><span class=line><span class=cl><span class=cm>类似于shared_ptr，当有多个组件需要同时访问memtable实例时
+</span></span></span><span class=line><span class=cl><span class=cm>使用引用计数可以安全的共享memtable，同时也避免了重复删除，实现了可靠的内存管理
+</span></span></span><span class=line><span class=cl><span class=cm>*/</span>
+</span></span><span class=line><span class=cl> <span class=n>Arena</span> <span class=n>arena_</span><span class=p>;</span> <span class=c1>// 内存池
+</span></span></span><span class=line><span class=cl> <span class=n>Table</span> <span class=n>table_</span><span class=p>;</span> <span class=c1>// 键值对
+</span></span></span></code></pre></td></tr></table></div></div><p>public的接口暂时放放，然后回去看看两个友元的类的实现。</p><h4 id=memtableiterator-class><a href=#memtableiterator-class class=header-anchor></a>MemTableIterator class</h4><p>这个迭代器类大多数是对SkipList中的Iterator进行重写override，实际上变化不大，这个类的主要作用是修改构造函数中的数据，以更好的适配memtable。</p><p>它的私有成员包括一个实际的迭代器和一个临时存储编码后的键。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>private</span><span class=o>:</span>
+</span></span><span class=line><span class=cl> <span class=n>MemTable</span><span class=o>::</span><span class=n>Table</span><span class=o>::</span><span class=n>Iterator</span> <span class=n>iter_</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> <span class=n>std</span><span class=o>::</span><span class=n>string</span> <span class=n>tmp_</span><span class=p>;</span>  <span class=c1>// For passing to EncodeKey
+</span></span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl> <span class=k>public</span><span class=o>:</span>
+</span></span><span class=line><span class=cl>  <span class=k>explicit</span> <span class=n>MemTableIterator</span><span class=p>(</span><span class=n>MemTable</span><span class=o>::</span><span class=n>Table</span><span class=o>*</span> <span class=n>table</span><span class=p>)</span> <span class=o>:</span> <span class=n>iter_</span><span class=p>(</span><span class=n>table</span><span class=p>)</span> <span class=p>{}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>MemTableIterator</span><span class=p>(</span><span class=k>const</span> <span class=n>MemTableIterator</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>MemTableIterator</span><span class=o>&amp;</span> <span class=k>operator</span><span class=o>=</span><span class=p>(</span><span class=k>const</span> <span class=n>MemTableIterator</span><span class=o>&amp;</span><span class=p>)</span> <span class=o>=</span> <span class=k>delete</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=o>~</span><span class=n>MemTableIterator</span><span class=p>()</span> <span class=k>override</span> <span class=o>=</span> <span class=k>default</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=kt>bool</span> <span class=nf>Valid</span><span class=p>()</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span> <span class=k>return</span> <span class=n>iter_</span><span class=p>.</span><span class=n>Valid</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=cm>/*这里，为什么传入Slice的类型，然后需要对K进行编码*/</span>
+</span></span><span class=line><span class=cl><span class=c1>// 将Seek方法的输入键K进行编码，然后用编码后的键更新迭代器位置
+</span></span></span><span class=line><span class=cl><span class=c1>// 传入切片的原因应该是本身我们封装的key的值太多，避免不必要的拷贝，提供需要的值，
+</span></span></span><span class=line><span class=cl><span class=c1>// 后面的encode就是调整为合适的格式
+</span></span></span><span class=line><span class=cl><span class=c1>// 不过具体还是要看看代码
+</span></span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Seek</span><span class=p>(</span><span class=k>const</span> <span class=n>Slice</span><span class=o>&amp;</span> <span class=n>k</span><span class=p>)</span> <span class=k>override</span> <span class=p>{</span> <span class=n>iter_</span><span class=p>.</span><span class=n>Seek</span><span class=p>(</span><span class=n>EncodeKey</span><span class=p>(</span><span class=o>&amp;</span><span class=n>tmp_</span><span class=p>,</span> <span class=n>k</span><span class=p>));</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>SeekToFirst</span><span class=p>()</span> <span class=k>override</span> <span class=p>{</span> <span class=n>iter_</span><span class=p>.</span><span class=n>SeekToFirst</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>SeekToLast</span><span class=p>()</span> <span class=k>override</span> <span class=p>{</span> <span class=n>iter_</span><span class=p>.</span><span class=n>SeekToLast</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Next</span><span class=p>()</span> <span class=k>override</span> <span class=p>{</span> <span class=n>iter_</span><span class=p>.</span><span class=n>Next</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=kt>void</span> <span class=nf>Prev</span><span class=p>()</span> <span class=k>override</span> <span class=p>{</span> <span class=n>iter_</span><span class=p>.</span><span class=n>Prev</span><span class=p>();</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=n>Slice</span> <span class=nf>key</span><span class=p>()</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span> <span class=k>return</span> <span class=n>GetLengthPrefixedSlice</span><span class=p>(</span><span class=n>iter_</span><span class=p>.</span><span class=n>key</span><span class=p>());</span> <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=n>Slice</span> <span class=nf>value</span><span class=p>()</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>Slice</span> <span class=n>key_slice</span> <span class=o>=</span> <span class=n>GetLengthPrefixedSlice</span><span class=p>(</span><span class=n>iter_</span><span class=p>.</span><span class=n>key</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>GetLengthPrefixedSlice</span><span class=p>(</span><span class=n>key_slice</span><span class=p>.</span><span class=n>data</span><span class=p>()</span> <span class=o>+</span> <span class=n>key_slice</span><span class=p>.</span><span class=n>size</span><span class=p>());</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>Status</span> <span class=nf>status</span><span class=p>()</span> <span class=k>const</span> <span class=k>override</span> <span class=p>{</span> <span class=k>return</span> <span class=n>Status</span><span class=o>::</span><span class=n>OK</span><span class=p>();</span> <span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>首先如果想要明白slice，先要搞清楚slice的对象，</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl> <span class=k>typedef</span> <span class=n>SkipList</span><span class=o>&lt;</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span><span class=p>,</span> <span class=n>KeyComparator</span><span class=o>&gt;</span> <span class=n>Table</span><span class=p>;</span>  <span class=c1>// 存储类型，比较类型
+</span></span></span><span class=line><span class=cl> <span class=n>Table</span> <span class=n>table_</span><span class=p>;</span>  <span class=c1>// 键值对
+</span></span></span></code></pre></td></tr></table></div></div><p>然后<a class=link href=https://blog.mrcroxx.com/posts/code-reading/leveldb-made-simple/2-slice/ target=_blank rel=noopener>slice介绍</a></p><p>slice其实就是对整体的一个切片，memtable的逻辑如下：</p><p>其中包含对add和get函数的解释。</p><p><img src=/img/images/6.jpg loading=lazy alt=6></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-cpp data-lang=cpp><span class=line><span class=cl><span class=k>static</span> <span class=n>Slice</span> <span class=nf>GetLengthPrefixedSlice</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>data</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=c1>// 取出前缀中的长度，然后移动指针
+</span></span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>len</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>const</span> <span class=kt>char</span><span class=o>*</span> <span class=n>p</span> <span class=o>=</span> <span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>p</span> <span class=o>=</span> <span class=n>GetVarint32Ptr</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>p</span> <span class=o>+</span> <span class=mi>5</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>len</span><span class=p>);</span>  <span class=c1>// +5: we assume &#34;p&#34; is not corrupted
+</span></span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>Slice</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>切片的存在能够更好的对memtable结构中的某个部分进行处理。</p><blockquote><p>InternalKey是SkipList中Node的默认排序依据。LevelDB中SkipList的默认排序是通过<code>leveldb::InternalKeyComparator</code>实现的，其声明与实现在<code>db/dbformat.h</code>与<code>db/dbformat.cc</code>中。</p><p><code>InternalKeyComparator</code>的<code>Compare</code>方法按照如下优先级，依次对<code>InternalKey</code>进行排序：</p><ol><li>按照UserKey<strong>升序</strong>排序；</li><li>按照SequenceNumber<strong>降序</strong>排序；</li><li>按照ValueType<strong>降序</strong>排序（由于SequenceNumber已经足以对Key排序，因此这条规则永远不会用到）。</li></ol><p>通过<code>InternalKeyComparator</code>，SkipList可以保证对于同一key（UserKey），新的操作永远在旧的操作的前面。因此，只要找到key（UserKey）在SkipList中第一次出现的位置，即可保证得到的是该key最新的版本。</p></blockquote><p>这段是在另外一个地方看到的，不过在memtable.cc和memtable.h的两个代码中，唯一对comparator的使用就是判断两个切片相等），至于sequenceNumber更是从没出现过，cy，看看后面会不会解决这个问题。</p><p>这篇到这就结束了，本来还看的云里雾里，最后从add函数和构造函数彻底理清了memtable的结构，然后看其他的就得心应手了。</p><p>其中涉及的知识点有，切片slice，跳表skiplist，内存池，随机数，迭代器等，还有一些细节，比如删除时并不是直接删除而是改变标记一段时间后删除（这个操作不是在本文提到的代码中实现），为什么需要引入slice，迭代器和类之间的关系，随机数的倾斜的实现和意义等等等等。</p><p>其实就，重在见识了一下优美的代码。一个复杂的类由各个不同的部分组成，结合一些适当的语法，逻辑清晰，结构严密，多学习，希望我以后也能写的出来）。</p></section><footer class=article-footer><section class=article-copyright><svg class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg>
+<span>Licensed under CC BY-NC-SA 4.0</span></section></footer></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article class=has-image><a href=/p/%E8%AF%A6%E8%B0%88leveldb%E4%B8%AD%E7%9A%84sstable/><div class=article-image><img src=/images/dfcceaca.jpg loading=lazy data-key data-hash=/images/dfcceaca.jpg></div><div class=article-details><h2 class=article-title>详谈leveldb中的sstable</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB8-orient%E9%9D%A2%E8%AF%95/><div class=article-image><img src=/images/fee4263f.jpg loading=lazy data-key data-hash=/images/fee4263f.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读8 Orient面试</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB7-question/><div class=article-image><img src=/images/9b9f137c.jpg loading=lazy data-key data-hash=/images/9b9f137c.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读7 Question</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB6-wirteread-and-log/><div class=article-image><img src=/images/9ca73f67.jpg loading=lazy data-key data-hash=/images/9ca73f67.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读6 wirte&amp;read and log</h2></div></a></article><article class=has-image><a href=/p/leveldb%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB5-compaction-and-version/><div class=article-image><img src=/images/62c77b63.jpg loading=lazy data-key data-hash=/images/62c77b63.jpg></div><div class=article-details><h2 class=article-title>leveldb源码阅读5 Compaction And Version</h2></div></a></article></div></div></aside><script src=//unpkg.com/@waline/client@v2/dist/waline.js></script><link href=//unpkg.com/@waline/client@v2/dist/waline.css rel=stylesheet><div id=waline class=waline-container></div><style>.waline-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding);--waline-font-size:var(--article-font-size)}.waline-container .wl-count{color:var(--card-text-color-main)}</style><script>Waline.init({avatar:"wavatar",dark:'html[data-scheme="dark"]',el:"#waline",emoji:["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],lang:"zh-cn",locale:{admin:"Admin",placeholder:null},placeholder:"说点什么吧...",requiredMeta:["name","email","url"],serverURL:"https://repo-r1tkfif8s-jias-projects-9d2d822c.vercel.app/",visitor:"true"})</script><footer class=site-footer><section class=copyright>&copy;
+2023 -
+2026 Sutdown</section><section class=powerby>使用 <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a> 构建<br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.33.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.c922af694cc257bf1ecc41c0dd7b0430f9114ec280ccf67cd2c6ad55f5316c4e.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
