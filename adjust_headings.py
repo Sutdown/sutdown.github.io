@@ -8,7 +8,7 @@ import os
 import re
 
 # 定义要处理的目录
-CONTENT_DIR = r'e:\project\SutdownBlog\content\post\leveldb'
+CONTENT_DIR = r'e:\project\SutdownBlog\content\post\log'
 
 # 目标标题层级
 TARGET_LEVEL = 2  # ##
