@@ -45,3 +45,73 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* 侧边栏分类组件 - 显示文章数量 */
+.category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-item {
+  background: var(--card-background);
+  box-shadow: var(--shadow-l1);
+  border-radius: 4px;
+  padding: 8px 16px;
+  color: var(--card-text-color-main);
+  font-size: 1.4rem;
+  transition: box-shadow 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    box-shadow: var(--shadow-l2);
+  }
+}
+
+.category-count {
+  background: var(--accent-color);
+  color: var(--accent-color-text, #fff);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* 页脚统计样式 */
+.totalcount {
+  color: var(--card-text-color-secondary);
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+}
+
+.running-time {
+  color: var(--card-text-color-secondary);
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+}
+
+/* 归档页分类卡片缩小 */
+.template-archives {
+  .article-list--tile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    
+    article {
+      width: auto;
+      min-width: 80px;
+      height: auto;
+      padding: 8px 16px;
+      
+      .article-category {
+        font-size: 1.4rem;
+      }
+      
+      .article-meta {
+        display: none;
+      }
+    }
+  }
+}

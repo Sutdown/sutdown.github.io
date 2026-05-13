@@ -6,10 +6,10 @@
     </div>
     <h2 class="widget-title section-title">{{ T "widget.categoriesCloud.title" }}</h2>
 
-    <div class="tagCloud-tags">
+    <div class="category-list">
         {{ range first $limit $context.Site.Taxonomies.categories.ByCount }}
-            <a href="{{ .Page.RelPermalink }}" class="font_size_{{ .Count }}">
-                {{ .Page.Title }}
+            <a href="{{ .Page.RelPermalink }}" class="category-item">
+                {{ .Page.Title }}<span class="category-count">{{ .Count }}</span>
             </a>
         {{ end }}
     </div>
