@@ -162,6 +162,34 @@
 }
 
 /* ========================================
+   分类页文章列表 - 与首页相同的卡片样式
+   ======================================== */
+.template-list {
+  .article-list--compact {
+    display: grid;
+    gap: 0.02rem;
+    padding: 0;
+    
+    article {
+      background: var(--card-background);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.1rem 1.5rem;
+      margin: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 
+          0 12px 24px rgba(0, 0, 0, 0.08),
+          0 4px 8px rgba(0, 0, 0, 0.04);
+        border-color: var(--accent-color);
+      }
+    }
+  }
+}
+
+/* ========================================
    侧边栏统计卡片
    ======================================== */
 .widget.stats {
@@ -414,7 +442,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.15rem;
   margin-top: 2rem;
   padding: 1rem 0;
 }
@@ -423,7 +451,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 16px;
+  width: auto;
   height: 16px;
   padding: 0 4px;
   background: transparent;
