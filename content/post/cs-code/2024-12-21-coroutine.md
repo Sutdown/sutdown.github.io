@@ -7,7 +7,6 @@ toc: true
 categories:
     - coroutine
     - C++
-image: /images/5f69c1c1.jpg
 ---
 
 

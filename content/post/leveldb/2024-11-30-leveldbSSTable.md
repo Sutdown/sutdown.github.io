@@ -6,7 +6,6 @@ date:         2024-11-30
 toc: true
 categories:
     - levelDB
-image: /images/dfcceaca.jpg
 ---
 
 

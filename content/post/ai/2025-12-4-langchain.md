@@ -6,7 +6,6 @@ toc: true
 categories:
     - AI
     - LangChain
-image: /images/7d388d79.jpg
 ---
 
 ## 声明

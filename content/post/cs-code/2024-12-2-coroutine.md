@@ -6,7 +6,6 @@ date:         2024-12-02
 categories:
     - coroutine
     - C++
-image: /images/c85bd259.jpg
 ---
 
 ## 协程详解

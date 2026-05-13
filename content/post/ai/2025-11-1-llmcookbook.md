@@ -7,7 +7,6 @@ categories:
     - AI
     - LangChain
     - LLM
-image: /images/f874fc13.jpg
 ---
 
 ## 0 前言

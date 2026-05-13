@@ -7,7 +7,6 @@ categories:
     - AI
     - LangChain
     - LLM
-image: /images/d92d9921.jpg
 ---
 
 

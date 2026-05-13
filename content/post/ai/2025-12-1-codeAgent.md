@@ -7,7 +7,6 @@ categories:
     - AI
     - LangChain
     - Agent
-image: /images/92dbc608.jpg
 ---
 
 项目链接：https://github.com/Sutdown/sutdown.github.io.git

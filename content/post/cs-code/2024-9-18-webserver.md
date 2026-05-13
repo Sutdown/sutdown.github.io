@@ -6,7 +6,6 @@ date:         2024-09-18
 categories:
     - 计算机网络
     - C++
-image: /images/0a9f6d1d.jpg
 ---
 
 ## 从面试角度重新看c++11的Webserver

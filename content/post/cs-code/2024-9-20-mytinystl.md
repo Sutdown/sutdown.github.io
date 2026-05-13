@@ -6,7 +6,6 @@ date:         2024-09-20
 categories:
     - stl
     - C++
-image: /images/0f8f6a9d.jpg
 ---
 
 ## MyTinySTL

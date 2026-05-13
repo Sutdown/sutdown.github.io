@@ -6,7 +6,6 @@ toc: true
 categories:
     - AI
     - LangGraph
-image: /images/523b936a.jpg
 ---
 
 ## python基础
