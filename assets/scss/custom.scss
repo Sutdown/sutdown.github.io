@@ -71,12 +71,8 @@
 }
 
 .category-count {
-  background: var(--accent-color);
-  color: var(--accent-color-text, #fff);
-  border-radius: 10px;
-  padding: 2px 8px;
+  color: #999;
   font-size: 1.2rem;
-  font-weight: 600;
 }
 
 /* 页脚统计样式 */
@@ -92,18 +88,20 @@
   margin-bottom: 5px;
 }
 
-/* 归档页分类卡片缩小 */
+/* 归档页分类 - 胶囊标签 + 紧凑文章列表 */
 .template-archives {
+  /* 分类标签胶囊样式 */
   .article-list--tile {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 6px;
     
     article {
       width: auto;
-      min-width: 80px;
+      min-width: auto;
       height: auto;
-      padding: 8px 16px;
+      padding: 4px 12px;
+      border-radius: 20px;
       
       .article-category {
         font-size: 1.4rem;
@@ -112,6 +110,371 @@
       .article-meta {
         display: none;
       }
+    }
+  }
+
+  /* 时间轴样式 */
+  .archives-group {
+    position: relative;
+    padding-left: 3rem;
+    margin-bottom: 2rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent-color) 0%, var(--border-color) 100%);
+      border-radius: 1px;
+    }
+  }
+
+  .archives-date {
+    position: relative;
+    margin-bottom: 0.5rem;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -3rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 12px;
+      background: var(--accent-color);
+      border: 3px solid var(--card-background);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--accent-color);
+    }
+  }
+
+  /* 文章列表紧凑样式 */
+  .article-list--compact {
+    padding: 0;
+    
+    article {
+      padding: 0.3rem 1rem;
+      margin: 0;
+    }
+  }
+}
+
+/* ========================================
+   侧边栏统计卡片
+   ======================================== */
+.widget.stats {
+  .stats-list {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .stats-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    background: var(--card-background);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+  }
+
+  .stats-value {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    line-height: 1.2;
+  }
+
+  .stats-label {
+    font-size: 1.2rem;
+    color: var(--card-text-color-secondary);
+    margin-top: 0.25rem;
+  }
+}
+
+/* ========================================
+   侧边栏 - 简约装饰
+   ======================================== */
+.right-sidebar {
+  .widget {
+    .widget-icon {
+      display: none;
+    }
+
+    .widget-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--card-text-color-main);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        width: 40px;
+        height: 2px;
+        background: var(--accent-color);
+        border-radius: 1px;
+      }
+    }
+  }
+
+  .widget-archive--list {
+    .archives-year {
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      a {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(var(--accent-color-rgb), 0.1);
+
+          .year {
+            color: var(--accent-color);
+          }
+        }
+
+        .year {
+          font-weight: 500;
+          color: var(--card-text-color-main);
+          transition: color 0.2s ease;
+        }
+
+        .count {
+          font-size: 0.9rem;
+          color: #999;
+        }
+      }
+    }
+  }
+
+  .category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .category-item {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 1.3rem;
+    color: var(--card-text-color-secondary);
+    transition: all 0.25s ease;
+
+    &:hover {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-count {
+      margin-left: 6px;
+      font-size: 1.1rem;
+      color: #999;
+    }
+  }
+}
+
+/* ========================================
+   首页文章列表 - 悬浮卡片 + 微妙动效
+   ======================================== */
+.article-list {
+  display: grid;
+  gap: 1.5rem;
+  padding: 0;
+
+  article {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 
+        0 12px 24px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.04);
+      border-color: var(--accent-color);
+    }
+
+    .article-image {
+      display: none;
+    }
+
+    .article-details {
+      padding: 0;
+    }
+
+    .article-category {
+      display: none;
+    }
+
+    .article-title-wrapper {
+      margin-bottom: 0.8rem;
+    }
+
+    .article-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0;
+      
+      a {
+        color: var(--card-text-color-main);
+        transition: color 0.3s ease;
+        
+        &:hover {
+          color: var(--accent-color);
+        }
+      }
+    }
+
+    .article-subtitle {
+      font-size: 1.4rem;
+      color: var(--card-text-color-secondary);
+      font-weight: 400;
+      margin-top: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .article-time {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 1.3rem;
+      color: var(--body-text-color);
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+
+      svg {
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
+        opacity: 0.6;
+      }
+    }
+
+    .article-translations {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .article-list {
+    gap: 1rem;
+
+    article {
+      padding: 1.5rem;
+
+      .article-title {
+        font-size: 1.6rem;
+      }
+
+      .article-subtitle {
+        font-size: 1.3rem;
+      }
+    }
+  }
+}
+
+/* ========================================
+   分页器样式 - 简约低调
+   ======================================== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 1.2rem;
+  color: var(--body-text-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.5;
+  }
+
+  &:hover:not(.disabled):not(.current) {
+    color: var(--accent-color);
+    background: transparent;
+    
+    svg {
+      opacity: 0.8;
+    }
+  }
+
+  &.current {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color-text, #fff);
+    font-weight: 500;
+    cursor: default;
+  }
+
+  &.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &.pagination-link {
+    background: transparent;
+    border: none;
+    cursor: default;
+    color: var(--body-text-color);
+
+    &:hover {
+      transform: none;
+      background: transparent;
+      border-color: transparent;
+      color: var(--body-text-color);
     }
   }
 }

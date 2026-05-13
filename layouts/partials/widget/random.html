@@ -1,0 +1,39 @@
+{{- $context := .Context -}}
+<section class="widget random-posts">
+    <h2 class="widget-title section-title">随机文章</h2>
+    <div class="random-post-list">
+        <p class="loading-text">加载中...</p>
+    </div>
+</section>
+
+<script>
+(function() {
+    var posts = [
+        {{ range first 20 (where $context.Site.RegularPages "Section" "in" $context.Site.Params.mainSections) }}
+        {
+            title: {{ .Title | jsonify }},
+            url: {{ .RelPermalink | jsonify }}
+        },
+        {{ end }}
+    ];
+    
+    var container = document.querySelector('.random-post-list');
+    if (container && posts.length > 0) {
+        // Fisher-Yates shuffle
+        for (var i = posts.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = posts[i];
+            posts[i] = posts[j];
+            posts[j] = temp;
+        }
+        
+        var html = '<ul style="list-style:none;padding:0;margin:0;">';
+        var count = Math.min(5, posts.length);
+        for (var k = 0; k < count; k++) {
+            html += '<li style="padding:0.4rem 0;"><a href="' + posts[k].url + '" style="color:var(--card-text-color-secondary);transition:color 0.2s;">' + posts[k].title + '</a></li>';
+        }
+        html += '</ul>';
+        container.innerHTML = html;
+    }
+})();
+</script>

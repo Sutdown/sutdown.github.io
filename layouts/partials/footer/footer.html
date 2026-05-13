@@ -8,32 +8,6 @@
         {{ now.Format "2006" }} {{ default .Site.Title .Site.Copyright }}
     </section>
     
-    {{- $scratch := newScratch -}}
-    {{ range (where .Site.Pages "Kind" "page" )}}
-        {{- $scratch.Add "total" .WordCount -}}
-    {{ end }}
-    <section class="totalcount">
-        发表了 {{ len (where .Site.RegularPages "Section" "post") }} 篇文章 · 
-        总计 {{ div ($scratch.Get "total") 1000.0 | lang.FormatNumber 2 }}k 字
-    </section>
-
-    {{ with .Site.Params.footer.since }}
-    <section class="running-time">
-        本博客已稳定运行 <span id="runningdays"></span>
-    </section>
-    
-    <script>
-        let s1 = '{{ . }}-01-01';
-        s1 = new Date(s1.replace(/-/g, "/"));
-        let s2 = new Date();
-        let timeDifference = s2.getTime() - s1.getTime();
-        let days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-        let hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        let minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-        document.getElementById('runningdays').innerHTML = days + " 天 " + hours + " 小时 " + minutes + " 分钟";
-    </script>
-    {{ end }}
-    
     <section class="powerby">
         {{ with .Site.Params.footer.customText }}
             {{ . | safeHTML }} <br/>

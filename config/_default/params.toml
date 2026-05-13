@@ -34,6 +34,9 @@ default = "Licensed under CC BY-NC-SA 4.0"
 type = "search"
 
 [[widgets.homepage]]
+type = "random"
+
+[[widgets.homepage]]
 type = "archives"
 
 [widgets.homepage.params]
@@ -44,6 +47,9 @@ type = "categories"
 
 [widgets.homepage.params]
 limit = 10
+
+[[widgets.homepage]]
+type = "stats"
 
 [[widgets.page]]
 type = "toc"

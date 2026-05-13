@@ -1,0 +1,36 @@
+{{- $context := .Context -}}
+<section class="widget stats">
+    <h2 class="widget-title section-title">博客统计</h2>
+
+    {{- $scratch := newScratch -}}
+    {{- $totalWords := 0 -}}
+    {{ range (where $context.Site.Pages "Kind" "page") }}
+        {{- $totalWords = add $totalWords .WordCount -}}
+    {{ end }}
+
+    <div class="stats-list">
+        <div class="stats-item">
+            <span class="stats-value">{{ len (where $context.Site.RegularPages "Section" "post") }}</span>
+            <span class="stats-label">文章</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-value">{{ div $totalWords 1000.0 | lang.FormatNumber 1 }}k</span>
+            <span class="stats-label">字数</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-value" id="stats-days"></span>
+            <span class="stats-label">运行</span>
+        </div>
+    </div>
+</section>
+
+<script>
+(function() {
+    var since = {{ with $context.Site.Params.footer.since }}{{ . }}{{ else }}2023{{ end }};
+    var start = new Date(since + '-01-01');
+    var now = new Date();
+    var diff = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    var el = document.getElementById('stats-days');
+    if (el) el.textContent = diff + 'd';
+})();
+</script>
