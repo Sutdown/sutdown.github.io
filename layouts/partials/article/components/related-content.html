@@ -3,11 +3,13 @@
 <aside class="related-content--wrapper">
     <h2 class="section-title">{{ T "article.relatedContent" }}</h2>
     <div class="related-content">
-        <div class="flex article-list--tile">
+        <ul class="related-list">
             {{ range . }}
-                {{ partial "article-list/tile" (dict "context" . "size" "250x150" "Type" "articleList") }}
+            <li class="related-item">
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+            </li>
             {{ end }}
-        </div>
+        </ul>
     </div>
 </aside>
 {{ end }}
