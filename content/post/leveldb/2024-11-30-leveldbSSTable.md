@@ -1,4 +1,4 @@
----
+﻿---
 title:        "详谈leveldb中的sstable"
 author:       "Sutdown"
 description:  "详谈leveldb中的sstable 源码阅读，包括sstable的格式、实现原理、性能优化等。"
@@ -27,7 +27,7 @@ categories:
 
 ## **正文开始：`sstable`的格式**
 
-![32](/img/images/32.jpg))
+![32](/static/img/images/32.jpg))
 
 其中分为五个部分，
 
@@ -83,7 +83,7 @@ categories:
   +-----------------------------+
   ```
 
-![33](/img/images/33.jpg)
+![33](/static/img/images/33.jpg)
 
 ### `MetaBlock`
 
@@ -117,7 +117,7 @@ categories:
 +-------------------------------+
 ```
 
-![34](/img/images/34.jpg)
+![34](/static/img/images/34.jpg)
 
 
 
@@ -153,7 +153,7 @@ categories:
 +-------------------+
 ```
 
-![35](/img/images/35.jpg)
+![35](/static/img/images/35.jpg)
 
 
 
