@@ -1,34 +1,36 @@
 {{ define "body-class" }}template-archives{{ end }}
 {{ define "main" }}
-    <header>
-        {{- $taxonomy := $.Site.GetPage "taxonomyTerm" "categories" -}}
-        {{- $terms := $taxonomy.Pages -}}
-        {{ if $terms }}
-        <h2 class="section-title">{{ T "widget.categoriesCloud.title" }}</h2>
-        <div class="subsection-list">
-            <div class="article-list--tile">
-                {{ range $terms }}
-                    {{ partial "article-list/tile" (dict "context" . "size" "250x150" "Type" "taxonomy") }}
-                {{ end }}
-            </div>
-        </div>
+    {{- $taxonomy := $.Site.GetPage "taxonomyTerm" "categories" -}}
+    {{- $terms := $taxonomy.Pages -}}
+    {{ if $terms }}
+    <h2 class="section-title">分类</h2>
+    <div class="category-timeline">
+        {{ range $terms }}
+            {{ partial "article-list/category-timeline-item" . }}
         {{ end }}
-    </header>
+    </div>
+    {{ end }}
 
     {{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
     {{ $filtered := where $pages "Params.hidden" "!=" true }}
 
-    {{ range $filtered.GroupByDate "2006" }}
-    {{ $id := lower (replace .Key " " "-") }}
-    <div class="archives-group" id="{{ $id }}">
-        <h2 class="archives-date section-title"><a href="{{ $.RelPermalink }}#{{ $id }}">{{ .Key }}</a></h2>
-        <div class="article-list--compact">
-            {{ range .Pages }}
-                {{ partial "article-list/compact" . }}
-            {{ end }}
+    <div class="timeline-container">
+        {{ range $filtered.GroupByDate "2006" }}
+        {{ $id := lower (replace .Key " " "-") }}
+        <div class="timeline-year" id="{{ $id }}">
+            <h2 class="timeline-year-title">{{ .Key }}</h2>
+            <div class="timeline-year-content">
+                {{ range .Pages.GroupByDate "01-02" }}
+                <div class="timeline-month">
+                    {{ range .Pages }}
+                        {{ partial "article-list/timeline-item" . }}
+                    {{ end }}
+                </div>
+                {{ end }}
+            </div>
         </div>
+        {{ end }}
     </div>
-    {{ end }}
 
     {{ partialCached "footer/footer" . }}
 {{ end }}

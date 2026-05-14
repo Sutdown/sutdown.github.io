@@ -1,0 +1,18 @@
+<article class="timeline-item">
+    <div class="timeline-marker"></div>
+    <div class="timeline-content">
+        <div class="timeline-date">
+            <time datetime='{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}'>
+                {{ .Date.Format "01-02" }}
+            </time>
+        </div>
+        <div class="timeline-article">
+            <a href="{{ .RelPermalink }}">
+                <h3 class="timeline-title">{{ .Title }}</h3>
+            </a>
+            {{ if .Description }}
+            <p class="timeline-desc">{{ .Description }}</p>
+            {{ end }}
+        </div>
+    </div>
+</article>

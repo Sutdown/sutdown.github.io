@@ -167,16 +167,73 @@
 .template-list {
   .article-list--compact {
     display: grid;
-    gap: 0.02rem;
+    gap: 0.8rem;
     padding: 0;
     
     article {
       background: var(--card-background);
       border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 0.1rem 1.5rem;
-      margin: 0;
+      border-radius: 12px;
+      padding: 0.8rem 1.5rem;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      
+      .article-image {
+        display: none;
+      }
+      
+      .article-details {
+        padding: 0;
+      }
+      
+      .article-category {
+        display: none;
+      }
+      
+      .article-title-wrapper {
+        margin-bottom: 0.2rem;
+      }
+      
+      .article-title {
+        font-size: 1.6rem;
+        font-weight: 600;
+        line-height: 1.3;
+        margin-bottom: 0;
+        
+        a {
+          color: var(--card-text-color-main);
+          transition: color 0.3s ease;
+          
+          &:hover {
+            color: var(--accent-color);
+          }
+        }
+      }
+      
+      .article-subtitle {
+        font-size: 1.3rem;
+        color: var(--card-text-color-secondary);
+        font-weight: 400;
+        margin-top: 0.2rem;
+        line-height: 1.3;
+      }
+      
+      .article-time {
+        display: flex;
+        gap: 1rem;
+        font-size: 1.2rem;
+        color: var(--body-text-color);
+        margin-top: 0.3rem;
+        padding-top: 0.3rem;
+        border-top: 1px solid var(--border-color);
+        
+        svg {
+          width: 12px;
+          height: 12px;
+          margin-right: 4px;
+          opacity: 0.6;
+        }
+      }
       
       &:hover {
         transform: translateY(-4px);
@@ -186,6 +243,179 @@
         border-color: var(--accent-color);
       }
     }
+  }
+}
+
+/* ========================================
+   Archive 分类横向排列样式
+   ======================================== */
+.template-archives {
+  .section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+    display: inline-block;
+    border-bottom: 2px solid var(--accent-color);
+    line-height: 1.5;
+  }
+
+  .category-timeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .category-timeline-item {
+    position: relative;
+    
+    &:not(:last-child)::after {
+      content: '|';
+      position: absolute;
+      right: -0.9rem;
+      color: var(--border-color);
+    }
+  }
+
+  .category-timeline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    text-decoration: none;
+    color: var(--body-text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      color: var(--accent-color);
+      background: var(--card-background);
+    }
+  }
+
+  .category-timeline-content {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .category-timeline-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-color);
+  }
+
+  .category-timeline-count {
+    font-size: 1.2rem;
+    color: var(--secondary-text-color);
+  }
+}
+
+/* ========================================
+   Archive 时间轴样式
+   ======================================== */
+.template-archives {
+  .timeline-container {
+    margin-top: 0.5rem;
+  }
+
+  .timeline-year {
+    margin-bottom: 3rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .timeline-year-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-color);
+  }
+
+  .timeline-year-content {
+    position: relative;
+    padding-left: 1rem;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--accent-color), var(--border-color));
+    }
+  }
+
+  .timeline-item {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding: 0.8rem 0 0.8rem 1.5rem;
+    margin: 0;
+  }
+
+  .timeline-marker {
+    position: absolute;
+    left: -4px;
+    top: 1.1rem;
+    width: 10px;
+    height: 10px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    border: 2px solid var(--card-background);
+    z-index: 1;
+  }
+
+  .timeline-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    flex: 1;
+  }
+
+  .timeline-date {
+    min-width: 50px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    padding-top: 0.1rem;
+  }
+
+  .timeline-article {
+    flex: 1;
+  }
+
+  .timeline-title {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin: 0 0 0.3rem 0;
+    line-height: 1.4;
+    
+    a {
+      color: var(--body-text-color);
+      text-decoration: none;
+      
+      &:hover {
+        color: var(--accent-color);
+      }
+    }
+  }
+
+  .timeline-desc {
+    font-size: 1.2rem;
+    color: var(--secondary-text-color);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -342,7 +572,7 @@
     background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1rem 1.5rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 
@@ -367,7 +597,7 @@
     }
 
     .article-title-wrapper {
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.3rem;
     }
 
     .article-title {
@@ -390,8 +620,8 @@
       font-size: 1.4rem;
       color: var(--card-text-color-secondary);
       font-weight: 400;
-      margin-top: 0.5rem;
-      line-height: 1.6;
+      margin-top: 0.3rem;
+      line-height: 1.4;
     }
 
     .article-time {
@@ -399,8 +629,8 @@
       gap: 1.5rem;
       font-size: 1.3rem;
       color: var(--body-text-color);
-      margin-top: 1.2rem;
-      padding-top: 1rem;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
       border-top: 1px solid var(--border-color);
 
       svg {
@@ -442,7 +672,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.3rem;
   margin-top: 2rem;
   padding: 1rem 0;
 }
@@ -452,26 +682,29 @@
   align-items: center;
   justify-content: center;
   width: auto;
-  height: 16px;
-  padding: 0 4px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  font-size: 1.2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1.3rem;
+  font-weight: 400;
   color: var(--body-text-color);
   text-decoration: none;
   transition: all 0.2s ease;
   cursor: pointer;
 
   svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     opacity: 0.5;
   }
 
   &:hover:not(.disabled):not(.current) {
     color: var(--accent-color);
-    background: transparent;
+    border-color: var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.05);
     
     svg {
       opacity: 0.8;
@@ -482,7 +715,7 @@
     background: var(--accent-color);
     border-color: var(--accent-color);
     color: var(--accent-color-text, #fff);
-    font-weight: 500;
+    font-weight: 600;
     cursor: default;
   }
 
@@ -494,7 +727,7 @@
 
   &.pagination-link {
     background: transparent;
-    border: none;
+    border: 1px solid transparent;
     cursor: default;
     color: var(--body-text-color);
 
