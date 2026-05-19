@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Cs146s on Sutdown</title><link>https://sutdown.github.io/categories/cs146s/</link><description>Recent content in Cs146s on Sutdown</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 19 May 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://sutdown.github.io/categories/cs146s/index.xml" rel="self" type="application/rss+xml"/><item><title>斯坦福CS146S：现代软件开发者Week4学习笔记</title><link>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week4%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Tue, 19 May 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week4%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>&lt;h4 id="关于agent-manager"&gt;&lt;a href="#%e5%85%b3%e4%ba%8eagent-manager" class="header-anchor"&gt;&lt;/a&gt;关于Agent Manager
+&lt;/h4&gt;&lt;h5 id="演进"&gt;&lt;a href="#%e6%bc%94%e8%bf%9b" class="header-anchor"&gt;&lt;/a&gt;演进
+&lt;/h5&gt;&lt;p&gt;当前软件开发团队模式有四个演进阶段，过去当需要增加产出时只能增加人手，现在一个开发者+AI agent对于生产力有了质的飞跃。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;传统独立开发：最基础的开发模式，生产力受限于个人能力&lt;/li&gt;
+&lt;li&gt;团队管理模式：技术负责人管理多个开发者的产出，通过团队协作放大生产力&lt;/li&gt;
+&lt;li&gt;AI辅助管理：负责人借助AI系统管理多个开发者的产出，提高管理效率&lt;/li&gt;
+&lt;li&gt;个人+AI代理模式：&lt;strong&gt;这是当前正在发生的变革&lt;/strong&gt;：一个程序员可以指挥多个AI agent协同工作
+&lt;img src="https://sutdown.github.io/img/img_cs146s/week4_1.png"
+loading="lazy"
+alt="1"
+&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;接着我们可以看看当前变革下软件开发的具体流程&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;提供高层级需求，将需求转换成设计文档（人机协作完成）&lt;/li&gt;
+&lt;li&gt;根据文档实现解决方案（AI，这里说明当AI能力不达标或者需求文档不够好时，一次直接生成的代码不一定符合需求，此时你需要分步骤分别让AI实现）&lt;/li&gt;
+&lt;li&gt;添加测试，确保测试集成通过（AI）&lt;/li&gt;
+&lt;li&gt;代码审查（人机协作），更新文档（AI）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;因此可以发现，在这个流程中程序员起到的作用更多的是一个管理审核人员，管理AI完成工作。&lt;/p&gt;
+&lt;h5 id="如何有效使用ai"&gt;&lt;a href="#%e5%a6%82%e4%bd%95%e6%9c%89%e6%95%88%e4%bd%bf%e7%94%a8ai" class="header-anchor"&gt;&lt;/a&gt;如何有效使用AI
+&lt;/h5&gt;&lt;p&gt;我们不能仅仅局限于跟AI聊天，要将这个过程当成工程化的控制AI。&lt;/p&gt;
+&lt;p&gt;常见的技巧有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Agent行为文件：比如Claude.md / Cursorrules/ agents.md 这些都相当于配置文件，用来规定项目的代码风格，技术显示，禁止做的事情等等&lt;/li&gt;
+&lt;li&gt;Hooks：在&lt;strong&gt;预定义事件类型&lt;/strong&gt;上运行的&lt;strong&gt;确定&lt;/strong&gt;性脚本，也就是可以记录，干预，校验AI行为的工具。
+&lt;ul&gt;
+&lt;li&gt;常见的有：PreToolUse（调用工具之前的确认，比如修改敏感文件，提交代码等），PostToolUse（AI调用完工具之后，比如自动测试，更新项目索引，生成变更摘要），UsePromptSubmit（人类向AI发送指令之前，能够自动添加上下文，过滤危险指令等），PreCompact（AI压缩或整理对话历史之前，能保留关键决策点，插入注释等） and more&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Commands：把常用的提示词保存为文件，供 AI 代理直接执行，比如/test /fix, /git-all等
+&lt;ul&gt;
+&lt;li&gt;你提前写好一套标准指令（比如“请帮我运行所有单元测试并报告结果”），存成一个 &lt;code&gt;.command&lt;/code&gt; 或 &lt;code&gt;.prompt&lt;/code&gt; 文件，以后只需输入 &lt;code&gt;/test&lt;/code&gt; 或点击按钮，AI 就自动执行这套流程。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Sub Agents：当有些任务在当前代理中和当前代理任务无关时，派遣一个自代理有助于更好的管理上下文和发挥agent的各自功能。
+&lt;ul&gt;
+&lt;li&gt;子代理的目的在于创建不同类型的专属开发者人格，能够和主代理的上下文保持隔离，拥有独立记忆和工具集。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;实践中，同时要注意一些使用ai的事项：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;注意要有谨慎的安全网。代码库中必须要有完整的测试；AI修改代码后最好能自动触发测试检查，也就是持续集成/部署&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;每个代理的行为必须可追溯。也就是为每个AI生成的变更打标签&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;不同的任务用不同的模型，合理分配任务。比如简单重构，文档生成都可以用简单模型；架构设计，代码生成用大模型&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;复杂的任务需要人工引导，简单的任务可以防守让AI异步完成&lt;/p&gt;
+&lt;p&gt;比如对于复杂任务先给AI详细的设计文档和分布指令，中途多个check point，最后人工review。而像更新readme这种简单任务丢给AI，设置好hooks自动验证即可。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;定期提交快照。当AI走错路改错文件时，可以快速返回上次状态。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id="claude-code介绍"&gt;&lt;a href="#claude-code%e4%bb%8b%e7%bb%8d" class="header-anchor"&gt;&lt;/a&gt;Claude Code介绍
+&lt;/h4&gt;&lt;h5 id="设计核心原则"&gt;&lt;a href="#%e8%ae%be%e8%ae%a1%e6%a0%b8%e5%bf%83%e5%8e%9f%e5%88%99" class="header-anchor"&gt;&lt;/a&gt;设计核心原则
+&lt;/h5&gt;&lt;ul&gt;
+&lt;li&gt;Terminal-native（终端原生）：Claude Code 不是一个独立的GUI应用，而是一个运行在命令行里的工具。&lt;/li&gt;
+&lt;li&gt;Low-level model access（底层模型访问）：你可以直接控制使用的AI模型&lt;/li&gt;
+&lt;li&gt;Infinitely hackable（无限可定制）：可以修改Hook逻辑、添加新Command、创建Subagent角色&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id="简单安装指南"&gt;&lt;a href="#%e7%ae%80%e5%8d%95%e5%ae%89%e8%a3%85%e6%8c%87%e5%8d%97" class="header-anchor"&gt;&lt;/a&gt;简单安装指南
+&lt;/h5&gt;&lt;p&gt;见&lt;a class="link" href="https://zhuanlan.zhihu.com/p/2040074097049200169" target="_blank" rel="noopener"
+&gt;claude code安装 + 阿里模型API配置 - 知乎&lt;/a&gt;&lt;/p&gt;
+&lt;h5 id="实战开发指南"&gt;&lt;a href="#%e5%ae%9e%e6%88%98%e5%bc%80%e5%8f%91%e6%8c%87%e5%8d%97" class="header-anchor"&gt;&lt;/a&gt;实战开发指南
+&lt;/h5&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;设计(Design) → 计划(Plan) → 实现(Implement) → 测试(Test) → 审查(Review) → 更新(Update)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;设计阶段&lt;/strong&gt;：用 AI 辅助需求分析和技术方案设计，输出到 &lt;code&gt;docs/designs/&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;计划阶段&lt;/strong&gt;：用 AI 将设计拆解为具体的实施步骤，输出到 &lt;code&gt;docs/plans/&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;实现阶段&lt;/strong&gt;：AI 按照计划编写代码，参考 &lt;code&gt;schema.sql&lt;/code&gt; 和 &lt;code&gt;docs/guides/&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;测试阶段&lt;/strong&gt;：AI 根据设计和计划生成测试用例&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;审查阶段&lt;/strong&gt;：多个 AI 模型交叉审查代码（集合方法）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;更新阶段&lt;/strong&gt;：根据反馈更新文档和代码&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id="推荐资料"&gt;&lt;a href="#%e6%8e%a8%e8%8d%90%e8%b5%84%e6%96%99" class="header-anchor"&gt;&lt;/a&gt;推荐资料
+&lt;/h5&gt;&lt;p&gt;&lt;a class="link" href="https://github.com/vijaythecoder/awesome-claude-agents" target="_blank" rel="noopener"
+&gt;awesome-claude-agents&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf" target="_blank" rel="noopener"
+&gt;How Anthropic teams use Claude Code .pdf&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://github.com/SuperClaude-Org/SuperClaude_Framework" target="_blank" rel="noopener"
+&gt;SuperClaude-Org/SuperClaude_Framework.&lt;/a&gt;&lt;/p&gt;
+&lt;h4 id="assignment---claude实战"&gt;&lt;a href="#assignment---claude%e5%ae%9e%e6%88%98" class="header-anchor"&gt;&lt;/a&gt;Assignment - claude实战
+&lt;/h4&gt;&lt;p&gt;&lt;a class="link" href="https://github.com/Sutdown/cs146s/tree/master/week4" target="_blank" rel="noopener"
+&gt;cs146s/week4 at master · Sutdown/cs146s&lt;/a&gt;&lt;/p&gt;</description></item><item><title>斯坦福CS146S：现代软件开发者Week3学习笔记</title><link>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Sun, 17 May 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>&lt;h2 id="ai-ide"&gt;&lt;a href="#ai-ide" class="header-anchor"&gt;&lt;/a&gt;AI IDE
+&lt;/h2&gt;&lt;h3 id="ide介绍"&gt;&lt;a href="#ide%e4%bb%8b%e7%bb%8d" class="header-anchor"&gt;&lt;/a&gt;IDE介绍
+&lt;/h3&gt;&lt;p&gt;IDE（Integrated Development Environment）为“一体化的软件开发工作空间”，包含编辑器、编译器、调试器等核心组件。大多数开发工作都在 IDE 中完成，因此它是 AI 增强功能的自然载体，在 IDE 的演进过程中，功能整合与开发者定制化之间始终存在一种平衡。&lt;/p&gt;
+&lt;p&gt;AI IDE的发展历程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1983 年：Turbo Pascal 发布，被标注为“第一个真正的 IDE”，集编辑器、编译器、链接器于一体，专为 Pascal 语言设计。&lt;/li&gt;
+&lt;li&gt;1997 年：Microsoft Visual Studio 发布，为 C++/Visual Basic 提供高级调试功能，标志着 IDE 向多语言、多功能平台演进。&lt;/li&gt;
+&lt;li&gt;2001 年：IntelliJ IDEA 发布，引入上下文感知的代码导航、重构与自动补全，极大提升了 Java 开发效率。&lt;/li&gt;
+&lt;li&gt;2015 年：Microsoft VSCode 发布，以轻量级、高度可扩展的编辑器形态出现，迅速成为开发者主流工具。&lt;/li&gt;
+&lt;li&gt;2023 年：Cursor 发布，被描述为“首批广泛使用的 AI 原生 IDE 之一”，标志着 AI 技术深度融入开发环境。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_cs146s/week3_1.png"
+loading="lazy"
+alt="1"
+&gt;&lt;/p&gt;
+&lt;h3 id="现代ai编程助手"&gt;&lt;a href="#%e7%8e%b0%e4%bb%a3ai%e7%bc%96%e7%a8%8b%e5%8a%a9%e6%89%8b" class="header-anchor"&gt;&lt;/a&gt;现代AI编程助手
+&lt;/h3&gt;&lt;h4 id="基础模式"&gt;&lt;a href="#%e5%9f%ba%e7%a1%80%e6%a8%a1%e5%bc%8f" class="header-anchor"&gt;&lt;/a&gt;基础模式
+&lt;/h4&gt;&lt;p&gt;现代AI编程助手的能力主要分为两种：基础核心模式 和 真正的AI原生模式。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;基础模式&lt;/strong&gt;代表了当前 AI 编程的“基本功”，主要解决的是&lt;strong&gt;局部、即时、确定性&lt;/strong&gt;的问题。&lt;/p&gt;
+&lt;p&gt;比如行内补全，函数生成，对单文件进行操作，多文件修改等，前三者大多都是基于使用者惯性或者对单个文件的简单分析。直到多文件才是过往IDE和未来IDE之间的临界点，多文件修改和理解会逼迫AI去检索项目中的其它文件，对整体进行改动。&lt;/p&gt;
+&lt;p&gt;代码补全只会截取光标附近的小窗口代码，代码片段发送到云端的大模型，然后回流到编辑器。其中为了保障速度，一般采用专门针对代码优化的模型。&lt;/p&gt;
+&lt;h4 id="ai原生模式"&gt;&lt;a href="#ai%e5%8e%9f%e7%94%9f%e6%a8%a1%e5%bc%8f" class="header-anchor"&gt;&lt;/a&gt;AI原生模式
+&lt;/h4&gt;&lt;p&gt;&lt;strong&gt;真正的AI原生模式&lt;/strong&gt;代表了&lt;strong&gt;范式转移&lt;/strong&gt;。在这里，AI 不再仅仅是被动等待指令的补全工具，而是变成了能够自主思考、规划和执行的&lt;strong&gt;智能体&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;它一定会涉及到全项目的上下文理解。IDE会将整个项目代码切分成小块（chunks），然后用embedding模型把代码转换成向量存储在向量数据库中，之后当用户进行提问时，IDE会根据用户的提问在数据库中找到最相似的代码作为上下文。当然代码在更新时，IDE也会定期更新向量数据库的索引，通过 Merkle 树计算块差异以进行高效更新。所以说AI IDE记住整个项目并不是靠模型，而是外挂了一个高效的向量数据库。&lt;/p&gt;
+&lt;p&gt;常见的代表有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Background agents（后台代理）：让AI在后台异步完成一些任务。&lt;/li&gt;
+&lt;li&gt;Model Context Protocol（MCP，模型上下文协议）：它允许 AI 模型安全地连接到外部数据源和工具。在编程语境下，AI 不仅能读代码，还能连接数据库查看表结构、读取本地文件系统、甚至调用编译器 API它允许 AI 模型安全地连接到外部数据源和工具。&lt;/li&gt;
+&lt;li&gt;Learn memories（学习记忆）：长期记忆和短期记忆，上下文等。&lt;/li&gt;
+&lt;li&gt;Bugbot (PR review)（缺陷机器人/代码审查）：语法检查（Lint），而是逻辑审查。指出代码潜在的空指针异常、安全漏洞或设计模式的不当使用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="ai工具的演进路径"&gt;&lt;a href="#ai%e5%b7%a5%e5%85%b7%e7%9a%84%e6%bc%94%e8%bf%9b%e8%b7%af%e5%be%84" class="header-anchor"&gt;&lt;/a&gt;AI工具的演进路径
+&lt;/h4&gt;&lt;ol&gt;
+&lt;li&gt;从“辅助”到“代理”：工具的角色正在从“辅助开发者写代码”（左上象限）向“独立完成任务”（右下象限）转变。&lt;/li&gt;
+&lt;li&gt;从“本地”到“云端”：随着任务复杂度的增加，对算力和数据的需求也增加，工具正越来越多地依赖云端资源。&lt;/li&gt;
+&lt;li&gt;从“同步”到“异步”：未来的高效开发者将更多地采用“异步”模式，将复杂任务委派给AI代理，自己则专注于更高层次的设计和决策。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="与ai的协作实践"&gt;&lt;a href="#%e4%b8%8eai%e7%9a%84%e5%8d%8f%e4%bd%9c%e5%ae%9e%e8%b7%b5" class="header-anchor"&gt;&lt;/a&gt;与AI的协作实践
+&lt;/h3&gt;&lt;h4 id="plan"&gt;&lt;a href="#plan" class="header-anchor"&gt;&lt;/a&gt;Plan
+&lt;/h4&gt;&lt;p&gt;你给 AI 的指令质量，应该取决于任务的复杂程度。它其实是在暗示开发者，随着任务难度的提升，你的角色也需要发生转变。&lt;/p&gt;
+&lt;p&gt;当完成简单变更时，比如修改函数命名，添加注释，实现简单小功能。在这种场景下，&lt;strong&gt;你的直觉就是最好的提示词&lt;/strong&gt;。你不需要写文档，不需要画流程图，甚至不需要完整的句子。因为上下文就在那里，AI 能够轻易捕捉到你的意图。过度设计提示词反而是一种时间浪费。&lt;/p&gt;
+&lt;p&gt;面对复杂任务，你必须强迫自己转变身份，成为一个“产品经理”。你要对任务有一个清晰的认知和描述，描述过程存在几个核心要素：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;目的：明确变更目的，让AI做出更符合业务逻辑的技术决策。&lt;/li&gt;
+&lt;li&gt;定义：补充必要的背景知识，专业术语解释等&lt;/li&gt;
+&lt;li&gt;计划：高层次的实现分解任务，给出大致的技术路线图。&lt;/li&gt;
+&lt;li&gt;被更改的源文件：明确指出代码库中哪些部分是相关的，以及为什么。这能帮助 AI 聚焦上下文，避免它去分析无关的代码，从而提高效率和准确性。&lt;/li&gt;
+&lt;li&gt;范围外：明确指出什么&lt;em&gt;不应该&lt;/em&gt;被更改。这是一个非常关键的约束条件。&lt;/li&gt;
+&lt;li&gt;测试用例，边缘情况&lt;/li&gt;
+&lt;li&gt;扩展性：说明未来哪些变更会相关，以便 LLM 能够设计出具有前瞻性的架构。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="code"&gt;&lt;a href="#code" class="header-anchor"&gt;&lt;/a&gt;Code
+&lt;/h4&gt;&lt;p&gt;AI 的困惑往往源于“混乱的代码库”。为了让 AI（以及人类）能更好地理解项目，我们需要提供最优的上下文。我们的核心在于增加代码库的可读性和消除上下文的歧义。&lt;/p&gt;
+&lt;p&gt;比如在让 AI 工作前，应确保以下信息清晰且文档化：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;仓库导航与结构： 文件目录树、核心文件位置。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;环境设置： 如何安装依赖、如何启动开发环境。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;规范与风格： 代码风格（缩进、命名）、最佳实践。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;技术细节： 数据访问模式、API 接口定义与契约。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;文档化： 上述所有内容都必须有详尽的文档。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;单体仓库设计： 强烈推荐将相关项目、库、服务放在一个仓库中，便于 AI 统一理解上下文。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;避免“混乱”： 杜绝多种访问模式混用、变量命名不一致、重复代码（多个函数做同一件事）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;除了优化代码本身，我们还可以通过特定的配置文件，主动向 LLM “投喂”规则和指令，引导其正确导航和操作代码库。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;文件名&lt;/th&gt;
+&lt;th&gt;适用对象&lt;/th&gt;
+&lt;th&gt;功能描述&lt;/th&gt;
+&lt;th&gt;核心用途&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;&lt;code&gt;claude.md&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Claude&lt;/td&gt;
+&lt;td&gt;自动加载到对话上下文中。&lt;/td&gt;
+&lt;td&gt;记录常用 Bash 命令、核心工具函数、代码风格指南、测试指令。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;&lt;code&gt;AGENTS.md&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;通用代理&lt;/td&gt;
+&lt;td&gt;开放格式，为各种 AI 代理提供指引。&lt;/td&gt;
+&lt;td&gt;定义项目特定的工作流程和规则。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;&lt;code&gt;cursorrules&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;Cursor IDE&lt;/td&gt;
+&lt;td&gt;配置编辑器内 AI 的行为规则。&lt;/td&gt;
+&lt;td&gt;控制 AI 在 IDE 中的补全、重构偏好。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;strong&gt;&lt;code&gt;llms.txt&lt;/code&gt;&lt;/strong&gt;&lt;/td&gt;
+&lt;td&gt;爬虫类 LLM&lt;/td&gt;
+&lt;td&gt;为抓取网页信息的 LLM 提供导航。&lt;/td&gt;
+&lt;td&gt;帮助外部 AI 快速理解项目结构。&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Agents.md推荐内容清单：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;项目概览： 让 AI 知道自己在做什么。&lt;/li&gt;
+&lt;li&gt;构建和测试命令： 让 AI 知道如何验证自己的工作。&lt;/li&gt;
+&lt;li&gt;代码风格指南： 让 AI 知道怎么写才合规。&lt;/li&gt;
+&lt;li&gt;测试指令： 确保质量。&lt;/li&gt;
+&lt;li&gt;安全考量： 避免 AI 写出有漏洞的代码。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;AI编程的常见顺序：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用 &lt;strong&gt;DeepWiki&lt;/strong&gt; 读懂代码库。DeepWiki可以自动生成整个仓库的文档、架构图和依赖关系图。&lt;/li&gt;
+&lt;li&gt;用 &lt;strong&gt;Devin&lt;/strong&gt; 设计架构方案。Devin拥有强大的推理能力。在这个阶段，你把它当作一个&lt;strong&gt;资深架构师&lt;/strong&gt;来咨询，进行可行性验证和头脑风暴。&lt;/li&gt;
+&lt;li&gt;用 &lt;strong&gt;Codemaps&lt;/strong&gt; 确认具体细节。Codemaps能让你以图形化或结构化的方式快速浏览代码结构，找到具体的函数定义和调用链。&lt;/li&gt;
+&lt;li&gt;最后在 &lt;strong&gt;Windsurf&lt;/strong&gt; 中结合所有信息，开始真正的规划落地。将DeepWiki生成的文档或Devin的建议，直接引入到你正在使用的本地IDE（Windsurf）中。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;当前的工作流大致分为两部分&lt;/p&gt;
+&lt;p&gt;step1. 异步委派。程序员将任务发给AI写代码。&lt;/p&gt;
+&lt;p&gt;step2. 同步测试和微调。当前AI生成代码不够完善，或者任务项目等逻辑太复杂，AI无法完全搞定，因此人类需要重新介入，实时验收和修改。&lt;/p&gt;
+&lt;h3 id="ai编程的未来发展"&gt;&lt;a href="#ai%e7%bc%96%e7%a8%8b%e7%9a%84%e6%9c%aa%e6%9d%a5%e5%8f%91%e5%b1%95" class="header-anchor"&gt;&lt;/a&gt;AI编程的未来发展
+&lt;/h3&gt;&lt;h4 id="why"&gt;&lt;a href="#why" class="header-anchor"&gt;&lt;/a&gt;Why
+&lt;/h4&gt;&lt;p&gt;前面讲到AI编程关键的一点在于同步到异步工作流的转换，当然它不止于表面的技术，更是在强调人的思维模式转变。&lt;/p&gt;
+&lt;p&gt;异步代理是一项困难但可以学习的技能，但现实中大多数人仍然停留在使用同步代理的阶段。传统开发中，资深程序员习惯于“自己动手，丰衣足食”，因为自己写代码往往比教别人（或教AI）写更快、更可控。当你不擅长或者需要花时间朝着陌生领域学会如何“正确的管理”AI时，会存在一种焦虑的心理状态。而且异步和同步的思维方式本质是不同的，同步模式是线性的、单线程的，大脑只需要处理当前的一个上下文，很符合直觉；异步模式要求开发者具备多线程处理能力。要求开发者能在极短时间内完成不同任务的上下文切换。&lt;/p&gt;
+&lt;p&gt;注意其中要忌讳的是一个半异步的尴尬的中间地带。如果你是在同步写代码，AI思考的时间过长容易打断心流，但如果你是异步写代码，AI思考的时间太短让你无法切换到另一个任务，夹在其中的效率是最低的。所以当你发现自己在等一个“不长不短”的任务时，要么优化指令让它变快（回归同步），要么给它派一个更大的任务让它跑得久一点（进入异步），从而让你自己解放出来。&lt;/p&gt;
+&lt;h4 id="how"&gt;&lt;a href="#how" class="header-anchor"&gt;&lt;/a&gt;How
+&lt;/h4&gt;&lt;p&gt;当前理想的AI增强型软件开发工作流为：&lt;/p&gt;
+&lt;p&gt;在规划（Planning）和测试（Testing）这两个需要高度智慧和判断力的环节，人类保持同步介入，确保方向正确和质量达标。在最耗时、最机械的编码（Coding）环节，AI异步执行，释放人类的时间。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;planning sync --- coding async --- testing sync
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_cs146s/week3_2.png"
+loading="lazy"
+alt="2"
+&gt;&lt;/p&gt;
+&lt;p&gt;对于未来的期望应该是&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;人类工程师作为代理管理者&lt;/p&gt;
+&lt;p&gt;利用同步工具解决最困难的问题，利用异步工具实现10倍杠杆效应&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;未来需要的宝贵技能&lt;/p&gt;
+&lt;p&gt;委派与多线程处理能力；代码阅读能力；规划、范围界定、架构设计&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="上下文工程"&gt;&lt;a href="#%e4%b8%8a%e4%b8%8b%e6%96%87%e5%b7%a5%e7%a8%8b" class="header-anchor"&gt;&lt;/a&gt;上下文工程
+&lt;/h2&gt;&lt;h3 id="失控的上下文"&gt;&lt;a href="#%e5%a4%b1%e6%8e%a7%e7%9a%84%e4%b8%8a%e4%b8%8b%e6%96%87" class="header-anchor"&gt;&lt;/a&gt;失控的上下文
+&lt;/h3&gt;&lt;p&gt;一般来说，较长的上下文可以让模型对我们的需求了解更多，模型效果会更好。但实际上，当上下文过于超出时，会导致智能体和应用程序出现意想不到的故障。上下文可能会变得混乱、分散注意力、令人困惑或相互冲突。这对依赖上下文来收集信息、综合分析结果和协调行动的智能体来说尤其成问题。常见的失控方式有以下几种：&lt;/p&gt;
+&lt;h4 id="语境中毒"&gt;&lt;a href="#%e8%af%ad%e5%a2%83%e4%b8%ad%e6%af%92" class="header-anchor"&gt;&lt;/a&gt;语境中毒
+&lt;/h4&gt;&lt;p&gt;幻觉或其他错误进入语境，并在语境中被反复提及。&lt;/p&gt;
+&lt;p&gt;情境的许多部分（目标、总结）都被关于博弈状态的错误信息“污染”了，而这种污染往往需要很长时间才能消除。结果，模型可能会执着于实现不可能或无关的目标。&lt;/p&gt;
+&lt;h4 id="情景干扰"&gt;&lt;a href="#%e6%83%85%e6%99%af%e5%b9%b2%e6%89%b0" class="header-anchor"&gt;&lt;/a&gt;情景干扰
+&lt;/h4&gt;&lt;p&gt;上下文发展到一定程度，导致模型过度关注上下文，而忽略了训练期间学到的内容。&lt;/p&gt;
+&lt;p&gt;随着模型收集更多信息并建立历史记录——这些累积的上下文可能会变得分散注意力而非有所帮助。当上下文数量显著超过 10 万个词元时，智能体倾向于重复其庞大历史记录中已有的操作，而不是生成新的方案。&lt;/p&gt;
+&lt;h4 id="语境混淆"&gt;&lt;a href="#%e8%af%ad%e5%a2%83%e6%b7%b7%e6%b7%86" class="header-anchor"&gt;&lt;/a&gt;语境混淆
+&lt;/h4&gt;&lt;p&gt;模型使用上下文中的冗余内容来生成低质量的响应。&lt;/p&gt;
+&lt;p&gt;如果你把某些信息放入上下文中，&lt;em&gt;模型就必须关注它。&lt;em&gt;这些信息可能无关紧要，也可能是不必要的工具定义，但模型&lt;/em&gt;都会将&lt;/em&gt;其考虑在内。大型模型，尤其是推理模型，在忽略或舍弃冗余上下文方面做得越来越好，但我们仍然不断看到无用信息让智能体犯错。&lt;/p&gt;
+&lt;h4 id="语境冲突"&gt;&lt;a href="#%e8%af%ad%e5%a2%83%e5%86%b2%e7%aa%81" class="header-anchor"&gt;&lt;/a&gt;语境冲突
+&lt;/h4&gt;&lt;p&gt;你在你的环境中积累了新的信息和工具，而这些信息和工具与环境中的其他信息相冲突。&lt;/p&gt;
+&lt;p&gt;模型在掌握所有信息之前尝试回答问题的早期结果。这些错误答案会保留在上下文中，并在模型生成最终答案时对其产生影响。LLM（逻辑推理能力强的人）在对话初期常常做出假设，并过早地试图得出最终解决方案，而他们又过度依赖这些解决方案。简而言之，我们发现，当LLM在对话中走错方向时，他们就会迷失方向，并且无法挽回。&lt;/p&gt;
+&lt;h3 id="面向编码代理的高级上下文工程"&gt;&lt;a href="#%e9%9d%a2%e5%90%91%e7%bc%96%e7%a0%81%e4%bb%a3%e7%90%86%e7%9a%84%e9%ab%98%e7%ba%a7%e4%b8%8a%e4%b8%8b%e6%96%87%e5%b7%a5%e7%a8%8b" class="header-anchor"&gt;&lt;/a&gt;面向编码代理的高级上下文工程
+&lt;/h3&gt;&lt;p&gt;在实际生产中，代码库通常是非常巨大的，此时AI工具的使用甚至会降低生产效率，但更好的上下文工程可以尝试解决这个问题。&lt;/p&gt;
+&lt;p&gt;上下文窗口是控制 AI 输出质量的唯一杠杆。盲目对话会让搜索日志、代码片段等杂讯迅速填满窗口，导致模型迷失；解决方案是&lt;strong&gt;频繁有意压缩&lt;/strong&gt;（Frequent Intentional Compaction）——通过&amp;quot;研究→规划→实现&amp;quot;的分段工作流，将中间产物蒸馏为结构化文档，主动将上下文利用率维持在 40-60%，确保每次交互都输入高信噪比的信息。&lt;/p&gt;
+&lt;p&gt;围绕上下文窗口的工程实践，本质是把人类审查的杠杆点前移：与其在实现阶段逐行审查代码，不如在研究与规划阶段确保上下文输入的准确性与完整性。因为一行错误的研究结论可能衍生千行错误代码，而精准的上下文管理能让今天的模型在复杂代码库中同样产出高质量、可维护的代码。&lt;/p&gt;
+&lt;h3 id="anthropic工具设计原则"&gt;&lt;a href="#anthropic%e5%b7%a5%e5%85%b7%e8%ae%be%e8%ae%a1%e5%8e%9f%e5%88%99" class="header-anchor"&gt;&lt;/a&gt;Anthropic工具设计原则
+&lt;/h3&gt;&lt;p&gt;1.构建精心设计的工具。一些工具仅仅封装了现有的软件功能或API接口——无论这些工具是否适合智能体。以通讯录为例，您可以选择实现一个&lt;code&gt;search_contacts&lt;/code&gt;或多个&lt;code&gt;message_contact&lt;/code&gt;工具，而不是一个单一的&lt;code&gt;list_contacts&lt;/code&gt;工具。确保你开发的每个工具都有清晰明确的用途。工具应该使智能体能够像人类一样，在拥有相同底层资源的情况下，细分并解决任务，同时减少中间输出所消耗的上下文信息。&lt;/p&gt;
+&lt;p&gt;2.为工具进行合适的命名。MCP 客户端有时默认启用此功能。例如，按服务（例如，&lt;code&gt;Service&lt;/code&gt;、&lt;code&gt;asana_search``Resource&lt;/code&gt; &lt;code&gt;jira_search&lt;/code&gt;）和按资源（例如，&lt;code&gt;Resource&lt;/code&gt;、&lt;code&gt;asana_projects_search``Service&lt;/code&gt; &lt;code&gt;asana_users_search&lt;/code&gt;）对工具进行命名空间划分，可以帮助客服人员在合适的时间选择合适的工具。&lt;/p&gt;
+&lt;p&gt;3.工具中返回有意义的上下文。工具实现应注意仅向智能体返回高信号信息。它们应优先考虑上下文相关性而非灵活性，并避免使用底层技术标识符（例如：&lt;code&gt;uuid&lt;/code&gt;、、）。智能体处理自然语言名称、术语或标识符的效果往往要好得多。&lt;/p&gt;
+&lt;p&gt;4.优化工具的响应。优化上下文质量固然重要，但优化工具响应中返回给智能体的上下文数量也同样重要，过于长的响应会导致占用过多的上下文。&lt;/p&gt;
+&lt;p&gt;5.仔细编写工具描述和规范，方便在导入上下文之后被智能体所理解。&lt;/p&gt;
+&lt;h2 id="assignment"&gt;&lt;a href="#assignment" class="header-anchor"&gt;&lt;/a&gt;Assignment
+&lt;/h2&gt;&lt;p&gt;&lt;a class="link" href="https://github.com/Sutdown/cs146s/tree/master/week3" target="_blank" rel="noopener"
+&gt;cs146s/week3·基于高德地图天气 API 的 MCP (Model Context Protocol) 服务器，支持 STDIO 和 HTTP 两种运行模式。&lt;/a&gt;&lt;/p&gt;</description></item><item><title>斯坦福CS146S：现代软件开发者Week2学习笔记</title><link>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week2%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Wed, 13 May 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week2%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>&lt;h2 id="agent"&gt;&lt;a href="#agent" class="header-anchor"&gt;&lt;/a&gt;Agent
+&lt;/h2&gt;&lt;p&gt;基于大型语言模型（LLM）的编码代理（Coding Agent）的具体实施步骤：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在终端中读取输入，并持续将内容追加到对话中。&lt;/li&gt;
+&lt;li&gt;告知大型语言模型有哪些可用工具：
+&lt;ul&gt;
+&lt;li&gt;它会在适当的时候请求使用工具。&lt;/li&gt;
+&lt;li&gt;你离线执行工具并返回响应。工具示例：“Read_file”（读取文件）、“List_dir”（列出目录）、“Edit_file”（编辑文件）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;创建一个新文件，编辑一个新文件。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Claude 的内部机制：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;前置加载上下文：使用小型、有针对性的提示词来预先加载上下文。&lt;/li&gt;
+&lt;li&gt;无处不在的系统提醒：在系统/用户提示、工具调用、工具结果等各个环节都加入系统提醒，以防止模型“漂移”（使用 &lt;code&gt;&amp;lt;system-reminder&amp;gt;&lt;/code&gt; 标签）。&lt;/li&gt;
+&lt;li&gt;命令前缀提取：这可能涉及从用户输入或生成的文本中识别特定的指令格式，在确立指令的任务之前，会先进行结构化提取，把实际的指令和用户的情绪等分开，保证LLM处理的是感觉的指令。&lt;/li&gt;
+&lt;li&gt;生成子代理：可能会生成子代理，以帮助防止上下文过载。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;（在&lt;a class="link" href="https://github.com/Sutdown/cs146s/tree/master/week2" target="_blank" rel="noopener"
+&gt;cs146s/week2&lt;/a&gt;class文件夹中可见一个简单的agent示例）&lt;/p&gt;
+&lt;h2 id="mcp-server"&gt;&lt;a href="#mcp-server" class="header-anchor"&gt;&lt;/a&gt;MCP Server
+&lt;/h2&gt;&lt;p&gt;为什么需要让大型语言模型（LLMs）连接外部动态数据&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;大型语言模型拥有宽广但静态的世界知识，只有在重新训练时才会更新。这意味着模型本身的知识库是截止于训练数据的，无法实时感知世界变化。&lt;/li&gt;
+&lt;li&gt;为了构建完全自主的系统，我们需要稳健的方法来输入动态数据。比如实时的天气，现任总统，当前比特币价格等。这些都需要实时的工具进行查询。&lt;/li&gt;
+&lt;li&gt;RAG检索增强生成和工具调用是我们目前拥有的最佳答案。
+&lt;ul&gt;
+&lt;li&gt;RAG：通过检索外部文档来补充模型知识。&lt;/li&gt;
+&lt;li&gt;工具调用：让模型学会使用计算器、搜索引擎、API等工具来获取信息。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="mcp定义"&gt;&lt;a href="#mcp%e5%ae%9a%e4%b9%89" class="header-anchor"&gt;&lt;/a&gt;MCP定义
+&lt;/h3&gt;&lt;p&gt;官方定义：它是一个开放协议，允许系统以一种“可跨集成推广的方式”向AI模型提供上下文。简单来说，它试图解决不同系统间数据格式不统一、难以被AI理解的问题。&lt;/p&gt;
+&lt;p&gt;通俗解释：它把复杂的协议概念简化为“让AI能看懂并使用工具的标准说明书”。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;MCP通过提供一个统一的协议层，将集成模式从“M x N”简化为“M + N”。即，每个LLM主机只需实现一个MCP客户端，每个工具只需实现一个MCP服务器，它们就能通过MCP协议互相通信。&lt;/li&gt;
+&lt;li&gt;MCP标准化使得开发者不需要重复造轮子，并且有了统一的输出格式。开发者不再需要为每个连接器重复实现认证（auth）、错误处理（error handling）、速率限制（rate-limiting）等通用功能；强制使用JSON-RPC来确保所有工具的输出格式一致，这使得LLM能够更可靠地解析和处理来自不同工具的响应。&lt;/li&gt;
+&lt;li&gt;MCP的设计借鉴了语言服务器协议（Language Server Protocols, LSP），与LSP主要用于响应式（reactive）交互不同，MCP允许构建主动式（proactive）的代理工作流（agentic workflows）。这意味着AI代理可以根据上下文主动调用工具，而不仅仅是响应用户的直接指令。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="mcp过程"&gt;&lt;a href="#mcp%e8%bf%87%e7%a8%8b" class="header-anchor"&gt;&lt;/a&gt;MCP过程
+&lt;/h3&gt;&lt;p&gt;MCP协议提供了两种传输层实现：标准输入输出（stdio）和服务器发送事件（SSE），这为不同场景下的部署提供了灵活性。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Host：指承载MCP客户端的应用程序，例如代码编辑器Cursor或AI助手Claude Desktop。&lt;/li&gt;
+&lt;li&gt;MCP Client：嵌入在Host中的库，负责与MCP Server建立并维持一个有状态的会话。&lt;/li&gt;
+&lt;li&gt;MCP Server&lt;a class="link" href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener"
+&gt;Model Context Protocol Server Implementations&lt;/a&gt;：作为工具的轻量级包装器，它负责向Client暴露工具的功能。&lt;/li&gt;
+&lt;li&gt;Tool：一个可被调用的函数，它可以是数据源或API。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;工作流程为：&lt;/p&gt;
+&lt;p&gt;1.client向server发起请求，询问server存在的tools&lt;/p&gt;
+&lt;p&gt;2.server返回json格式的列表，详细描述每个工具的名称，摘要，参数结构&lt;/p&gt;
+&lt;p&gt;3.host把这些工具注入AI模型的上下文中&lt;/p&gt;
+&lt;p&gt;4.用户输入提示词时，触发模型根据理解生成一个结构化的工具调用请求&lt;/p&gt;
+&lt;p&gt;5.MCP Server执行工具调用，返回结果&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_cs146s/week2_1.png"
+loading="lazy"
+alt="1"
+&gt;&lt;/p&gt;
+&lt;h3 id="mcp局限"&gt;&lt;a href="#mcp%e5%b1%80%e9%99%90" class="header-anchor"&gt;&lt;/a&gt;MCP局限
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Agent不能处理太多的工具。工具过多会造成选择困难，上下文混乱，性能下降等风险，工具管理是具有一定复杂性的。&lt;/li&gt;
+&lt;li&gt;APIs会快速消耗模型的上下文窗口。复杂的API调用、大量的返回数据或冗长的工具描述都会占用宝贵的上下文空间，可能导致模型“遗忘”之前的对话或指令，影响最终输出质量。&lt;/li&gt;
+&lt;li&gt;API设计时应以“AI原生”（AI-native）为理念，而不是采用僵化（rigid）的传统设计。API应该更易于被AI理解和调用，例如提供更清晰的文档、更结构化的数据格式、更灵活的参数等，以降低AI集成的难度和成本。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;（在&lt;a class="link" href="https://github.com/Sutdown/cs146s/tree/master/week2" target="_blank" rel="noopener"
+&gt;cs146s/week2&lt;/a&gt;class文件夹中可见一个简单的agent示例）&lt;/p&gt;
+&lt;h2 id="assignment"&gt;&lt;a href="#assignment" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;Assignment&lt;/strong&gt;
+&lt;/h2&gt;&lt;p&gt;&lt;a class="link" href="https://github.com/Sutdown/cs146s/tree/master/week2" target="_blank" rel="noopener"
+&gt;cs146s/week2 at master · Sutdown/cs146s&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个作业不难，基本上就是让AI实现一些小任务，对于现在的AI模型，很快都能实现。&lt;/p&gt;</description></item><item><title>斯坦福CS146S：现代软件开发者Week1学习笔记</title><link>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week1%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><pubDate>Sat, 09 May 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/%E6%96%AF%E5%9D%A6%E7%A6%8Fcs146s%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E8%80%85week1%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid><description>&lt;h2 id="ai导论"&gt;&lt;a href="#ai%e5%af%bc%e8%ae%ba" class="header-anchor"&gt;&lt;/a&gt;AI导论
+&lt;/h2&gt;&lt;h3 id="对ai的评价"&gt;&lt;a href="#%e5%af%b9ai%e7%9a%84%e8%af%84%e4%bb%b7" class="header-anchor"&gt;&lt;/a&gt;对AI的评价
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;Software developers have the potential to be more productive than they have ever been in history&lt;/li&gt;
+&lt;li&gt;With AI coding an engineer can pick up tech stacks and tools at an unprecedented pace&lt;/li&gt;
+&lt;li&gt;You won’t be replaced by AI. You’ll be replaced by a competent engineer who knows how to use AI.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这三句话其实就是在表明，能够利用好AI的软件开发者将会是未来的主流，你需要的是学会如何最大化的利用AI工具，而不是被AI所替代。&lt;/p&gt;
+&lt;p&gt;LLMs are only as good as you are&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Good context leads to good code&lt;/li&gt;
+&lt;li&gt;If you can’t understand your codebase, neither will an LLM&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;LLM和你的水平是相当的，你不理解你的代码，LLM也不会。它能够让你更快的提供你的上限，但AI能做到的上限和个人水平是密不可分的。&lt;/p&gt;
+&lt;h3 id="how-llms-work"&gt;&lt;a href="#how-llms-work" class="header-anchor"&gt;&lt;/a&gt;How LLMs Work
+&lt;/h3&gt;&lt;p&gt;llm（大型语言模型）是用于下一个标记预测的自回归模型。&lt;/p&gt;
+&lt;p&gt;文本生成模型（比如GPT系列）一般分为三层：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;输入层：将原始文本分割成更小的单元，也就是常说的token（词元）&lt;/li&gt;
+&lt;li&gt;嵌入层（embedding）：将词元转换成固定维度的数值向量，让计算机可以捕捉词语的语义信息&lt;/li&gt;
+&lt;li&gt;transformer层（使用自注意力机制的变换层）：自注意力机制是一种用于帮助模型学习词语之间的句法和语义关系的内部数学机制，用于理解上文，预测下文。&lt;/li&gt;
+&lt;li&gt;输出层：获取最有可能的下一个token的概率分布。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_cs146s/week1_1.png"
+loading="lazy"
+alt="1"
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Training Process&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一阶段：自监督预训练：在各种公共数据源（比如github代码库，stackExchange等）上进行训练，教会模型语言的基本概念。&lt;/li&gt;
+&lt;li&gt;第二阶段：监督微调：使用高质量，精心策划的提示-响应对，教会模型遵循指令。&lt;/li&gt;
+&lt;li&gt;第三阶段：偏好调优：收集同一提示的多个输出对，利用奖励模型，让模型输出和人类偏好（有用性，可读性，正确性）保持一致。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当前大模型发展的两大核心趋势：&lt;strong&gt;推理能力的进化&lt;/strong&gt;和&lt;strong&gt;模型规模的扩张&lt;/strong&gt;，&lt;strong&gt;推理模型&lt;/strong&gt;的发展如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;思维链训练：通过在训练数据中引入包含详细推理步骤的“思维链”，让模型学会分步骤、有逻辑地解决问题，而不是凭直觉给出答案。&lt;/li&gt;
+&lt;li&gt;工具使用集成：训练模型学会调用外部工具，如计算器、搜索引擎或代码解释器，以弥补其自身知识的局限，增强解决复杂任务的能力。&lt;/li&gt;
+&lt;li&gt;人类偏好对齐：收集人类对模型推理步骤的反馈，确保其思考过程不仅结果正确，而且逻辑清晰、符合人类的思维习惯。&lt;/li&gt;
+&lt;li&gt;强化学习评估：利用强化学习技术，让模型学会自我评估推理路径、识别错误并进行回溯修正，从而实现自我优化。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;现在的GPT-3/CLaude 3.5 Sonnet参数量为1750亿，到GPT-4时已经高达1.8万亿。&lt;/p&gt;
+&lt;h3 id="in-practive"&gt;&lt;a href="#in-practive" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;In practive&lt;/strong&gt;
+&lt;/h3&gt;&lt;p&gt;LLM是一个强大的编程助手，但使用时必须考虑到其固有的局限性。&lt;/p&gt;
+&lt;p&gt;模型的优势在于：专家级代码补全，代码理解，代码修复。&lt;/p&gt;
+&lt;p&gt;局限在于&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;幻觉：模型可能生成不存在或者已经过时的API（解决方案：上下文工程）&lt;/li&gt;
+&lt;li&gt;上下文窗口限制：模型的上下文窗口可达10万-20万token，但不是所有token的处理效果都相同。（模型一般对开头和结尾的记忆更深刻，中间模型容易被以往）&lt;/li&gt;
+&lt;li&gt;延迟：处理请求根据任务复杂度导致的延迟实践（根据任务复杂度进行合理规划，最大化利用模型思考时间，但也会导致频繁的上下文切换）&lt;/li&gt;
+&lt;li&gt;成本：训练输出等需要大量成本&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="提示词工程-prompting"&gt;&lt;a href="#%e6%8f%90%e7%a4%ba%e8%af%8d%e5%b7%a5%e7%a8%8b-prompting" class="header-anchor"&gt;&lt;/a&gt;提示词工程 Prompting
+&lt;/h2&gt;&lt;h3 id="对提示词的观点"&gt;&lt;a href="#%e5%af%b9%e6%8f%90%e7%a4%ba%e8%af%8d%e7%9a%84%e8%a7%82%e7%82%b9" class="header-anchor"&gt;&lt;/a&gt;对提示词的观点
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;提示词是与大语言模型沟通的通用语（lingua franca），也是一种有效的编程方式。&lt;/li&gt;
+&lt;li&gt;提示词正在从精确、刻板的“代码式”指令，进化为更自然、更口语化的“人类语言”。&lt;/li&gt;
+&lt;li&gt;提示词工程虽然有其难以捉摸的一面，但它并非纯粹的玄学，而是有一套可以学习和应用的方法论。由于LLM的黑盒本质，内部运行机制不完全透明，因此从输入到输出之间仅对用于而言带有一定的神秘感，但LLM也是经过多次实验验证的成熟技术，通过学习才能实现更好的应用。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="提示词技术"&gt;&lt;a href="#%e6%8f%90%e7%a4%ba%e8%af%8d%e6%8a%80%e6%9c%af" class="header-anchor"&gt;&lt;/a&gt;提示词技术
+&lt;/h3&gt;&lt;p&gt;&lt;strong&gt;Zero-shot prompting&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;零样本提示是一种最直接的提示方式，其核心是直接向大语言模型提出任务要求，而不提供任何支持信息或示例。它考验的是模型基于其预训练知识直接完成任务的能力。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;K-shot prompting&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;K-shot prompting的本质是&lt;strong&gt;上下文学习（in-context learning）&lt;/strong&gt;。与直接下达指令的零样本提示不同，这种方法会在提问时，额外提供几个“输入-输出”的示例，让模型通过模仿来学习任务的模式、格式或风格。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Chain-of-Thought Prompting, CoT&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;思维链提示通过要求模型一步步地展示其推理步骤，来解决那些需要多步逻辑才能完成的任务。这种方法能显著提高模型在复杂问题上的准确性和可解释性。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;多样本思维链（Multi-shot CoT）：
+&lt;ul&gt;
+&lt;li&gt;在提示中提供几个完整的“问题-推理过程-答案”的示例。&lt;/li&gt;
+&lt;li&gt;通过展示完整的推理轨迹（reasoning traces），让模型学习并模仿这种逐步思考的模式。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;零样本思维链（Zero-shot CoT）：
+&lt;ul&gt;
+&lt;li&gt;不提供具体示例，而是直接在问题后加上一句引导性的话，如“Let&amp;rsquo;s think step-by-step”（让我们一步步思考）。&lt;/li&gt;
+&lt;li&gt;通过简单的指令，激发模型内部的推理能力，使其自动分解问题并逐步解答。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Self-consistency Prompting&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://arxiv.org/abs/2203.11171" target="_blank" rel="noopener"
+&gt;Self-Consistency Improves Chain of Thought Reasoning in Language Models&lt;/a&gt;自洽性提示的核心逻辑：不依赖单次生成的结果，而是通过生成多条推理路径并寻找它们的交集（最一致的答案），以此来显著提升模型解决复杂问题的准确率，并减少胡编乱造的情况。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;多次采样和聚合：同一个问题让模型生成多个不同的回答，结合Cot技术，投票选择出现频率最高的结果作为答案&lt;/li&gt;
+&lt;li&gt;减少幻觉和错误：让模型探索多个推理路径，有利于识别过滤掉不合理的幻觉&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Tool Use&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;工具使用&lt;/strong&gt;是现代大型语言模型应用开发中的一个转折点。它标志着模型从单纯的“文本生成器”进化为能够与现实世界交互、解决实际问题并减少错误的“智能代理”。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;允许模型向外部求助。比如当需要直到一个实时的时间天气，操作数据库，计算复杂数学题等问题时，模型可以通过利用外部工具得到准确结果。&lt;/li&gt;
+&lt;li&gt;减少幻觉和实现自主性关键技术：真实的外部工具提供真实数据，避免捏造事实。模型能够使用工具是通过AI agent的关键步骤，说明模型具备了自主行动能力。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Retrieval Augmented Generation， RAG&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;RAG&lt;/strong&gt; 是让大模型变得“博学”且“靠谱”的关键技术。它通过外挂知识库的方式，解决了模型知识陈旧、缺乏私有数据以及容易产生幻觉的问题，并且是现代 AI 编程助手（如 Cursor）能够理解你整个项目代码库的核心原理。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;注入上下文数据。通过将用户私有数据或特定领域的文档（上下文）注入到提示词中，让模型能够基于这些特定信息来回答，而不是仅依赖其训练数据。&lt;/li&gt;
+&lt;li&gt;保持模型更新。RAG 允许模型访问最新的信息（如今天的新闻或最新的代码库），而无需耗费巨资重新训练模型。&lt;/li&gt;
+&lt;li&gt;你能免费获得可解释性和引用。模型的答案是基于检索到的具体文档生成的，所以你可以追溯答案的来源（引用）。这增加了模型的可信度，让用户知道答案是从哪里来的（可解释性）。&lt;/li&gt;
+&lt;li&gt;减少幻觉。通过限制模型只能根据检索到的事实进行回答，可以显著减少模型“一本正经胡说八道”的情况。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Reflexion&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;核心思想是引导模型对自己的输出进行自我审视和修正（行动 - 观察 - 反思 - 调整）。过程如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;自我反思。这要求模型在完成一次任务后，不要直接结束，而是停下来，像一个编辑一样，重新审视自己刚刚生成的答案，评估其正确性和完整性。&lt;/li&gt;
+&lt;li&gt;环境反馈。模型在执行一个动作（如运行一段代码）后，会获得一个“环境反馈”（如编译错误信息或测试失败报告）。这个反馈会被作为新的上下文信息，添加到与模型的对话历史中，引导它进行下一轮的思考和修正。&lt;/li&gt;
+&lt;li&gt;多轮提示。这并非一次性的问答，而是一个“尝试-评估-修正”的循环。通过多轮交互，模型可以逐步逼近最优解&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Meta Prompting&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://arxiv.org/abs/2311.11482" target="_blank" rel="noopener"
+&gt; 人工智能系统的元提示&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;元提示是一种高级提示技术，侧重于任务和问题的结构和语法方面，而非具体内容细节。元提示的目标是构建一种更抽象、结构化的大型语言模型（LLM）交互方式，强调信息的形式和模式，而非传统的内容中心方法。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;System Prompt&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;它是提供给大语言模型的&lt;strong&gt;第一条消息&lt;/strong&gt;。这条消息通常是&lt;strong&gt;隐藏&lt;/strong&gt;的，最终用户在与模型交互时是看不到的。它设定了模型行为的底层基调。&lt;/p&gt;
+&lt;p&gt;作用：设定人设，制定规则，定义风格。&lt;/p&gt;
+&lt;p&gt;一般LLM中的三个角色是：System Prompt，User Prompt，Assistant&lt;/p&gt;
+&lt;p&gt;Eg.&lt;/p&gt;
+&lt;p&gt;You are a &lt;strong&gt;helpful&lt;/strong&gt; assistant that &lt;strong&gt;loves programming at the level of a senior software developer&lt;/strong&gt; and &lt;strong&gt;is very detailed and pedantic in your answers&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;基础定位：乐于助人；专业领域：热爱编程的资深技术人员；回答风格：详尽和精确&lt;/p&gt;
+&lt;h3 id="ai-prompt-engineeringa-deep-dive"&gt;&lt;a href="#ai-prompt-engineeringa-deep-dive" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;AI Prompt Engineering：A Deep Dive&lt;/strong&gt;
+&lt;/h3&gt;&lt;p&gt;这场圆桌讨论的核心问题其实只有一个：&lt;strong&gt;提示工程到底是什么，以及怎么把它做好。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;讨论一开始，四位专家就给出了一个共识性的判断——提示工程不是写一段话，而是在设计一个系统。它包含清晰沟通、迭代测试、版本控制和边界管理，本质上是用自然语言承担代码的功能。&amp;ldquo;工程&amp;quot;这两个字落在哪里——不是落在一句完美的提示上，而是落在试错的范式上：你能随时重置、独立实验、反复调整，这是传统软件开发给不了的自由度。&lt;/p&gt;
+&lt;p&gt;然后深入到了提示工程师的能力模型。四位专家给出了三条不同的路径：Zach强调的是&lt;strong&gt;阅读—&lt;/strong&gt;—仔细读模型的输出，别猜它怎么理解指令，直接看它怎么执行的；Amanda强调的是让&lt;strong&gt;外行人来测试&lt;/strong&gt;你的提示，她自己的精确度只有68%，远低于人类基准，这说明提示词里藏着大量隐式假设；而David强调的是&lt;strong&gt;极限挑战&lt;/strong&gt;——别做那些写邮件式的简单任务，真正的成长来自尝试不可能的事情，比如让Claude打Pokemon。&lt;/p&gt;
+&lt;p&gt;那个Pokemon的案例是整段讨论里最直观的。David花了整个周末，叠加网格、构建ASCII地图、放大三千倍，最后发现模型在NPC连续性识别上根本过不去。他选择了放弃——不是因为能力问题，是他知道用四个月优化不如等下一代模型。这个判断本身就是提示工程的一个核心能力：知道什么时候该停。&lt;/p&gt;
+&lt;p&gt;之后进入了一个很重要的分水岭——&lt;strong&gt;预训练模型和RLHF模型的差异。&lt;/strong&gt; David指出一个关键现象：很多人把预训练时代的直觉错误地用到RLHF模型上——比如过度关注&amp;quot;这个内容在互联网上出现了多少次&amp;rdquo;，或者认为角色扮演是万能的。而Amanda的解释把这个问题讲透了：模型已经不是&amp;quot;一句话接一句话地模仿&amp;quot;的预训练模型了，它是一个经过RLHF微调、被训练成&amp;quot;帮助者&amp;quot;的系统。对模型说谎、让它扮演角色，本质上是没搞清楚对面是什么。两种方法论的分歧，根源在这里。&lt;/p&gt;
+&lt;p&gt;然后是那三段划分——&lt;strong&gt;企业级、研究型和通用对话提示词&lt;/strong&gt;的差异。企业级提示词要被调用百万次，必须覆盖所有的边缘情况，提供明确的退路（比如&amp;quot;不确定就输出unsure&amp;quot;）；研究型提示词恰恰相反，只用一两个说明性示例，而且故意选和实际数据完全不同的例子（从事实文档提取信息，用儿童故事做示例），目的是不让模型被格式绑架；通用对话边界更宽松，人在循环中，错了随时改就好。整本书读下来，从定义到能力模型，从底层差异到场景分类，这个框架是完整的。&lt;/p&gt;
+&lt;h2 id="assignment"&gt;&lt;a href="#assignment" class="header-anchor"&gt;&lt;/a&gt;Assignment
+&lt;/h2&gt;&lt;p&gt;作业原仓库：&lt;a class="link" href="https://github.com/mihail911/modern-software-dev-assignments/tree/master" target="_blank" rel="noopener"
+&gt;modern-software-dev-assignments: Assignments for CS146S: The Modern Software Dev (Stanford University Fall 2025)&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;作业个人提交仓库：&lt;a class="link" href="https://github.com/Sutdown/cs146s" target="_blank" rel="noopener"
+&gt;Sutdown/cs146s&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;推荐资料&lt;/p&gt;
+&lt;p&gt;&lt;a class="link" href="https://cloud.tencent.com/developer/article/2463132" target="_blank" rel="noopener"
+&gt;Anthropic官方 深入探讨prompt工程 | 全文脱水中文版-腾讯云开发者社区-腾讯云&lt;/a&gt;&lt;/p&gt;</description></item></channel></rss>
