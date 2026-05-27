@@ -806,7 +806,7 @@ from langchain_core.callbacks import StreamingStdOutCallbackHandler
 from langchain_openai import ChatOpenAI
 
 # 配置 DeepSeek 模型参数
-DEEPSEEK_API_KEY = "sk-65da967e427c4f86ae4749129ba48166"  # 替换为你的 DeepSeek API Key
+DEEPSEEK_API_KEY = ""  # 替换为你的 DeepSeek API Key
 DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"  # DeepSeek 的 API 基础地址
 
 # 初始化 DeepSeek 模型，启用流式输出
