@@ -5,6 +5,10 @@ links:
     description: 面向开发者的代码托管与协作平台，用于版本控制、开源项目管理和软件开发协作。
     website: https://github.com
     image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+
+  - title: Eucaly
+    description: 互联网自留地，欢迎串门。
+    website: https://isntbunny.github.io/
   
   - title: 孤筝
     description: 互联网自留地，欢迎串门。
