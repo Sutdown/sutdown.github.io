@@ -2,6 +2,26 @@
     You can add your own custom styles here.
 */
 
+/* ========================================
+   全局配色 - 藕粉（低饱和 · 高明度）
+   主题变量见 themes/Stack/assets/scss/variables.scss
+   --accent-color-rgb 主题并未定义，custom.scss 中的
+   rgba(var(--accent-color-rgb), .1) 依赖它，缺失会导致 hover 背景静默失效
+   ======================================== */
+:root {
+  --accent-color: #d49ba8;
+  --accent-color-darker: #a66574;
+  --accent-color-rgb: 212, 155, 168;
+  --accent-color-text: #fff;
+  --body-background: #fdf8f9;
+}
+
+:root[data-scheme="dark"] {
+  --accent-color: #e8a9b8;
+  --accent-color-darker: #f0c2ce;
+  --accent-color-rgb: 232, 169, 184;
+}
+
 /* 友情链接一行两个 */
 .links {
   display: grid;
@@ -177,11 +197,7 @@
       padding: 0.8rem 1.5rem;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
-      
-      .article-image {
-        display: none;
-      }
-      
+
       .article-details {
         padding: 0;
       }
@@ -584,10 +600,6 @@
       border-color: var(--accent-color);
     }
 
-    .article-image {
-      display: none;
-    }
-
     .article-details {
       padding: 0;
     }
@@ -874,5 +886,201 @@
         color: var(--accent-color);
       }
     }
+  }
+}
+
+/* ========================================
+   文章封面 - 自动生成的渐变块
+   无 image 字段时按内容长度取模着色，稳定且无需配图
+   ======================================== */
+.article-image--gradient {
+  position: relative;
+  flex: 0 0 92px;
+  width: 92px;
+  height: 92px;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  a {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .article-cover-label {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    max-width: calc(100% - 12px);
+    padding: 0 6px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.62);
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &.g0 { background-image: linear-gradient(135deg, #f5c6d0, #e4a0b4); }
+  &.g1 { background-image: linear-gradient(135deg, #f3d4c0, #e0ae92); }
+  &.g2 { background-image: linear-gradient(135deg, #ddc8e8, #b99fd4); }
+  &.g3 { background-image: linear-gradient(135deg, #c5d9e8, #97b8d4); }
+  &.g4 { background-image: linear-gradient(135deg, #c8e0d4, #98c4ac); }
+  &.g5 { background-image: linear-gradient(135deg, #e8d9c4, #cbae8a); }
+  &.g6 { background-image: linear-gradient(135deg, #e0d5e8, #bca8d4); }
+  &.g7 { background-image: linear-gradient(135deg, #f0d5dc, #d4a8b8); }
+}
+
+/* 列表页：封面在左，文字在右 */
+.article-list article,
+.article-list--compact article {
+  .article-header {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+
+  .article-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &:hover .article-image--gradient {
+    transform: scale(1.06);
+  }
+}
+
+/* 详情页：封面作横幅 */
+.article-page .article-image--gradient {
+  flex: none;
+  width: 100%;
+  height: 150px;
+  margin-bottom: 1.4rem;
+
+  .article-cover-label {
+    right: 10px;
+    bottom: 10px;
+    font-size: 1.3rem;
+    padding: 1px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .article-image--gradient {
+    flex: 0 0 68px;
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+  }
+
+  .article-list article .article-header,
+  .article-list--compact article .article-header {
+    gap: 1rem;
+  }
+
+  .article-page .article-image--gradient {
+    width: 100%;
+    height: 110px;
+  }
+}
+
+/* ========================================
+   微交互 - 顶部阅读进度条
+   ======================================== */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100%;
+  height: 3px;
+  pointer-events: none;
+
+  .reading-progress-bar {
+    width: 0;
+    height: 100%;
+    background: var(--accent-color);
+    transition: width 0.1s linear;
+  }
+}
+
+/* ========================================
+   微交互 - 返回顶部
+   ======================================== */
+.back-to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 98;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--card-background);
+  color: var(--card-text-color-secondary);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: all 0.25s ease;
+
+  &.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  &:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .back-to-top {
+    right: 16px;
+    bottom: 16px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ========================================
+   微交互 - 滚动进场
+   ======================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .article-image--gradient,
+  .reading-progress .reading-progress-bar {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .article-list article:hover .article-image--gradient {
+    transform: none;
   }
 }

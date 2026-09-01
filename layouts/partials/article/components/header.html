@@ -29,6 +29,13 @@
                 {{ end }}
             </a>
         </div>
+    {{ else }}
+        {{- $idx := mod (len .RawContent) 8 -}}
+        <div class="article-image article-image--gradient g{{ $idx }}">
+            <a href="{{ .RelPermalink }}" tabindex="-1" aria-hidden="true">
+                {{ with .Params.categories }}<span class="article-cover-label">{{ index . 0 }}</span>{{ end }}
+            </a>
+        </div>
     {{ end }}
 
     {{ partialCached "article/components/details" . .RelPermalink }}
