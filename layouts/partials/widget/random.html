@@ -1,4 +1,6 @@
 {{- $context := .Context -}}
+{{- $limit := default 5 .Params.limit -}}
+{{- $pages := shuffle (where $context.Site.RegularPages "Section" "in" $context.Site.Params.mainSections) -}}
 <section class="widget random-posts">
     <h2 class="widget-title section-title">随机文章</h2>
     <div class="random-post-list">
@@ -7,33 +9,40 @@
 </section>
 
 <script>
-(function() {
+(function () {
     var posts = [
-        {{ range first 20 (where $context.Site.RegularPages "Section" "in" $context.Site.Params.mainSections) }}
-        {
-            title: {{ .Title | jsonify }},
-            url: {{ .RelPermalink | jsonify }}
-        },
+        {{ range first 30 $pages }}
+        { title: {{ .Title | jsonify | safeJS }}, url: {{ .RelPermalink | jsonify | safeJS }} },
         {{ end }}
     ];
-    
+
     var container = document.querySelector('.random-post-list');
-    if (container && posts.length > 0) {
-        // Fisher-Yates shuffle
-        for (var i = posts.length - 1; i > 0; i--) {
-            var j = Math.floor(Math.random() * (i + 1));
-            var temp = posts[i];
-            posts[i] = posts[j];
-            posts[j] = temp;
-        }
-        
-        var html = '<ul style="list-style:none;padding:0;margin:0;">';
-        var count = Math.min(5, posts.length);
-        for (var k = 0; k < count; k++) {
-            html += '<li style="padding:0.4rem 0;"><a href="' + posts[k].url + '" style="color:var(--card-text-color-secondary);transition:color 0.2s;">' + posts[k].title + '</a></li>';
-        }
-        html += '</ul>';
-        container.innerHTML = html;
+    if (!container || posts.length === 0) return;
+
+    for (var i = posts.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = posts[i];
+        posts[i] = posts[j];
+        posts[j] = t;
     }
+
+    var list = document.createElement('ul');
+    list.className = 'random-list';
+
+    var count = Math.min({{ $limit }}, posts.length);
+    for (var k = 0; k < count; k++) {
+        var item = document.createElement('li');
+        item.className = 'random-item';
+
+        var link = document.createElement('a');
+        link.href = posts[k].url;
+        link.textContent = posts[k].title;
+
+        item.appendChild(link);
+        list.appendChild(item);
+    }
+
+    container.innerHTML = '';
+    container.appendChild(list);
 })();
 </script>

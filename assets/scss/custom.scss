@@ -795,6 +795,50 @@
 }
 
 /* ========================================
+   侧边栏随机文章
+   ======================================== */
+.random-posts {
+  .random-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .random-item {
+    border-bottom: 1px solid var(--border-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    a {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      color: var(--card-text-color-secondary);
+      font-size: 1.3rem;
+      line-height: 1.5;
+      text-decoration: none;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: var(--accent-color);
+        background: rgba(var(--accent-color-rgb), 0.1);
+      }
+    }
+  }
+
+  .loading-text {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--card-text-color-tertiary);
+  }
+}
+
+/* ========================================
    文章正文字体大小
    ======================================== */
 .article-content {

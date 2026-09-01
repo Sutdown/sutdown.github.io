@@ -8,3 +8,6 @@ Thumbs.db
 .idea/
 
 .vscode/
+
+# AI 助手工作记忆
+.workbuddy/
