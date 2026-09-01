@@ -831,7 +831,7 @@
       padding: 0.5rem 0.75rem;
       border-radius: 8px;
       color: var(--card-text-color-secondary);
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       line-height: 1.5;
       text-decoration: none;
       transition: all 0.2s ease;
@@ -890,22 +890,31 @@
 }
 
 /* ========================================
-   文章封面 - 自动生成的渐变块
-   无 image 字段时按内容长度取模着色，稳定且无需配图
+   文章封面 - 随机动漫图（本地预置）
+   无 image 字段时按内容长度取模选一张固定图，稳定且可缓存
+   图片位于 static/img/anime/anime-01.jpg ~ anime-16.jpg
    ======================================== */
-.article-image--gradient {
+.article-image--cover {
   position: relative;
   flex: 0 0 92px;
   width: 92px;
   height: 92px;
   border-radius: 12px;
   overflow: hidden;
+  background: #f0e2e6;
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
   a {
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .article-cover-label {
@@ -915,23 +924,14 @@
     max-width: calc(100% - 12px);
     padding: 0 6px;
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.62);
-    color: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
     font-size: 1.1rem;
     line-height: 1.7;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  &.g0 { background-image: linear-gradient(135deg, #f5c6d0, #e4a0b4); }
-  &.g1 { background-image: linear-gradient(135deg, #f3d4c0, #e0ae92); }
-  &.g2 { background-image: linear-gradient(135deg, #ddc8e8, #b99fd4); }
-  &.g3 { background-image: linear-gradient(135deg, #c5d9e8, #97b8d4); }
-  &.g4 { background-image: linear-gradient(135deg, #c8e0d4, #98c4ac); }
-  &.g5 { background-image: linear-gradient(135deg, #e8d9c4, #cbae8a); }
-  &.g6 { background-image: linear-gradient(135deg, #e0d5e8, #bca8d4); }
-  &.g7 { background-image: linear-gradient(135deg, #f0d5dc, #d4a8b8); }
 }
 
 /* 列表页：封面在左，文字在右 */
@@ -948,13 +948,13 @@
     min-width: 0;
   }
 
-  &:hover .article-image--gradient {
+  &:hover .article-image--cover {
     transform: scale(1.06);
   }
 }
 
 /* 详情页：封面作横幅 */
-.article-page .article-image--gradient {
+.article-page .article-image--cover {
   flex: none;
   width: 100%;
   height: 150px;
@@ -969,7 +969,7 @@
 }
 
 @media (max-width: 768px) {
-  .article-image--gradient {
+  .article-image--cover {
     flex: 0 0 68px;
     width: 68px;
     height: 68px;
@@ -981,7 +981,7 @@
     gap: 1rem;
   }
 
-  .article-page .article-image--gradient {
+  .article-page .article-image--cover {
     width: 100%;
     height: 110px;
   }
@@ -1073,14 +1073,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .article-image--gradient,
+  .article-image--cover,
   .reading-progress .reading-progress-bar {
     opacity: 1;
     transform: none;
     transition: none;
   }
 
-  .article-list article:hover .article-image--gradient {
+  .article-list article:hover .article-image--cover {
     transform: none;
   }
 }
