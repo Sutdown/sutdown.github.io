@@ -13,7 +13,10 @@
   --accent-color-darker: #a66574;
   --accent-color-rgb: 212, 155, 168;
   --accent-color-text: #fff;
-  --body-background: #fdf8f9;
+  --body-background: #fdf9f2;
+  --accent-green: #a8c9b0;
+  --accent-yellow: #f5deb3;
+  --ink: #c9a992;
 }
 
 :root[data-scheme="dark"] {
@@ -21,6 +24,9 @@
   --accent-color-darker: #f0c2ce;
   --accent-color-rgb: 232, 169, 184;
 }
+
+/* 手写体标题规则已移到 head/custom.html 内联 style，
+   避免被 Hugo CSS 压缩把 "LXGW WenKai" 小写去引号破坏 */
 
 /* 友情链接一行两个 */
 .links {
@@ -1321,12 +1327,12 @@
   height: 100%;
 }
 
-/* 分隔线 - 花枝藤蔓 */
+/* 分隔线 - 手绘波浪 */
 hr {
   border: none;
-  height: 26px;
-  background: no-repeat center / auto 100%
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 26'%3E%3Cpath d='M4,13C30,9,90,9,116,13' fill='none' stroke='%23e8c4cf' stroke-width='1.5'/%3E%3Cg fill='%23f3b5c8'%3E%3Cellipse cx='60' cy='8.4' rx='2' ry='3.8'/%3E%3Cellipse cx='60' cy='8.4' rx='2' ry='3.8' transform='rotate(72,60,13)'/%3E%3Cellipse cx='60' cy='8.4' rx='2' ry='3.8' transform='rotate(144,60,13)'/%3E%3Cellipse cx='60' cy='8.4' rx='2' ry='3.8' transform='rotate(216,60,13)'/%3E%3Cellipse cx='60' cy='8.4' rx='2' ry='3.8' transform='rotate(288,60,13)'/%3E%3C/g%3E%3Ccircle cx='60' cy='13' r='1.8' fill='%23f8d4de'/%3E%3C/svg%3E");
+  height: 24px;
+  background: no-repeat center / 100% 100%
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2,15C18,7,34,20,52,12C70,6,86,19,104,12C122,6,140,18,158,11C176,6,188,14,198,9' fill='none' stroke='%23c9a992' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 /* 移动端适配：小树隐藏、横幅收紧 */
@@ -1490,4 +1496,32 @@ hr {
 .article-list article:hover::after,
 .article-list--compact article:hover::after {
   opacity: 1;
+}
+
+/* ========================================
+   手绘风格 - 不规则边框（wobbly border）
+   ======================================== */
+.widget,
+.article-list article,
+.article-list--compact article {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+/* 手绘墨水描边：给樱花元素加浅棕线条，模拟手绘笔触 */
+.petal svg path,
+.petal-trail svg path {
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+.spring-banner-branch path,
+.spring-banner-branch ellipse,
+.spring-banner-branch circle,
+.spring-tree svg path,
+.spring-tree svg circle,
+.spring-tree svg ellipse {
+  stroke: var(--ink);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
