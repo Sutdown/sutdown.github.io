@@ -1,7 +1,16 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.6.0/style.css" />
 <style>
-.article-title, .spring-banner-title, .widget-title, .pagination-title {
+.article-title, .spring-banner-title, .widget-title, .pagination-title, .article-category a {
   font-family: "LXGW WenKai", sans-serif;
 }
+{{ if eq .Section "post" }}
+.article-content {
+  font-family: "Songti SC", "SimSun", "宋体", "STSong", "Noto Serif SC", serif;
+}
+{{ else }}
+.article-content {
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", "STKaiti", sans-serif;
+}
+{{ end }}
 </style>
