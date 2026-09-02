@@ -338,35 +338,4 @@ document.addEventListener('DOMContentLoaded', function () {
       card.style.setProperty('--my', (e.clientY - rect.top).toFixed(0) + 'px');
     });
   });
-
-  /* ========================================
-     春天装饰 - 页面底部溜达的小猫咪
-     ======================================== */
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var cat = document.createElement('div');
-    cat.className = 'spring-cat';
-    cat.setAttribute('aria-hidden', 'true');
-    cat.innerHTML =
-      '<svg viewBox="0 0 120 80">' +
-        '<path d="M28,54 C16,48 14,36 24,28 C30,23 32,28 28,33" fill="none" stroke="#c9a992" stroke-width="2.5" stroke-linecap="round"/>' +
-        '<rect x="36" y="62" width="8" height="11" rx="4" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<rect x="48" y="62" width="8" height="11" rx="4" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<rect x="68" y="62" width="8" height="11" rx="4" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<rect x="78" y="62" width="8" height="11" rx="4" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<ellipse cx="52" cy="55" rx="27" ry="15" fill="#f5c58f" stroke="#c9a992" stroke-width="2"/>' +
-        '<circle cx="80" cy="35" r="20" fill="#f5c58f" stroke="#c9a992" stroke-width="2"/>' +
-        '<path d="M66,20 C64,11 69,8 75,12 L80,18 Z" fill="#f5c58f" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
-        '<path d="M82,17 L88,11 C93,8 97,12 95,20 Z" fill="#f5c58f" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
-        '<circle cx="72" cy="34" r="4" fill="#4a3a2e"/>' +
-        '<circle cx="89" cy="34" r="4" fill="#4a3a2e"/>' +
-        '<circle cx="73.5" cy="32.5" r="1.4" fill="#fff"/>' +
-        '<circle cx="90.5" cy="32.5" r="1.4" fill="#fff"/>' +
-        '<path d="M81,40 L83,42 L79,42 Z" fill="#e88b8b"/>' +
-        '<path d="M81,42 L81,45 M81,45 C79,47 77,47 76,46 M81,45 C83,47 85,47 86,46" stroke="#c9a992" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
-        '<circle cx="66" cy="42" r="3" fill="#f5a8a8" opacity="0.55"/>' +
-        '<circle cx="96" cy="42" r="3" fill="#f5a8a8" opacity="0.55"/>' +
-        '<path d="M64,40 L55,38 M64,43 L55,45 M97,40 L106,38 M97,43 L106,45" stroke="#c9a992" stroke-width="1" stroke-linecap="round"/>' +
-      '</svg>';
-    document.body.appendChild(cat);
-  }
 });
