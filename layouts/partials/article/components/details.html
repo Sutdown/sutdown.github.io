@@ -43,6 +43,9 @@
                 <time class="article-time--reading">
                     {{ T "article.readingTime" .ReadingTime }}
                 </time>
+                {{ if gt .WordCount 0 }}
+                <span class="article-time--wordcount"> · {{ .WordCount }} 字</span>
+                {{ end }}
             </div>
         {{ end }}
     </footer>

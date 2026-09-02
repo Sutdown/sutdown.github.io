@@ -256,4 +256,72 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
+
+  /* ========================================
+     实用功能 - 代码块复制按钮
+     ======================================== */
+  var copySvg =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var checkSvg =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function fallbackCopy(text: string) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+    } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  highlights.forEach(function (el) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-copy-btn';
+    btn.setAttribute('aria-label', '复制代码');
+    btn.innerHTML = copySvg;
+    btn.addEventListener('click', function () {
+      var codes = el.querySelectorAll('code');
+      var codeEl = el.querySelector('code[data-lang]') || (codes.length ? codes[codes.length - 1] : null);
+      if (!codeEl) return;
+      var text = codeEl.innerText || '';
+      var done = function () {
+        btn.innerHTML = checkSvg;
+        btn.classList.add('is-copied');
+        window.setTimeout(function () {
+          btn.innerHTML = copySvg;
+          btn.classList.remove('is-copied');
+        }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () {
+          fallbackCopy(text);
+          done();
+        });
+      } else {
+        fallbackCopy(text);
+        done();
+      }
+    });
+    el.appendChild(btn);
+  });
+
+  /* ========================================
+     实用功能 - 正文插图加载渐显（降级安全）
+     ======================================== */
+  var contentImgs = document.querySelectorAll('.article-content img');
+  contentImgs.forEach(function (img) {
+    if (img.complete && img.naturalWidth > 0) return;
+    img.classList.add('img-fade');
+    img.addEventListener('load', function () {
+      img.classList.remove('img-fade');
+    });
+    img.addEventListener('error', function () {
+      img.classList.remove('img-fade');
+    });
+  });
 });
