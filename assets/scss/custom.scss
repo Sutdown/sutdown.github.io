@@ -1128,3 +1128,93 @@
     transform: none;
   }
 }
+
+/* ========================================
+   精致装饰 - 细节增强（明亮清新 · 藕粉）
+   ======================================== */
+
+/* 全局滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 999px;
+  border: 2px solid var(--body-background);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color-darker);
+}
+
+/* 选中文字 */
+::selection {
+  background: rgba(var(--accent-color-rgb), 0.25);
+}
+
+/* 文章列表项 hover：上浮 + 柔和阴影 + 左侧渐变竖条 */
+.article-list article,
+.article-list--compact article {
+  position: relative;
+  border-radius: 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 3px;
+    height: 55%;
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--accent-color), var(--accent-color-darker));
+    transform: translateY(-50%) scaleY(0);
+    transition: transform 0.25s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    background-color: rgba(var(--accent-color-rgb), 0.06);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+  }
+
+  &:hover::before {
+    transform: translateY(-50%) scaleY(1);
+  }
+}
+
+/* 文章标题 hover 渐变下划线 */
+.article-title a {
+  background-image: linear-gradient(90deg, var(--accent-color), var(--accent-color-darker));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0 2px;
+  transition: background-size 0.3s ease;
+}
+.article-title a:hover {
+  background-size: 100% 2px;
+}
+
+/* 正文插图：圆角 + 柔和阴影 */
+.article-content img {
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 引用块：藕粉左边框 */
+.article-content blockquote {
+  border-left: 3px solid var(--accent-color);
+  background: rgba(var(--accent-color-rgb), 0.06);
+  border-radius: 0 10px 10px 0;
+}
+
+/* 深浅模式阴影适配 */
+:root[data-scheme="dark"] {
+  .article-list article:hover,
+  .article-list--compact article:hover {
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  }
+}
