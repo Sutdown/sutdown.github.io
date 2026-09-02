@@ -324,4 +324,18 @@ document.addEventListener('DOMContentLoaded', function () {
       img.classList.remove('img-fade');
     });
   });
+
+  /* ========================================
+     精致装饰 - 卡片鼠标跟随光斑
+     ======================================== */
+  var spotCards = document.querySelectorAll(
+    '.widget, .article-list article, .article-list--compact article'
+  );
+  spotCards.forEach(function (card) {
+    card.addEventListener('mousemove', function (e) {
+      var rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - rect.left).toFixed(0) + 'px');
+      card.style.setProperty('--my', (e.clientY - rect.top).toFixed(0) + 'px');
+    });
+  });
 });

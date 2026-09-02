@@ -1461,3 +1461,33 @@ hr {
   background: no-repeat center / contain
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23e8c4cf' stroke-width='1.5' stroke-dasharray='4,3'/%3E%3Cdefs%3E%3Cg id='wf'%3E%3Cellipse cx='0' cy='-4.5' rx='2' ry='3.8' fill='%23f3b5c8'/%3E%3Cellipse cx='0' cy='-4.5' rx='2' ry='3.8' fill='%23f3b5c8' transform='rotate(72)'/%3E%3Cellipse cx='0' cy='-4.5' rx='2' ry='3.8' fill='%23f3b5c8' transform='rotate(144)'/%3E%3Cellipse cx='0' cy='-4.5' rx='2' ry='3.8' fill='%23f3b5c8' transform='rotate(216)'/%3E%3Cellipse cx='0' cy='-4.5' rx='2' ry='3.8' fill='%23f3b5c8' transform='rotate(288)'/%3E%3Ccircle r='1.8' fill='%23f8d4de'/%3E%3C/g%3E%3C/defs%3E%3Cuse href='%23wf' x='50' y='4'/%3E%3Cuse href='%23wf' x='89.8' y='27'/%3E%3Cuse href='%23wf' x='89.8' y='73'/%3E%3Cuse href='%23wf' x='50' y='96'/%3E%3Cuse href='%23wf' x='10.2' y='73'/%3E%3Cuse href='%23wf' x='10.2' y='27'/%3E%3C/svg%3E");
 }
+
+/* ========================================
+   精致装饰 - 卡片鼠标跟随光斑
+   ======================================== */
+.widget,
+.article-list article,
+.article-list--compact article {
+  position: relative;
+}
+.widget::after,
+.article-list article::after,
+.article-list--compact article::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(var(--accent-color-rgb), 0.16),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.widget:hover::after,
+.article-list article:hover::after,
+.article-list--compact article:hover::after {
+  opacity: 1;
+}
