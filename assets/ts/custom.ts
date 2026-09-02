@@ -131,4 +131,27 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+
+  /* ========================================
+     春天装饰 - 樱花花瓣飘落（尊重 reduced-motion）
+     ======================================== */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var petalColors = ['#fbd6e0', '#f7c3d2', '#f3b5c8', '#f9d3da'];
+    var petalSvg =
+      '<svg viewBox="0 0 24 24"><path d="M12 2C7.5 7 5.5 11 5.5 14a6.5 6.5 0 0 0 13 0c0-3-2-7-6.5-12z"/></svg>';
+    for (var i = 0; i < 12; i++) {
+      var petal = document.createElement('div');
+      petal.className = 'petal';
+      var size = 14 + Math.random() * 12;
+      petal.style.width = size + 'px';
+      petal.style.height = size + 'px';
+      petal.style.left = Math.random() * 100 + '%';
+      petal.style.animationDuration = 12 + Math.random() * 14 + 's';
+      petal.style.animationDelay = -Math.random() * 22 + 's';
+      petal.style.setProperty('--drift', (Math.random() * 200 - 100).toFixed(0) + 'px');
+      petal.style.setProperty('--petal-color', petalColors[i % petalColors.length]);
+      petal.innerHTML = petalSvg;
+      document.body.appendChild(petal);
+    }
+  }
 });
