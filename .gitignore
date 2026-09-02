@@ -11,3 +11,5 @@ Thumbs.db
 
 # AI 助手工作记忆
 .workbuddy/
+# 临时候选图（选图后删除）
+candidates_tmp/
