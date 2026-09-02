@@ -896,148 +896,6 @@
 }
 
 /* ========================================
-   文章封面 - 随机动漫图（本地预置）
-   无 image 字段时按内容长度取模选一张固定图，稳定且可缓存
-   图片位于 static/img/anime/anime-01.jpg ~ anime-16.jpg
-   ======================================== */
-.article-image--cover {
-  position: relative;
-  flex: 0 0 120px;
-  width: 120px;
-  height: 68px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #f0e2e6;
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-
-  a {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  img {
-    display: block;
-    width: 100%;
-    height: 100%;
-  }
-
-  .cover-bg {
-    position: absolute;
-    inset: 0;
-    object-fit: cover;
-    filter: blur(14px);
-    transform: scale(1.3);
-    opacity: 0.55;
-  }
-
-  .cover-fg {
-    position: relative;
-    object-fit: contain;
-  }
-
-  .article-cover-label {
-    position: absolute;
-    right: 6px;
-    bottom: 6px;
-    max-width: calc(100% - 12px);
-    padding: 0 6px;
-    border-radius: 6px;
-    background: rgba(0, 0, 0, 0.45);
-    color: #fff;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-/* 列表页：封面在左，文字在右 */
-.article-list article,
-.article-list--compact article {
-  .article-header {
-    display: flex;
-    align-items: center;
-    gap: 1.4rem;
-  }
-
-  .article-details {
-    flex: 1;
-    min-width: 0;
-  }
-
-  &:hover .article-image--cover {
-    transform: scale(1.06);
-  }
-}
-
-/* 列表页不显示封面缩略图（详情页保留大图） */
-.article-list article .article-image,
-.article-list--compact article .article-image,
-.article-list--tile article .article-image {
-  display: none;
-}
-
-/* 详情页：封面作横幅（完整显示，不裁剪） */
-.article-page .article-image--cover {
-  flex: none;
-  width: 100%;
-  height: 260px;
-  margin-bottom: 1.4rem;
-
-  .article-cover-label {
-    right: 10px;
-    bottom: 10px;
-    font-size: 1.3rem;
-    padding: 1px 10px;
-  }
-}
-
-@media (max-width: 768px) {
-  .article-image--cover {
-    flex: 0 0 96px;
-    width: 96px;
-    height: 54px;
-    border-radius: 10px;
-  }
-
-  .article-list article .article-header,
-  .article-list--compact article .article-header {
-    gap: 1rem;
-  }
-
-  .article-page .article-image--cover {
-    width: 100%;
-    height: 200px;
-  }
-}
-
-/* 真图分支：front matter 写了 image 的页面（如 About）。
-   主题默认 .article-page .main-article .article-header .article-image img
-   权重极高且 object-fit:cover + max-height:50vh，会裁掉画面。
-   必须用同等/更高权重的选择器组覆盖，并显式解除 max-height */
-.article-image img,
-.article-list article .article-image img,
-.article-list--compact article .article-image img,
-.article-list--tile article .article-image img,
-.article-page .main-article .article-header .article-image img,
-.section-card .section-image img {
-  object-fit: contain;
-}
-
-.article-page .main-article .article-header .article-image img {
-  height: 260px;
-  max-height: none;
-}
-
-@media (max-width: 768px) {
-  .article-page .main-article .article-header .article-image img {
-    height: 200px;
-  }
-}
-
-/* ========================================
    微交互 - 顶部阅读进度条
    ======================================== */
 .reading-progress {
@@ -1123,15 +981,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .article-image--cover,
   .reading-progress .reading-progress-bar {
     opacity: 1;
     transform: none;
     transition: none;
-  }
-
-  .article-list article:hover .article-image--cover {
-    transform: none;
   }
 }
 
