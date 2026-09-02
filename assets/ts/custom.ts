@@ -338,4 +338,30 @@ document.addEventListener('DOMContentLoaded', function () {
       card.style.setProperty('--my', (e.clientY - rect.top).toFixed(0) + 'px');
     });
   });
+
+  /* ========================================
+     春天装饰 - 页面底部溜达的小猫咪
+     ======================================== */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var cat = document.createElement('div');
+    cat.className = 'spring-cat';
+    cat.setAttribute('aria-hidden', 'true');
+    cat.innerHTML =
+      '<svg viewBox="0 0 120 80">' +
+        '<path d="M30,50 C20,44 16,34 26,28" fill="none" stroke="#c9a992" stroke-width="2.5" stroke-linecap="round"/>' +
+        '<rect x="40" y="60" width="7" height="12" rx="3" fill="#f0b878" stroke="#c9a992" stroke-width="1.5"/>' +
+        '<rect x="72" y="60" width="7" height="12" rx="3" fill="#f0b878" stroke="#c9a992" stroke-width="1.5"/>' +
+        '<rect x="82" y="60" width="7" height="12" rx="3" fill="#f0b878" stroke="#c9a992" stroke-width="1.5"/>' +
+        '<ellipse cx="55" cy="52" rx="30" ry="17" fill="#f0b878" stroke="#c9a992" stroke-width="2"/>' +
+        '<circle cx="84" cy="40" r="16" fill="#f0b878" stroke="#c9a992" stroke-width="2"/>' +
+        '<path d="M74,28 L75,14 L84,23 Z" fill="#f0b878" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M84,22 L92,13 L94,28 Z" fill="#f0b878" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
+        '<circle cx="79" cy="38" r="2" fill="#5f4a3a"/>' +
+        '<circle cx="90" cy="38" r="2" fill="#5f4a3a"/>' +
+        '<circle cx="84" cy="43" r="1.5" fill="#e07a5f"/>' +
+        '<path d="M70,42 L61,40 M70,44 L61,46" stroke="#c9a992" stroke-width="1" stroke-linecap="round"/>' +
+        '<path d="M98,42 L107,40 M98,44 L107,46" stroke="#c9a992" stroke-width="1" stroke-linecap="round"/>' +
+      '</svg>';
+    document.body.appendChild(cat);
+  }
 });
