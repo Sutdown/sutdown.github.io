@@ -1,0 +1,29 @@
+{{- $prev := .PrevInSection -}}
+{{- $next := .NextInSection -}}
+{{- if or $prev $next -}}
+<nav class="article-pagination" aria-label="文章导航">
+    {{- if $prev -}}
+    <a class="pagination-item pagination-prev" href="{{ $prev.RelPermalink }}">
+        <span class="pagination-arrow">←</span>
+        <span class="pagination-text">
+            <span class="pagination-label">上一篇</span>
+            <span class="pagination-title">{{ $prev.Title }}</span>
+        </span>
+    </a>
+    {{- else -}}
+    <span class="pagination-item pagination-empty"></span>
+    {{- end -}}
+
+    {{- if $next -}}
+    <a class="pagination-item pagination-next" href="{{ $next.RelPermalink }}">
+        <span class="pagination-text pagination-text-right">
+            <span class="pagination-label">下一篇</span>
+            <span class="pagination-title">{{ $next.Title }}</span>
+        </span>
+        <span class="pagination-arrow">→</span>
+    </a>
+    {{- else -}}
+    <span class="pagination-item pagination-empty"></span>
+    {{- end -}}
+</nav>
+{{- end -}}
