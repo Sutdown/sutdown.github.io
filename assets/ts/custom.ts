@@ -131,4 +131,49 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+
+  /* ========================================
+     封面 - 客户端随机动漫图
+     每次刷新每张封面从有效 API 池随机抽一个；加载失败自动换下一个，
+     全部失败则回退到本地预置图（占位/兜底），避免裂图
+     ======================================== */
+  var coverApis = [
+    'https://api.anosu.top/img/?sort=pc&num=1/',
+    'https://api.anosu.top/img/?sort=pixiv&num=1/',
+    'https://t.alcy.cc/ycy',
+    'https://t.alcy.cc/pc',
+    'https://t.alcy.cc/moe',
+    'https://t.alcy.cc/fj',
+    'https://t.alcy.cc/tx',
+    'https://imgapi.xl0408.top/index.php',
+    'https://www.dmoe.cc/random.php',
+    'https://img.paulzzh.com/touhou/random',
+    'https://api.mtyqx.cn/tapi/random.php',
+    'https://api.illlights.com/v1/img?3241',
+    'https://api.illlights.com/v1/img?3242'
+  ];
+
+  document.querySelectorAll<HTMLImageElement>('.article-image--cover img').forEach(function (img) {
+    var fallback = img.getAttribute('src') || '';
+    var tried: string[] = [];
+
+    function pickNext() {
+      var pool = coverApis.filter(function (a) {
+        return tried.indexOf(a) === -1;
+      });
+      if (pool.length === 0) {
+        img.onerror = null;
+        if (fallback) img.src = fallback;
+        return;
+      }
+      var next = pool[Math.floor(Math.random() * pool.length)];
+      tried.push(next);
+      img.src = next;
+    }
+
+    img.onerror = function () {
+      pickNext();
+    };
+    pickNext();
+  });
 });
