@@ -1346,3 +1346,54 @@ hr {
     font-size: 1.35rem;
   }
 }
+
+/* ========================================
+   春天装饰 - 鼠标樱花轨迹
+   ======================================== */
+.petal-trail {
+  position: fixed;
+  z-index: 31;
+  pointer-events: none;
+  animation: petal-trail 1.1s ease-out forwards;
+}
+.petal-trail svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: var(--petal-color, #f6c6d4);
+}
+@keyframes petal-trail {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(var(--tx, 20px), var(--ty, 30px)) rotate(130deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   精致装饰 - 代码块美化
+   ======================================== */
+.article-content .highlight {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.25);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.code-lang-label {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent-color-darker);
+  background: rgba(var(--accent-color-rgb), 0.14);
+  pointer-events: none;
+  z-index: 1;
+}

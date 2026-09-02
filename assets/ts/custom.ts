@@ -209,4 +209,51 @@ document.addEventListener('DOMContentLoaded', function () {
       '<circle cx="26" cy="14" r="2.2" fill="#f3b5c8"/>' +
     '</svg>';
   document.body.appendChild(tree);
+
+  /* ========================================
+     春天装饰 - 鼠标樱花轨迹（尊重 reduced-motion）
+     ======================================== */
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var trailSvg =
+      '<svg viewBox="0 0 24 24"><path d="M12 2C7.5 7 5.5 11 5.5 14a6.5 6.5 0 0 0 13 0c0-3-2-7-6.5-12z"/></svg>';
+    var trailColors = ['#fbd6e0', '#f7c3d2', '#f3b5c8', '#f9d3da'];
+    var lastTrail = 0;
+    document.addEventListener('mousemove', function (e) {
+      var now = Date.now();
+      if (now - lastTrail < 90) return;
+      lastTrail = now;
+      var el = document.createElement('div');
+      el.className = 'petal-trail';
+      var size = 8 + Math.random() * 8;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = e.clientX + 'px';
+      el.style.top = e.clientY + 'px';
+      el.style.setProperty('--petal-color', trailColors[Math.floor(Math.random() * trailColors.length)]);
+      el.style.setProperty('--tx', (Math.random() * 60 - 30).toFixed(0) + 'px');
+      el.style.setProperty('--ty', (Math.random() * 50 - 10).toFixed(0) + 'px');
+      el.innerHTML = trailSvg;
+      document.body.appendChild(el);
+      window.setTimeout(function () {
+        el.remove();
+      }, 1200);
+    });
+  }
+
+  /* ========================================
+     精致装饰 - 代码块语言标签
+     ======================================== */
+  var highlights = document.querySelectorAll('.article-content .highlight');
+  highlights.forEach(function (el) {
+    var code = el.querySelector('code[data-lang]');
+    if (code) {
+      var lang = code.getAttribute('data-lang') || '';
+      if (lang) {
+        var label = document.createElement('span');
+        label.className = 'code-lang-label';
+        label.textContent = lang;
+        el.appendChild(label);
+      }
+    }
+  });
 });
