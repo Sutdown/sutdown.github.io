@@ -2,6 +2,7 @@
 title: "About"
 slug: "about"
 layout: "about"
+image: /img/about.jpg
 menu:
     main:
         weight: 3

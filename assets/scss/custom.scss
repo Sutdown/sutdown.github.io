@@ -987,6 +987,30 @@
   }
 }
 
+/* 真图分支：front matter 写了 image 的页面（如 About）。
+   主题默认 .article-page .main-article .article-header .article-image img
+   权重极高且 object-fit:cover + max-height:50vh，会裁掉画面。
+   必须用同等/更高权重的选择器组覆盖，并显式解除 max-height */
+.article-image img,
+.article-list article .article-image img,
+.article-list--compact article .article-image img,
+.article-list--tile article .article-image img,
+.article-page .main-article .article-header .article-image img,
+.section-card .section-image img {
+  object-fit: contain;
+}
+
+.article-page .main-article .article-header .article-image img {
+  height: 260px;
+  max-height: none;
+}
+
+@media (max-width: 768px) {
+  .article-page .main-article .article-header .article-image img {
+    height: 200px;
+  }
+}
+
 /* ========================================
    微交互 - 顶部阅读进度条
    ======================================== */
