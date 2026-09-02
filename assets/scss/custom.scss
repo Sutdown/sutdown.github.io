@@ -966,6 +966,13 @@
   }
 }
 
+/* 列表页不显示封面缩略图（详情页保留大图） */
+.article-list article .article-image,
+.article-list--compact article .article-image,
+.article-list--tile article .article-image {
+  display: none;
+}
+
 /* 详情页：封面作横幅（完整显示，不裁剪） */
 .article-page .article-image--cover {
   flex: none;
