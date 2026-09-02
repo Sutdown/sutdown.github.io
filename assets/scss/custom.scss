@@ -914,7 +914,7 @@
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .article-cover-label {
@@ -953,11 +953,11 @@
   }
 }
 
-/* 详情页：封面作横幅 */
+/* 详情页：封面作横幅（完整显示，不裁剪） */
 .article-page .article-image--cover {
   flex: none;
   width: 100%;
-  height: 150px;
+  height: 260px;
   margin-bottom: 1.4rem;
 
   .article-cover-label {
@@ -983,7 +983,7 @@
 
   .article-page .article-image--cover {
     width: 100%;
-    height: 110px;
+    height: 200px;
   }
 }
 

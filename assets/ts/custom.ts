@@ -153,7 +153,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelectorAll<HTMLImageElement>('.article-image--cover img').forEach(function (img) {
     var fallback = img.getAttribute('src') || '';
+    var key = img.getAttribute('data-key') || location.pathname;
     var tried: string[] = [];
+    var isFromApi = false;
+
+    function cacheRealUrl() {
+      // 缓存重定向后的真实图床 URL，保证列表页与详情页同图
+      var real = img.currentSrc || img.src;
+      if (isFromApi && real && real.indexOf('http') === 0) {
+        try {
+          sessionStorage.setItem('cover:' + key, real);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+    }
 
     function pickNext() {
       var pool = coverApis.filter(function (a) {
@@ -161,17 +175,35 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       if (pool.length === 0) {
         img.onerror = null;
+        isFromApi = false;
         if (fallback) img.src = fallback;
         return;
       }
       var next = pool[Math.floor(Math.random() * pool.length)];
       tried.push(next);
+      isFromApi = true;
       img.src = next;
     }
 
     img.onerror = function () {
       pickNext();
     };
-    pickNext();
+    img.onload = function () {
+      cacheRealUrl();
+    };
+
+    var cached: string | null = null;
+    try {
+      cached = sessionStorage.getItem('cover:' + key);
+    } catch (e) {
+      /* ignore */
+    }
+
+    if (cached) {
+      isFromApi = true;
+      img.src = cached;
+    } else {
+      pickNext();
+    }
   });
 });
