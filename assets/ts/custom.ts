@@ -148,9 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     'https://imgapi.xl0408.top/index.php',
     'https://www.dmoe.cc/random.php',
     'https://img.paulzzh.com/touhou/random',
-    'https://api.mtyqx.cn/tapi/random.php',
-    'https://api.illlights.com/v1/img?3241',
-    'https://api.illlights.com/v1/img?3242'
+    'https://api.mtyqx.cn/tapi/random.php'
   ];
 
   document.querySelectorAll<HTMLImageElement>('.article-image--cover img').forEach(function (img) {
