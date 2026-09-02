@@ -914,7 +914,20 @@
     display: block;
     width: 100%;
     height: 100%;
+  }
+
+  .cover-bg {
+    position: absolute;
+    inset: 0;
     object-fit: cover;
+    filter: blur(14px);
+    transform: scale(1.3);
+    opacity: 0.55;
+  }
+
+  .cover-fg {
+    position: relative;
+    object-fit: contain;
   }
 
   .article-cover-label {
@@ -959,10 +972,6 @@
   width: 100%;
   height: 260px;
   margin-bottom: 1.4rem;
-
-  img {
-    object-fit: contain;
-  }
 
   .article-cover-label {
     right: 10px;

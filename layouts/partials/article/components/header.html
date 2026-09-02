@@ -34,7 +34,8 @@
         {{- $n := printf "%02d" (add $idx 1) -}}
         <div class="article-image article-image--cover">
             <a href="{{ .RelPermalink }}">
-                <img src="/img/anime/anime-{{ $n }}.jpg" loading="lazy" alt="" />
+                <img class="cover-bg" src="/img/anime/anime-{{ $n }}.jpg" loading="lazy" alt="" aria-hidden="true" />
+                <img class="cover-fg" src="/img/anime/anime-{{ $n }}.jpg" loading="lazy" alt="" />
                 {{ with .Params.categories }}<span class="article-cover-label">{{ delimit . " · " }}</span>{{ end }}
             </a>
         </div>
