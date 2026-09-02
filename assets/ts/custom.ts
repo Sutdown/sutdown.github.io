@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var petalColors = ['#fbd6e0', '#f7c3d2', '#f3b5c8', '#f9d3da'];
     var petalSvg =
       '<svg viewBox="0 0 24 24"><path d="M12 2C7.5 7 5.5 11 5.5 14a6.5 6.5 0 0 0 13 0c0-3-2-7-6.5-12z"/></svg>';
-    for (var i = 0; i < 12; i++) {
+    for (var i = 0; i < 20; i++) {
       var petal = document.createElement('div');
       petal.className = 'petal';
       var size = 14 + Math.random() * 12;
@@ -154,4 +154,59 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.appendChild(petal);
     }
   }
+
+  /* ========================================
+     春天装饰 - 首页花枝横幅（仅首页）
+     ======================================== */
+  if (window.location.pathname === '/' || window.location.pathname === '/index.html') {
+    var list = document.querySelector('.article-list');
+    if (list) {
+      var banner = document.createElement('div');
+      banner.className = 'spring-banner';
+      banner.innerHTML =
+        '<svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">' +
+          '<path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>' +
+          '<path d="M56,42 C64,30 70,26 78,18" fill="none" stroke="#d2a088" stroke-width="2" stroke-linecap="round"/>' +
+          '<defs><g id="sb-sakura">' +
+            '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8"/>' +
+            '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(72)"/>' +
+            '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(144)"/>' +
+            '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(216)"/>' +
+            '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(288)"/>' +
+            '<circle r="2.1" fill="#f8d4de"/>' +
+          '</g></defs>' +
+          '<use href="#sb-sakura" x="82" y="30"/>' +
+          '<use href="#sb-sakura" x="78" y="14"/>' +
+          '<use href="#sb-sakura" x="140" y="26"/>' +
+          '<circle cx="22" cy="50" r="3.6" fill="#f0a8bc"/>' +
+          '<circle cx="124" cy="20" r="3" fill="#f0a8bc"/>' +
+          '<circle cx="12" cy="48" r="2.4" fill="#f0a8bc"/>' +
+        '</svg>' +
+        '<div class="spring-banner-text">' +
+          '<span class="spring-banner-title">欢迎来到我的小站</span>' +
+          '<span class="spring-banner-sub">Spring · 樱花盛开</span>' +
+        '</div>';
+      list.insertAdjacentElement('beforebegin', banner);
+    }
+  }
+
+  /* ========================================
+     春天装饰 - 底部小树（全站）
+     ======================================== */
+  var tree = document.createElement('div');
+  tree.className = 'spring-tree';
+  tree.setAttribute('aria-hidden', 'true');
+  tree.innerHTML =
+    '<svg viewBox="0 0 60 92">' +
+      '<ellipse cx="30" cy="88" rx="22" ry="4.5" fill="#b9d9a8"/>' +
+      '<path d="M27,88 C27,60 25,52 24,40 L36,40 C35,52 33,60 33,88 Z" fill="#b98a78"/>' +
+      '<circle cx="30" cy="28" r="19" fill="#c9e2b8"/>' +
+      '<circle cx="30" cy="15" r="13" fill="#d9edb9"/>' +
+      '<circle cx="22" cy="24" r="3" fill="#f3b5c8"/>' +
+      '<circle cx="38" cy="22" r="3" fill="#f3b5c8"/>' +
+      '<circle cx="30" cy="11" r="2.5" fill="#f8d4de"/>' +
+      '<circle cx="33" cy="30" r="2.5" fill="#f0a8bc"/>' +
+      '<circle cx="26" cy="14" r="2.2" fill="#f3b5c8"/>' +
+    '</svg>';
+  document.body.appendChild(tree);
 });
