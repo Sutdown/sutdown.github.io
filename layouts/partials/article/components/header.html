@@ -30,11 +30,11 @@
             </a>
         </div>
     {{ else }}
-        {{- $idx := mod (len .RawContent) 16 -}}
+        {{- $idx := mod (hash.FNV32a .RelPermalink) 80 -}}
         {{- $n := printf "%02d" (add $idx 1) -}}
         <div class="article-image article-image--cover">
             <a href="{{ .RelPermalink }}">
-                <img src="/img/anime/anime-{{ $n }}.jpg" loading="lazy" alt="" data-key="{{ .RelPermalink }}" />
+                <img src="/img/anime/anime-{{ $n }}.jpg" loading="lazy" alt="" />
                 {{ with .Params.categories }}<span class="article-cover-label">{{ delimit . " · " }}</span>{{ end }}
             </a>
         </div>
