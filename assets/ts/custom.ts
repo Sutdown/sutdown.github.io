@@ -340,36 +340,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /* ========================================
-     春天装饰 - 右下角蹲坐小猫（尾巴轻摆）
-     ======================================== */
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var sitCat = document.createElement('div');
-    sitCat.className = 'sitting-cat';
-    sitCat.setAttribute('aria-hidden', 'true');
-    sitCat.innerHTML =
-      '<svg viewBox="0 0 80 100">' +
-        '<g class="cat-tail"><path d="M22,72 C12,66 10,52 16,44" fill="none" stroke="#c9a992" stroke-width="3" stroke-linecap="round"/></g>' +
-        '<ellipse cx="30" cy="82" rx="12" ry="8" fill="#f5c58f" stroke="#c9a992" stroke-width="2"/>' +
-        '<ellipse cx="40" cy="62" rx="19" ry="24" fill="#f5c58f" stroke="#c9a992" stroke-width="2"/>' +
-        '<rect x="48" y="74" width="7" height="18" rx="3.5" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<rect x="56" y="74" width="7" height="18" rx="3.5" fill="#f5c58f" stroke="#c9a992" stroke-width="1.5"/>' +
-        '<circle cx="52" cy="30" r="17" fill="#f5c58f" stroke="#c9a992" stroke-width="2"/>' +
-        '<path d="M40,16 C38,8 43,6 47,10 L52,15 Z" fill="#f5c58f" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
-        '<path d="M52,14 L57,9 C61,6 66,8 64,16 Z" fill="#f5c58f" stroke="#c9a992" stroke-width="2" stroke-linejoin="round"/>' +
-        '<circle cx="47" cy="29" r="3.5" fill="#4a3a2e"/>' +
-        '<circle cx="59" cy="29" r="3.5" fill="#4a3a2e"/>' +
-        '<circle cx="48" cy="28" r="1.3" fill="#fff"/>' +
-        '<circle cx="60" cy="28" r="1.3" fill="#fff"/>' +
-        '<path d="M52,35 L54,37 L50,37 Z" fill="#e88b8b"/>' +
-        '<path d="M52,37 L52,40 M52,40 C50,42 48,42 47,41 M52,40 C54,42 56,42 57,41" stroke="#c9a992" stroke-width="1.2" fill="none" stroke-linecap="round"/>' +
-        '<circle cx="42" cy="37" r="3" fill="#f5a8a8" opacity="0.5"/>' +
-        '<circle cx="62" cy="37" r="3" fill="#f5a8a8" opacity="0.5"/>' +
-        '<path d="M40,34 L31,32 M40,37 L31,39 M66,34 L75,32 M66,37 L75,39" stroke="#c9a992" stroke-width="1" stroke-linecap="round"/>' +
-      '</svg>';
-    document.body.appendChild(sitCat);
-  }
-
-  /* ========================================
      春天装饰 - 云朵缓慢飘过
      ======================================== */
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
