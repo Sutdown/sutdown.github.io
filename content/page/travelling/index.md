@@ -3,7 +3,7 @@ title: "Travelling"
 slug: "travelling"
 menu:
     main:
-        weight: 6
+        weight: 5
         params: 
             icon: train-subway
 ---

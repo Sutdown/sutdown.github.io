@@ -2264,3 +2264,72 @@ body.lightbox-open {
     background: rgba(232, 169, 184, 0.05);
   }
 }
+
+/* ========================================
+   Waline 评论框全站统一样式
+   藕粉主题色 + 评论字号对齐文章正文(16px) + 头像放大 + 面板卡片化
+   （作用于所有页面的评论区：文章/About/Links 等）
+   ======================================== */
+.waline-container {
+  --waline-theme-color: var(--accent-color);
+  --waline-active-color: var(--accent-color);
+  --waline-border: 1px dashed var(--border-color);
+
+  /* Waline 内部字号多用相对 em（相对根 font-size=10px 会显得过小），
+     这里把评论各文字元素统一对齐到文章正文大小(15px) */
+  --article-text-size: 15px;
+
+  /* 昵称 / 评论内容 对齐正文 */
+  .wl-card .wl-nick,
+  .wl-card .wl-content {
+    font-size: var(--article-text-size);
+    line-height: 1.8;
+  }
+
+  /* 写评论的主输入框文字 */
+  .wl-panel textarea {
+    font-size: var(--article-text-size);
+    line-height: 1.8;
+  }
+
+  /* 昵称/邮箱/网址输入框及标签 */
+  .wl-header label,
+  .wl-header input,
+  .wl-header input::placeholder {
+    font-size: var(--article-text-size);
+  }
+
+  /* 提交按钮文字 */
+  .wl-btn,
+  .wl-btn.primary {
+    font-size: var(--article-text-size);
+  }
+
+  /* 登录/操作引导小字 */
+  .wl-action,
+  .wl-operations,
+  .wl-login-info {
+    font-size: 13px;
+  }
+
+  /* 评论头像放大，观感更精致 */
+  .wl-header .wl-avatar {
+    width: 2.6em;
+    height: 2.6em;
+  }
+
+  /* 昵称/正文主色跟随博客 */
+  .wl-nick {
+    color: var(--card-text-color-main);
+  }
+  .wl-content {
+    color: var(--card-text-color-main);
+  }
+
+  /* 发表按钮藕粉主色，圆角统一 */
+  .wl-btn-primary,
+  .wl-btn.primary {
+    border-radius: var(--radius-pill);
+  }
+}
+
