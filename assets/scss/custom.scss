@@ -1992,16 +1992,17 @@ body.lightbox-open {
   .inspiration-date {
     display: inline-block;
     font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     color: var(--accent-color);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
   }
 
   .inspiration-card {
     background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-wobbly);
-    padding: 1rem 1.3rem;
+    padding: 1.2rem 1.5rem;
+    position: relative;
     transition: all var(--dur-base) var(--ease-out);
 
     &:hover {
@@ -2012,8 +2013,8 @@ body.lightbox-open {
   }
 
   .inspiration-content {
-    font-size: 1.05rem;
-    line-height: 1.8;
+    font-size: 1.2rem;
+    line-height: 1.85;
     color: var(--card-text-color-main);
 
     p {
@@ -2055,5 +2056,211 @@ body.lightbox-open {
       left: -1.45rem;
       font-size: 0.95rem;
     }
+  }
+}
+
+/* ========================================
+   Moments 页面 - 本地便签 + 分块（字号加大、中文优先可读）
+   ======================================== */
+
+/* 随手写输入卡 */
+.inspiration-compose {
+  margin-top: 1.6rem;
+  padding: 1.4rem 1.6rem;
+  background: var(--card-background);
+  border: 2px dashed rgba(var(--accent-color-rgb), 0.45);
+  border-radius: var(--radius-wobbly);
+}
+
+.inspiration-input {
+  width: 100%;
+  min-height: 92px;
+  padding: 0.9rem 1.1rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: vertical;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+  color: var(--card-text-color-main);
+
+  &::placeholder {
+    color: var(--card-text-color-tertiary);
+    font-size: 1.15rem;
+  }
+}
+
+.inspiration-compose-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.6rem;
+}
+
+.inspiration-add-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 1.5rem;
+  font-size: 1.2rem;
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+  color: #fff;
+  background: var(--accent-color);
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: box-shadow var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+.inspiration-compose-hint {
+  font-size: 1.05rem;
+  color: var(--card-text-color-tertiary);
+}
+
+/* 分块标题 */
+.inspiration-block {
+  margin-top: 2.2rem;
+}
+
+.inspiration-block-title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.4rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+  color: var(--card-text-color-main);
+  border-bottom: 2px solid rgba(var(--accent-color-rgb), 0.25);
+}
+
+.inspiration-block-sub {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--card-text-color-secondary);
+}
+
+/* 空状态 */
+.inspiration-empty {
+  font-size: 1.2rem;
+  color: var(--card-text-color-secondary);
+  padding: 0.6rem 0 1.2rem;
+}
+
+/* 草稿卡片：右侧删除按钮 */
+.inspiration-item.is-draft {
+  .inspiration-card {
+    padding-right: 3.4rem;
+  }
+
+  .inspiration-del {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.9rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    line-height: 1;
+    color: var(--card-text-color-secondary);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0.35;
+    transition: opacity var(--dur-fast) linear,
+                background var(--dur-fast) linear,
+                color var(--dur-fast) linear;
+
+    &:hover {
+      opacity: 1;
+      color: #fff;
+      background: var(--accent-color);
+    }
+  }
+}
+
+/* 深色下便签虚线描边更明显 */
+:root[data-scheme="dark"] {
+  .inspiration-compose {
+    border-color: rgba(232, 169, 184, 0.5);
+  }
+}
+
+/* 移动端便签输入区 */
+@media (max-width: 768px) {
+  .inspiration-compose {
+    padding: 1rem 1.1rem;
+  }
+  .inspiration-block-title {
+    font-size: 1.35rem;
+  }
+  .inspiration-compose-hint {
+    font-size: 0.95rem;
+  }
+}
+
+/* ========================================
+   精致化细节 - 正文图片 + 深色对比度校对
+   ======================================== */
+
+/* 1) 正文插图精致化：可点击放大的视觉暗示 + 圆角深化 */
+.article-content img {
+  /* 灯箱存在时给 hover 提示 */
+  cursor: zoom-in;
+  border-radius: var(--radius-lg);
+  transition: box-shadow var(--dur-base) var(--ease-out),
+              transform var(--dur-base) var(--ease-out);
+  margin: 1.2em auto;
+  display: block;
+}
+
+.article-content img:hover {
+  box-shadow: var(--shadow-lift);
+}
+
+/* 2) 深色模式对比度校对：给正文图/代码块描边，防止深底图融入背景 */
+:root[data-scheme="dark"] {
+  .article-content img {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), var(--shadow-soft);
+    background: var(--card-background);
+  }
+  .article-content img:hover {
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2), var(--shadow-lift);
+  }
+
+  /* 行内代码在深色下提高可读性 */
+  .article-content :not(pre) > code {
+    background: rgba(232, 169, 184, 0.16);
+    border-color: rgba(232, 169, 184, 0.4);
+    color: #f6d5dc;
+  }
+
+  /* 引用块深色下更柔和的背景 */
+  .article-content blockquote {
+    background: rgba(232, 169, 184, 0.1);
+    border-left-color: #e8a9b8;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  /* 分隔线深色下更明显 */
+  .article-content hr {
+    border-top-color: rgba(232, 169, 184, 0.4);
+  }
+
+  /* 表格深色下更清晰 */
+  .article-content thead th {
+    background: rgba(232, 169, 184, 0.14);
+  }
+  .article-content tbody tr:nth-child(even) {
+    background: rgba(232, 169, 184, 0.05);
   }
 }

@@ -1,7 +1,7 @@
 {{ define "body-class" }}template-inspiration{{ end }}
 
 {{ define "main" }}
-{{/* 随心记 - 灵感碎片时间线（复用 spring-banner 手绘风与手写体） */}}
+{{/* Moments - 随心记：顶部本地便签 + 精选灵感时间线（复用 spring-banner 手绘风） */}}
 <div class="spring-banner inspiration-banner">
     <svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">
         <path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>
@@ -22,27 +22,119 @@
         <circle cx="12" cy="48" r="2.4" fill="#f0a8bc"/>
     </svg>
     <div class="spring-banner-text">
-        <span class="spring-banner-title">随心记</span>
-        <span class="spring-banner-sub">灵感碎片 · Moments</span>
+        <span class="spring-banner-title">Moments</span>
+        <span class="spring-banner-sub">随笔当下 · Draft &amp; Share</span>
     </div>
 </div>
 
-<div class="inspiration-list">
-    {{ range .Pages.ByDate.Reverse }}
-    <article class="inspiration-item">
-        <time class="inspiration-date" datetime="{{ .Date.Format "2006-01-02T15:04:05" }}">{{ .Date.Format "2006-01-02 15:04" }}</time>
-        <div class="inspiration-card">
-            <div class="inspiration-content">
-                {{ .Content }}
+{{/* ============ 本地随手便签（浏览器 localStorage，即时增删） ============ */}}
+<section class="inspiration-compose" id="inspiration-compose" aria-label="随手记便签">
+    <textarea id="inspiration-input" class="inspiration-input" rows="3"
+        placeholder="记录此刻的想法…（仅保存在本机浏览器，不会公开）"></textarea>
+    <div class="inspiration-compose-actions">
+        <button type="button" class="inspiration-add-btn" id="inspiration-add-btn">
+            记下来
+        </button>
+        <span class="inspiration-compose-hint">Enter 保存 · 本地草稿，换设备或清缓存会消失</span>
+    </div>
+</section>
+
+<section class="inspiration-block" id="inspiration-drafts">
+    <h2 class="inspiration-block-title">Drafts <span class="inspiration-block-sub">随手便签 · 仅本机可见</span></h2>
+    <div class="inspiration-list" id="inspiration-draft-list">
+        <p class="inspiration-empty" id="inspiration-draft-empty">还没有便签，记一条此刻的想法吧 ✏️</p>
+    </div>
+</section>
+
+{{ if .Pages }}
+<section class="inspiration-block">
+    <h2 class="inspiration-block-title">Saved <span class="inspiration-block-sub">精选灵感 · 公开</span></h2>
+    <div class="inspiration-list">
+        {{ range .Pages.ByDate.Reverse }}
+        <article class="inspiration-item">
+            <time class="inspiration-date" datetime="{{ .Date.Format "2006-01-02T15:04:05" }}">{{ .Date.Format "2006-01-02 15:04" }}</time>
+            <div class="inspiration-card">
+                <div class="inspiration-content">
+                    {{ .Content }}
+                </div>
             </div>
-        </div>
-    </article>
-    {{ end }}
-</div>
+        </article>
+        {{ end }}
+    </div>
+</section>
+{{ end }}
+
+{{/* 本地便签逻辑：仅此页面运行，localStorage 存取，无 Hugo 变量注入 */}}
+<script>
+(function () {
+  var KEY = 'sutdown-moments-drafts';
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+  function save(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} }
+  var listEl = document.getElementById('inspiration-draft-list');
+  var emptyEl = document.getElementById('inspiration-draft-empty');
+  var input = document.getElementById('inspiration-input');
+  var addBtn = document.getElementById('inspiration-add-btn');
+  if (!listEl || !input || !addBtn) return;
+
+  function render() {
+    var drafts = load();
+    // 清空除空状态外的节点
+    Array.prototype.forEach.call(listEl.querySelectorAll('.inspiration-item'), function (n) { n.remove(); });
+    if (drafts.length === 0) { if (emptyEl) emptyEl.style.display = ''; return; }
+    if (emptyEl) emptyEl.style.display = 'none';
+    // 按时间倒序插入
+    drafts.slice().reverse().forEach(function (d) {
+      var item = document.createElement('article');
+      item.className = 'inspiration-item is-draft';
+      var time = document.createElement('time');
+      time.className = 'inspiration-date';
+      var dt = new Date(d.t);
+      function pad(n) { return n < 10 ? '0' + n : n; }
+      time.textContent = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()) + ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+      var card = document.createElement('div');
+      card.className = 'inspiration-card';
+      var content = document.createElement('div');
+      content.className = 'inspiration-content';
+      // 简单转义，仅纯文本展示
+      content.textContent = d.text;
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'inspiration-del';
+      del.setAttribute('aria-label', '删除');
+      del.textContent = '✕';
+      del.addEventListener('click', function () {
+        var cur = load();
+        var idx = cur.indexOf(d);
+        if (idx >= 0) { cur.splice(idx, 1); save(cur); render(); }
+      });
+      card.appendChild(content);
+      card.appendChild(del);
+      item.appendChild(time);
+      item.appendChild(card);
+      listEl.appendChild(item);
+    });
+  }
+
+  function addDraft() {
+    var text = (input.value || '').trim();
+    if (!text) return;
+    var drafts = load();
+    drafts.push({ text: text, t: Date.now() });
+    save(drafts);
+    input.value = '';
+    render();
+  }
+  addBtn.addEventListener('click', addDraft);
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addDraft(); }
+  });
+  render();
+})();
+</script>
 
 {{- partial "footer/footer" . -}}
 {{ end }}
 
 {{ define "right-sidebar" }}
-{{/* 灵感时间线保持单栏，无右侧挂件 */}}
+{{/* 单栏布局，无右侧挂件 */}}
 {{ end }}
