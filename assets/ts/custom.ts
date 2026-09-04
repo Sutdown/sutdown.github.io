@@ -66,21 +66,36 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ========================================
-     微交互 - 返回顶部悬浮按钮（全局）
+     微交互 - 返回顶部进度环（全局）
+     圆环随滚动进度填充，复用 rAF 节流
      ======================================== */
   var btn = document.createElement('button');
   btn.className = 'back-to-top';
   btn.type = 'button';
   btn.setAttribute('aria-label', '返回顶部');
   btn.innerHTML =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+    '<svg class="progress-ring" viewBox="0 0 44 44" aria-hidden="true">' +
+      '<circle class="ring-bg" cx="22" cy="22" r="19"></circle>' +
+      '<circle class="ring-fg" cx="22" cy="22" r="19"></circle>' +
+    '</svg>' +
+    '<svg class="back-to-top-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>';
   document.body.appendChild(btn);
+
+  var ringFg = btn.querySelector('.ring-fg') as SVGCircleElement;
+  var RING_CIRC = 2 * Math.PI * 19; // r=19，约 119.38
 
   var ticking = false;
   function onScroll() {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(function () {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      var scrolled = doc.scrollTop || document.body.scrollTop;
+      var progress = max > 0 ? scrolled / max : 0;
+      if (ringFg) {
+        ringFg.style.strokeDashoffset = (RING_CIRC * (1 - progress)).toFixed(2);
+      }
       if (window.scrollY > 400) {
         btn.classList.add('is-visible');
       } else {
@@ -95,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
   onScroll();
 
   /* ========================================
@@ -379,4 +395,147 @@ document.addEventListener('DOMContentLoaded', function () {
       '<circle cx="290" cy="28" r="3" fill="#f3b5c8" stroke="#c9a992" stroke-width="1"/>' +
     '</svg>';
   document.body.appendChild(branch);
+
+  /* ========================================
+     交互组件 - 图片灯箱（Lightbox）
+     点击正文图片全屏查看，支持键盘切换
+     ======================================== */
+  var lightboxImgs = document.querySelectorAll('.article-content img');
+  if (lightboxImgs.length > 0) {
+    var lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-modal', 'true');
+    lightbox.setAttribute('aria-label', '图片查看器');
+    lightbox.innerHTML =
+      '<div class="lightbox-backdrop"></div>' +
+      '<button class="lightbox-btn lightbox-close" type="button" aria-label="关闭">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+      '</button>' +
+      '<button class="lightbox-btn lightbox-prev" type="button" aria-label="上一张">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>' +
+      '</button>' +
+      '<button class="lightbox-btn lightbox-next" type="button" aria-label="下一张">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>' +
+      '</button>' +
+      '<figure class="lightbox-figure">' +
+        '<img class="lightbox-img" alt="">' +
+        '<figcaption class="lightbox-caption"></figcaption>' +
+        '<span class="lightbox-counter"></span>' +
+      '</figure>';
+    document.body.appendChild(lightbox);
+
+    var lightboxImg = lightbox.querySelector('.lightbox-img') as HTMLImageElement;
+    var lightboxCaption = lightbox.querySelector('.lightbox-caption') as HTMLElement;
+    var lightboxCounter = lightbox.querySelector('.lightbox-counter') as HTMLElement;
+    var currentIndex = 0;
+
+    function showLightbox(index: number) {
+      currentIndex = index;
+      var target = lightboxImgs[index];
+      var src = target.getAttribute('src') || '';
+      var alt = target.getAttribute('alt') || '';
+      lightboxImg.setAttribute('src', src);
+      lightboxImg.setAttribute('alt', alt);
+      // alt 为空或纯数字（如 "1"）时不显示 caption
+      if (alt && !/^\d+$/.test(alt)) {
+        lightboxCaption.textContent = alt;
+        lightboxCaption.style.display = '';
+      } else {
+        lightboxCaption.textContent = '';
+        lightboxCaption.style.display = 'none';
+      }
+      lightboxCounter.textContent = (index + 1) + ' / ' + lightboxImgs.length;
+      lightbox.classList.add('is-open');
+      document.body.classList.add('lightbox-open');
+    }
+    function hideLightbox() {
+      lightbox.classList.remove('is-open');
+      document.body.classList.remove('lightbox-open');
+      window.setTimeout(function () {
+        lightboxImg.removeAttribute('src');
+      }, 300);
+    }
+    function nextImage() {
+      showLightbox((currentIndex + 1) % lightboxImgs.length);
+    }
+    function prevImage() {
+      showLightbox((currentIndex - 1 + lightboxImgs.length) % lightboxImgs.length);
+    }
+
+    lightboxImgs.forEach(function (img, i) {
+      img.classList.add('lightbox-target');
+      img.addEventListener('click', function (e) {
+        e.preventDefault();
+        showLightbox(i);
+      });
+    });
+
+    (lightbox.querySelector('.lightbox-close') as HTMLElement).addEventListener('click', hideLightbox);
+    (lightbox.querySelector('.lightbox-backdrop') as HTMLElement).addEventListener('click', hideLightbox);
+    (lightbox.querySelector('.lightbox-prev') as HTMLElement).addEventListener('click', prevImage);
+    (lightbox.querySelector('.lightbox-next') as HTMLElement).addEventListener('click', nextImage);
+
+    document.addEventListener('keydown', function (e) {
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.key === 'Escape') {
+        hideLightbox();
+      } else if (e.key === 'ArrowRight') {
+        nextImage();
+      } else if (e.key === 'ArrowLeft') {
+        prevImage();
+      }
+    });
+  }
+
+  /* ========================================
+     交互组件 - 移动端底部导航
+     首页 / 归档 / 搜索 / 返回顶部
+     ======================================== */
+  var mobileNav = document.createElement('nav');
+  mobileNav.className = 'mobile-nav';
+  mobileNav.setAttribute('aria-label', '移动端导航');
+  var currentPath = window.location.pathname;
+
+  var navItems = [
+    {
+      href: '/',
+      label: '首页',
+      icon: '<path d="M3 10.5L12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path>'
+    },
+    {
+      href: '/archives/',
+      label: '归档',
+      icon: '<circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline>'
+    },
+    {
+      href: '/search/',
+      label: '搜索',
+      icon: '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line>'
+    }
+  ];
+
+  var navHtml = '';
+  navItems.forEach(function (item) {
+    var isActive =
+      currentPath === item.href ||
+      (item.href !== '/' && currentPath.indexOf(item.href) === 0);
+    navHtml +=
+      '<a class="mobile-nav-item' + (isActive ? ' is-active' : '') + '" href="' + item.href + '"' +
+        (isActive ? ' aria-current="page"' : '') + '>' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + item.icon + '</svg>' +
+        '<span>' + item.label + '</span>' +
+      '</a>';
+  });
+  navHtml +=
+    '<button class="mobile-nav-item mobile-nav-top" type="button" aria-label="返回顶部">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"></polyline></svg>' +
+      '<span>顶部</span>' +
+    '</button>';
+  mobileNav.innerHTML = navHtml;
+  document.body.appendChild(mobileNav);
+
+  (mobileNav.querySelector('.mobile-nav-top') as HTMLElement).addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 });

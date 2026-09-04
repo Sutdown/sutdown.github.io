@@ -9,6 +9,8 @@ menu:
             icon: user
 ---
 
+{{< banner title="关于我" sub="About · 见字如面" >}}
+
 ## hello，欢迎来到我的个人网站 🚀
 
 ###  简单的个人信息

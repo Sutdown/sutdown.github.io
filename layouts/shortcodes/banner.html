@@ -1,0 +1,25 @@
+{{/* 标语卡：{{< banner title="关于我" sub="About · 见字如面" >}} — 复用首页 spring-banner 样式 */}}
+<div class="spring-banner">
+    <svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">
+        <path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>
+        <path d="M56,42 C64,30 70,26 78,18" fill="none" stroke="#d2a088" stroke-width="2" stroke-linecap="round"/>
+        <defs><g id="bn-sakura-{{ .Ordinal }}">
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(72)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(144)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(216)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(288)"/>
+            <circle r="2.1" fill="#f8d4de"/>
+        </g></defs>
+        <use href="#bn-sakura-{{ .Ordinal }}" x="82" y="30"/>
+        <use href="#bn-sakura-{{ .Ordinal }}" x="78" y="14"/>
+        <use href="#bn-sakura-{{ .Ordinal }}" x="140" y="26"/>
+        <circle cx="22" cy="50" r="3.6" fill="#f0a8bc"/>
+        <circle cx="124" cy="20" r="3" fill="#f0a8bc"/>
+        <circle cx="12" cy="48" r="2.4" fill="#f0a8bc"/>
+    </svg>
+    <div class="spring-banner-text">
+        <span class="spring-banner-title">{{ .Get "title" }}</span>
+        <span class="spring-banner-sub">{{ .Get "sub" }}</span>
+    </div>
+</div>

@@ -1,29 +1,55 @@
+{{/* 友链页顶部标语卡 - 复用首页 spring-banner 样式与手写体 */}}
+<div class="spring-banner links-banner">
+    <svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">
+        <path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>
+        <path d="M56,42 C64,30 70,26 78,18" fill="none" stroke="#d2a088" stroke-width="2" stroke-linecap="round"/>
+        <defs><g id="lk-sakura">
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(72)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(144)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(216)"/>
+            <ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(288)"/>
+            <circle r="2.1" fill="#f8d4de"/>
+        </g></defs>
+        <use href="#lk-sakura" x="82" y="30"/>
+        <use href="#lk-sakura" x="78" y="14"/>
+        <use href="#lk-sakura" x="140" y="26"/>
+        <circle cx="22" cy="50" r="3.6" fill="#f0a8bc"/>
+        <circle cx="124" cy="20" r="3" fill="#f0a8bc"/>
+        <circle cx="12" cy="48" r="2.4" fill="#f0a8bc"/>
+    </svg>
+    <div class="spring-banner-text">
+        <span class="spring-banner-title">友情链接</span>
+        <span class="spring-banner-sub">常去的地方 · Friends</span>
+    </div>
+</div>
+
 <div class="article-list--compact links">
     {{ range $i, $link := .Params.links }}
-        <article>
+        {{/* 从 website 提取域名，用于 favicon 与角标 */}}
+        {{ $domain := "" }}
+        {{ with urls.Parse $link.website }}
+            {{ $domain = .Hostname }}
+        {{ end }}
+        <article class="link-card">
             <a href="{{ $link.website }}" target="_blank" rel="noopener">
-                <div class="article-details">
-                    <h2 class="article-title">
+                <div class="link-card-avatar">
+                    {{/* favicon 加载失败时移除 img，露出底下的链接图标兜底 */}}
+                    <svg class="link-avatar-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <img src="https://favicon.im/{{ $domain }}?larger=true" alt="{{ $link.title }}" loading="lazy" onerror="this.remove()">
+                </div>
+                <div class="link-card-body">
+                    <h2 class="article-title link-card-title">
                         {{- $link.title -}}
                     </h2>
-                    <footer class="article-time">
-                        {{ with $link.description }}
-                            {{ . }}
-                        {{ else }}
-                            {{ $link.website }}
-                        {{ end }}
-                    </footer>
-                </div>
-        
-                {{ with $link.image }}
-                    {{ $permalink := . }}
-                    {{ with ($.Resources.GetMatch (printf "%s" (. | safeURL))) }}
-                        {{ $permalink = .RelPermalink }}
+                    {{ with $link.description }}
+                        <p class="link-card-desc">{{ . }}</p>
                     {{ end }}
-                    <div class="article-image">
-                        <img src="{{ $permalink }}" loading="lazy"{{ with $link.alt }} alt="{{ . }}"{{ end }}>
-                    </div>
-                {{ end }}
+                    {{ with $domain }}
+                        <span class="link-card-domain">{{ . }}</span>
+                    {{ end }}
+                </div>
+                <svg class="link-card-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
         </article>
     {{ end }}
