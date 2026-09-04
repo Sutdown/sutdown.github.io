@@ -1951,3 +1951,109 @@ body.lightbox-open {
     text-decoration-color: var(--accent-color);
   }
 }
+
+/* ========================================
+   随心记 - 灵感碎片时间线
+   ======================================== */
+.inspiration-list {
+  position: relative;
+  margin-top: 1.5rem;
+  padding-left: 2.4rem;
+
+  /* 左侧手绘虚线时间轴 */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0.6rem;
+    top: 0.6rem;
+    bottom: 0.4rem;
+    border-left: 2px dashed rgba(var(--accent-color-rgb), 0.35);
+  }
+}
+
+.inspiration-item {
+  position: relative;
+  margin-bottom: 1.4rem;
+
+  /* 时间轴上的樱花节点（居中压线，底色遮线形成断点） */
+  &::before {
+    content: "🌸";
+    position: absolute;
+    left: -1.8rem;
+    top: 0.1rem;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0.2rem 0.35rem;
+    background: var(--body-background);
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  .inspiration-date {
+    display: inline-block;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.15rem;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .inspiration-card {
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-wobbly);
+    padding: 1rem 1.3rem;
+    transition: all var(--dur-base) var(--ease-out);
+
+    &:hover {
+      border-color: var(--accent-color);
+      box-shadow: var(--shadow-lift);
+      transform: translateY(-2px);
+    }
+  }
+
+  .inspiration-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--card-text-color-main);
+
+    p {
+      margin: 0.4em 0;
+      &:first-child { margin-top: 0; }
+      &:last-child { margin-bottom: 0; }
+    }
+
+    a {
+      text-decoration: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: rgba(var(--accent-color-rgb), 0.55);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      &:hover { color: var(--accent-color); text-decoration-color: var(--accent-color); }
+    }
+
+    :not(pre) > code {
+      background: rgba(var(--accent-color-rgb), 0.1);
+      border: 1px dashed rgba(var(--accent-color-rgb), 0.4);
+      border-radius: var(--radius-wobbly-sm);
+      padding: 0.1em 0.45em;
+      color: var(--accent-color-darker);
+      font-size: 0.9em;
+    }
+
+    img { border-radius: var(--radius-md); }
+  }
+}
+
+/* 移动端收紧时间线 */
+@media (max-width: 768px) {
+  .inspiration-list {
+    padding-left: 1.9rem;
+    &::before { left: 0.45rem; }
+  }
+  .inspiration-item {
+    &::before {
+      left: -1.45rem;
+      font-size: 0.95rem;
+    }
+  }
+}
