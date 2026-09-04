@@ -22,7 +22,7 @@ links:
     website: https://qiankunli.github.io/
 menu:
     main: 
-        weight: 4
+        weight: 5
         params:
             icon: link
 
