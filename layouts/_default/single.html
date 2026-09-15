@@ -6,6 +6,10 @@
        判据是 section —— post 下才是真正的文章。 */}}
     {{- if ne .Section "post" -}}
         page-standalone
+        {{/* 再按页面名细分，供 custom.ts 做针对性处理（如 About 的标题卡片化） */}}
+        {{- with .File -}}
+            page-{{ .ContentBaseName | urlize }}
+        {{- end -}}
     {{- end -}}
     {{/* 
         Enable the right sidebar if

@@ -241,6 +241,63 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ========================================
+     Links 页 - 把结尾的「欢迎语 + 友链格式说明」收进一张卡片
+     正文模板里排在友链网格之后，裸文本飘着不好看。
+     同样纯客户端重排，Markdown 原文保持可读。
+     ======================================== */
+  var linksContent = document.querySelector('.page-links .article-content');
+  if (linksContent && linksContent.children.length) {
+    var noteCard = document.createElement('section');
+    noteCard.className = 'links-note';
+
+    /* 卡片上方先插一道花枝标语卡 —— 和 About / Moments 页的段落开场一致 */
+    var noteBanner = document.createElement('div');
+    noteBanner.className = 'spring-banner links-note-banner';
+    noteBanner.innerHTML =
+      '<svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">' +
+        '<path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M56,42 C64,30 70,26 78,18" fill="none" stroke="#d2a088" stroke-width="2" stroke-linecap="round"/>' +
+        '<defs><g id="lkn-sakura">' +
+          '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8"/>' +
+          '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(72)"/>' +
+          '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(144)"/>' +
+          '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(216)"/>' +
+          '<ellipse cx="0" cy="-4.6" rx="2.3" ry="4.2" fill="#f3b5c8" transform="rotate(288)"/>' +
+          '<circle r="2.1" fill="#f8d4de"/>' +
+        '</g></defs>' +
+        '<use href="#lkn-sakura" x="82" y="30"/>' +
+        '<use href="#lkn-sakura" x="78" y="14"/>' +
+        '<use href="#lkn-sakura" x="140" y="26"/>' +
+        '<circle cx="22" cy="50" r="3.6" fill="#f0a8bc"/>' +
+        '<circle cx="124" cy="20" r="3" fill="#f0a8bc"/>' +
+        '<circle cx="12" cy="48" r="2.4" fill="#f0a8bc"/>' +
+      '</svg>' +
+      '<div class="spring-banner-text">' +
+        '<span class="spring-banner-title">关于这里</span>' +
+        '<span class="spring-banner-sub">About this page · 一点说明</span>' +
+      '</div>';
+
+    var noteBody = document.createElement('div');
+    noteBody.className = 'links-note-body';
+
+    /* 一次性搬完所有子节点，避免边遍历边删除导致漏项 */
+    while (linksContent.firstChild) {
+      noteBody.appendChild(linksContent.firstChild);
+    }
+
+    /* 「关于这里」已经在标语卡里承担了标题语义，正文那个 h2 就去掉，
+       否则同一个小节会出现两个一模一样的标题 */
+    var dupHeading = noteBody.querySelector('h2');
+    if (dupHeading && dupHeading.textContent!.indexOf('关于这里') >= 0) {
+      dupHeading.parentNode!.removeChild(dupHeading);
+    }
+
+    noteCard.appendChild(noteBanner);
+    noteCard.appendChild(noteBody);
+    linksContent.appendChild(noteCard);
+  }
+
+  /* ========================================
      精致装饰 - 代码块语言标签
      ======================================== */
   var highlights = document.querySelectorAll('.article-content .highlight');

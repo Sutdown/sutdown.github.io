@@ -26,20 +26,29 @@ menu:
         params:
             icon: link
 
+# 关掉右侧目录栏：本页主体是友链卡片，和 Home / Archives / Moments 一样不需要 TOC
+toc: false
+
 comments: true
 ---
 
-欢迎来到我的个人网站。
+## 关于这里
 
-- 💬 Ask me about anything, I am happy to answer or discussion with you;
-- 📫 How to reach me: feixiang_22@tju.edu.cn;
+这些是我常去的地方 —— 偶尔串门，偶尔翻翻别人的笔记，会发现很多自己想不到的写法。
 
-如想添加友情链接，请遵循以下格式：
+- 💬 想聊技术、聊读书、聊点什么都可以，我很乐意回信
+- 📫 联系方式：feixiang_22@tju.edu.cn
+
+## 想交换友链
+
+欢迎来邮件，带上你的站点信息就行。格式是这样：
 
 ```yaml
-links:
-  - title: GitHub
-    description: GitHub is the world's largest software development platform.
-    website: https://github.com
-    (option)image: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+- title: 你的站点名
+  description: 一句话介绍
+  website: https://example.com
+  # 可选：不填则自动取站点的 favicon
+  image: https://example.com/logo.png
 ```
+
+我会尽快加上，也会常去看看。

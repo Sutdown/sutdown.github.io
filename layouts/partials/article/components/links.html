@@ -1,4 +1,26 @@
-{{/* 友链页顶部标语卡 - 复用首页 spring-banner 样式与手写体 */}}
+{{/* 友链列表区
+     页面结构（自上而下）：
+       1. .spring-banner   带标题的标语卡「友情链接 / 常去的地方 · Friends」
+       2. 友链卡片网格
+     正文里的「关于这里 / 想交换友链」说明排在卡片之后，
+     由 custom.ts 收进 .links-note 卡片并补一道同款标语卡，见 assets/ts/custom.ts。 */}}
+
+{{/* 从 website 提取域名：优先用参数里显式写的 domain，其次从 URL 解析。
+     放在模板最前面，避免夹在 HTML 中间产生多余空白节点。 */}}
+{{ $items := slice }}
+{{ range .Params.links }}
+    {{ $domain := "" }}
+    {{ with .domain }}
+        {{ $domain = . }}
+    {{ else }}
+        {{ with urls.Parse .website }}
+            {{ $domain = .Hostname }}
+            {{ $domain = replaceRE "^www\\." "" $domain }}
+        {{ end }}
+    {{ end }}
+    {{ $items = $items | append (merge . (dict "domain" $domain)) }}
+{{ end }}
+
 <div class="spring-banner links-banner">
     <svg class="spring-banner-branch" viewBox="0 0 150 64" aria-hidden="true">
         <path d="M6,54 C32,46 54,50 82,32 C102,20 122,22 140,28" fill="none" stroke="#c08a76" stroke-width="3" stroke-linecap="round"/>
@@ -25,27 +47,20 @@
 </div>
 
 <div class="article-list--compact links">
-    {{ range $i, $link := .Params.links }}
-        {{/* 从 website 提取域名，用于 favicon 与角标 */}}
-        {{ $domain := "" }}
-        {{ with urls.Parse $link.website }}
-            {{ $domain = .Hostname }}
-        {{ end }}
+    {{ range $items }}
         <article class="link-card">
-            <a href="{{ $link.website }}" target="_blank" rel="noopener">
+            <a href="{{ .website }}" target="_blank" rel="noopener">
                 <div class="link-card-avatar">
                     {{/* favicon 加载失败时移除 img，露出底下的链接图标兜底 */}}
                     <svg class="link-avatar-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    <img src="https://favicon.im/{{ $domain }}?larger=true" alt="{{ $link.title }}" loading="lazy" onerror="this.remove()">
+                    <img src="https://favicon.im/{{ .domain }}?larger=true" alt="{{ .title }}" loading="lazy" onerror="this.remove()">
                 </div>
                 <div class="link-card-body">
-                    <h2 class="article-title link-card-title">
-                        {{- $link.title -}}
-                    </h2>
-                    {{ with $link.description }}
+                    <h2 class="article-title link-card-title">{{- .title -}}</h2>
+                    {{ with .description }}
                         <p class="link-card-desc">{{ . }}</p>
                     {{ end }}
-                    {{ with $domain }}
+                    {{ with .domain }}
                         <span class="link-card-domain">{{ . }}</span>
                     {{ end }}
                 </div>

@@ -59,9 +59,21 @@ slug 用小写英文连字符：`mcp-deep-dive`、`week10`、`raft-consensus`
 - **封面现状（2026-09-16 确认）：全站没有封面图**。`header.html` 只剩
   `partialCached "article/components/details" . .RelPermalink`，`static/img/anime/`（80 张）与
   `about.jpg` 已于 2026-09-02 删除（commit `3c02650`）。列表页与详情页的文章卡片只有
-  `.article-details`（分类角标 + 标题 + subtitle + 元信息），全站唯���的 img 是侧边栏头像。
+  `.article-details`（分类角标 + 标题 + subtitle + 元信息），全站唯一的 img 是侧边栏头像。
   → **文章的视觉表达只能靠正文内的配图**，所以 G4「至少 1 张图」更重要
 - **菜单**：菜单项定义在各页面 front matter 的 `menu.main` 里，**不要动 `config/_default/menu.toml`**（会重复）
+- **文章的 URL 用「标题」，不是文件名**：产出目录形如 `public/p/<标题>/`。
+  例：`title: "MCP详解指南"` → `public/p/mcp详解指南/`；
+  `title: "SutdownBlog 视觉重构记录"` → `public/p/sutdownblog-视觉重构记录/`。
+  **不是** `public/post/log/<文件名日期-slug>/`。
+  标题里的空格会变成连字符、大写转小写，中文原样保留（Hugo 直接输出中文目录名，
+  浏览器自己编码，不需要手动 `urlencode`）。
+  → 预览给用户的 URL 就是 `http://localhost:1313/p/<标题小写化后的形式>/`；
+  不确定时直接 `ls public/p/ | grep <关键词>` 看实际生成的目录名。
+  这是**全站既有行为**（81 篇一致），别误判成路径 bug。
+- **验证文章渲染别只看字节数**：`hugo server` 对新建文章有重建延迟，
+  刚生成时请求可能返回一个 13KB 左右的空壳页。等 rebuild 完再请求，
+  或直接看 `public/p/<标题>/index.html` 的大小（正常在 40KB+）。
 - **自定义 CSS** 只改 `assets/scss/custom.scss`；**自定义 JS 只改 `assets/ts/custom.ts`**
   （`assets/js/custom.js` 会 404，别走这条路）
 - **正文排版不要动**：中文排版方案（justify + 首行缩进 / 改行宽行高）已被否决两次，不要再改

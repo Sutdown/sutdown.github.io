@@ -53,9 +53,32 @@
    避免被 Hugo CSS 压缩把 "LXGW WenKai" 小写去引号破坏 */
 
 /* ========================================
-   友情链接 - 手绘卡片风格
+   友情链接页
    （原 .link-item 死样式已删除：模板从未使用该类）
    ======================================== */
+
+/* 去掉白色文章面板 —— 白板压在米白底上会「白得发空」，
+   让友链卡片直接落在页面底色上，和 About 页统一。 */
+.page-links {
+  .main-article {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* 主题输出的 Links 大标题与 banner 的「友情链接」重复，隐藏 */
+  .article-details {
+    display: none;
+  }
+
+  /* 正文（欢迎语 + 说明）排在卡片区下方，作为一个收尾小节 */
+  > .main-article > .article-content {
+    margin-top: 2rem;
+  }
+}
+
 .links {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -74,9 +97,14 @@
 }
 
 .links article {
-  background: var(--card-background);
-  border: 1px solid var(--border-color);
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+  /* 卡片底色用「比页面米白再浅一点的暖白」，而不是纯白 or 全透明：
+     - 全透明（上一版）会让卡片和页面糊在一起，favicon 也失去承托
+     - 纯白 #fff 又太跳，压在米白底上「白得发空」
+     这里用极浅暖白，和整站的莫兰迪浅调一致，仅比页面底亮一档。 */
+  background: #fffdf9;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.3);
+  border-radius: var(--radius-wobbly);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
 
   /* 文章列表的 hover 左侧竖条不适用于友链卡 */
   &::before {
@@ -86,8 +114,8 @@
   a {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1.1rem 1.2rem;
+    gap: 1.1rem;
+    padding: 1.15rem 1.25rem;
     text-decoration: none;
     color: inherit;
     height: 100%;
@@ -96,20 +124,24 @@
   &:hover {
     transform: translateY(-3px);
     border-color: var(--accent-color);
+    background: #fffefa;
     box-shadow: var(--shadow-lift);
   }
 }
 
-/* 站点头像框 - 手绘圆角 + 墨水描边 */
+/* 站点头像框 - 手绘圆角 + 墨水描边
+   必须有浅色底：favicon.im 返回的多是透明 SVG（如 GitHub 是 #24292E 的纯深色图形），
+   去掉底色后深色图标直接压在浅底上，边界发虚、显得脏。
+   这里给一层近白底当「相纸」，图标才立得住。 */
 .link-card-avatar {
   position: relative;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
-  border: 1px solid rgba(var(--accent-color-rgb), 0.35);
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.3);
   border-radius: var(--radius-wobbly-sm);
   background: #fff;
   overflow: hidden;
@@ -119,8 +151,8 @@
   img {
     position: relative;
     z-index: 1;
-    width: 34px;
-    height: 34px;
+    width: 26px;
+    height: 26px;
     object-fit: contain;
     border-radius: 0;
     box-shadow: none;
@@ -129,8 +161,8 @@
 
 .link-avatar-fallback {
   position: absolute;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 
 .link-card-body {
@@ -138,10 +170,13 @@
   min-width: 0;
 }
 
+/* 标题与描述的字号差收窄：
+   原来 title 1.6 / desc 1.25 / domain 1.15 三层，视觉太碎。
+   现在 1.5 / 1.35 / 1.2，层级仍在但过渡平缓。 */
 .link-card-title {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.3rem;
   line-height: 1.3;
   color: var(--card-text-color-main);
 }
@@ -149,8 +184,8 @@
 .link-card-desc {
   margin: 0;
   font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-  font-size: 1.25rem;
-  line-height: 1.6;
+  font-size: 1.35rem;
+  line-height: 1.55;
   color: var(--card-text-color-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -158,14 +193,14 @@
   overflow: hidden;
 }
 
-/* 域名角标 - 虚线下划线呼应手绘贴纸风 */
+/* 域名角标 - 实线下划线呼应手绘贴纸风 */
 .link-card-domain {
   display: inline-block;
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
   font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: var(--card-text-color-tertiary);
-  border-bottom: 1px dashed rgba(var(--accent-color-rgb), 0.4);
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.4);
 }
 
 .link-card-arrow {
@@ -181,10 +216,164 @@
   color: var(--accent-color);
 }
 
-/* 深色模式：头像底色保持浅色，favicon 才清晰 */
+/* 结尾说明小节：视觉语言与上方友链卡完全一致
+   —— 同样的暖白底、wobbly 圆角、藕粉描边，
+   只是内部排版换成「段落 + 列表 + 代码块」。 */
+.links-note {
+  margin-top: 2rem;
+  padding: 0 1.25rem 1.25rem;
+  background: #fffdf9;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.3);
+  border-radius: var(--radius-wobbly);
+}
+
+/* 说明卡顶部的花枝标语卡：用负 margin 让横幅顶到描边内缘 */
+.links-note-banner {
+  margin: 0 -1.25rem 1.1rem;
+}
+
+.links-note-body {
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+
+  /* 段落：跟随主题正文字号（--article-font-size，1.6/1.7rem），
+     不要用手写体小字号 —— 说明区是正经正文，缩到 1.25rem 会显得瘪。 */
+  p {
+    margin: 0 0 1rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: var(--article-font-size);
+    line-height: var(--article-line-height);
+    color: var(--card-text-color-main);
+  }
+
+  /* 小节标题：保持手写体 + 藕粉短线，字号比正文大一号 */
+  h2 {
+    position: relative;
+    margin: 1.8rem 0 0.9rem;
+    padding: 0 0 0 0.85rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--accent-color-darker);
+    border: none;
+
+    /* 重置主题给标题的负 margin，避免标题比正文宽出一截 */
+    margin-inline-start: 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.42em;
+      width: 4px;
+      height: 1.05em;
+      background: var(--accent-color);
+      border-radius: var(--radius-pill);
+      opacity: 0.75;
+    }
+
+    .header-anchor { display: none; }
+
+    /* 紧跟在段落后面的标题不该顶太多空白 */
+    &:first-child { margin-top: 0; }
+  }
+
+  /* 列表：同样跟随正文字号，条目间留呼吸 */
+  ul, ol {
+    margin: 0 0 1rem;
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.35rem;
+  }
+
+  /* 行内代码：呼应域名角标的虚线感，改浅藕粉底 + 描边 */
+  code {
+    padding: 0.1em 0.4em;
+    font-size: 0.92em;
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-color-rgb), 0.22);
+    border-radius: 5px;
+    color: var(--accent-color-darker);
+  }
+
+  /* 代码块：圆角与描边对齐卡片语言。前置加粗类说明，字号比正文小一档 */
+  .highlight {
+    margin: 1rem 0 1.1rem;
+    border: 1px solid rgba(var(--accent-color-rgb), 0.22);
+    border-radius: var(--radius-wobbly-sm);
+    overflow: hidden;
+
+    /* 主题给 .article-content .highlight 加了通栏出血：
+         margin-left/right: calc(var(--card-padding) * -1)
+         width: calc(100% + var(--card-padding) * 2)
+       那是为「内容直接铺在文章卡里」设计的。但说明区被收进了 .links-note
+       这张有描边的卡片（内部 padding 仅 1.25rem），代码块再外扩 25~30px
+       就会顶穿描边。这里把它拉回正常流内，宽度交给父容器。
+       权重说明：主题那条是 (0,2,1)，这里 .links-note-body .highlight 是
+       (0,2,0)，单靠选择器赢不了，必须靠 !important 或补 .article-content。
+       用 !important 更稳 —— 主题后续改选择器也不会让这里失效。 */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: auto !important;
+    max-width: 100%;
+
+    /* 内层 pre 也被主题给了对称负 margin，一并归零 */
+    pre {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding: 1rem 1.1rem !important;
+      /* 兜底：超长代码行横向滚动，而不是把卡片撑宽 */
+      overflow-x: auto;
+    }
+
+    pre, code {
+      border: none;
+      background: none;
+      font-size: 1.4rem;
+      font-family: var(--code-font-family, monospace);
+    }
+  }
+
+  a {
+    color: var(--accent-color);
+    border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .links-note {
+    padding: 0 1.1rem 1.1rem;
+
+    .links-note-banner {
+      margin-left: -1.1rem;
+      margin-right: -1.1rem;
+    }
+  }
+}
+
+/* 深色模式：卡片改用暗面 + 藕粉描边，恢复正常对比 */
 :root[data-scheme="dark"] {
+  .links article {
+    background: var(--card-background);
+    border-color: rgba(232, 169, 184, 0.3);
+
+    &:hover {
+      border-color: #e8a9b8;
+      background: var(--card-background);
+    }
+  }
+
+  .links-note {
+    background: var(--card-background);
+    border-color: rgba(232, 169, 184, 0.3);
+  }
+
+  /* 深色模式下 favicon 底托仍留近白，否则深色图标完全看不见 */
   .link-card-avatar {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
   }
 }
 
@@ -1354,6 +1543,102 @@
 .spring-banner-sub {
   font-size: 1.2rem;
   color: rgba(var(--accent-color-rgb), 0.85);
+}
+
+/* ========================================
+   About 页 - 扁平排版（不分块卡片化）
+   页面标题交给顶部花枝标语卡，正文直接从 h3 小节铺开。
+   ======================================== */
+.page-about {
+  /* 原本 .main-article 是纯白 #fff，压在米白背景上显得「白得发空」，
+     这里去掉白板，让正文直接落在页面底色上。 */
+  .main-article {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* 顶部重复标题去掉：花枝标语卡已承担页面标题，
+     再顶一个主题的 About 大标题 + 阅读时长/字数，语义重复且喧宾夺主。 */
+  .article-details {
+    display: none;
+  }
+
+  /* 标语卡顶到文章两侧：
+     主题给 .article-content 加了 padding: 0 var(--card-padding)（20~30px），
+     标语卡在这个内缩区域里，比 h3（被主题负 margin 顶到满宽）窄一截。
+     用等量负 margin 抵回来，让它和标题/正文的分隔线左右对齐。 */
+  > .main-article > .article-content > .spring-banner {
+    margin-left: calc(var(--card-padding) * -1);
+    margin-right: calc(var(--card-padding) * -1);
+  }
+
+  /* 正文第一个 h3 不要顶着 banner 贴太近 */
+  > .main-article > .article-content > h3:first-child {
+    margin-top: 0.6rem;
+  }
+
+  /* 小节标题保持手写体 + 左侧藕粉短线，但没有卡片框。
+     注意重置主题的负 margin —— 否则标题会比正文宽出 --card-padding，
+     和下面正文左边界对不齐。 */
+  .article-content > h3 {
+    position: relative;
+    margin-inline-start: 0;
+    padding: 0 0 0 0.85rem;
+    margin-top: 1.8rem;
+    margin-bottom: 0.7rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--accent-color-darker);
+    border: none;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.42em;
+      width: 4px;
+      height: 1.05em;
+      background: var(--accent-color);
+      border-radius: var(--radius-pill);
+      opacity: 0.75;
+    }
+
+    .header-anchor { display: none; }
+  }
+
+  /* 列表条目松一点，条目多时更透气 */
+  .article-content ul li,
+  .article-content ol li {
+    line-height: 1.85;
+    margin-bottom: 0.3rem;
+  }
+
+  /* 嵌套列表（学习经历 / 工作时间线）左侧加一条虚线，像手绘时间轴 */
+  .article-content ul ul {
+    margin-top: 0.35rem;
+    margin-left: 0.3rem;
+    padding-left: 1rem;
+    border-left: 1px dashed rgba(var(--accent-color-rgb), 0.4);
+
+    li {
+      font-size: 0.95em;
+      color: var(--card-text-color-secondary);
+    }
+  }
+}
+
+/* 深色模式 */
+:root[data-scheme="dark"] {
+  .page-about {
+    .main-article {
+      background: transparent;
+    }
+  }
 }
 
 /* ========================================

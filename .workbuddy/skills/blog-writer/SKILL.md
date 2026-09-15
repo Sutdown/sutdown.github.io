@@ -123,4 +123,5 @@ git add -A && git commit -m "..." && git push origin master
 
 - Hugo：`E:/app/hugp/hugo_extended_0.154.3_windows-amd64/hugo`（v0.154.3 extended）
 - Python：`C:/Users/xiangfei/.workbuddy/binaries/python/versions/3.13.12/python.exe`（自带 Pillow）
-- 构建参考：144 页 / 约 5 秒
+- 构建参考：152 页 / 311 静态文件 / 约 6 秒（2026-09-16 实测；页数会随文章增加，只作量级参考）
+- 文章 URL 是**标题**不是文件名：`/p/<URL编码后的标题>/`，详见 `references/post-conventions.md`

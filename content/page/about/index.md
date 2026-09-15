@@ -1,7 +1,8 @@
 ---
 title: "About"
 slug: "about"
-layout: "about"
+# 关掉右侧目录栏：本页是扁平的个人介绍，和 Home / Archives / Moments 一样不需要 TOC
+toc: false
 menu:
     main:
         weight: 3
@@ -9,9 +10,7 @@ menu:
             icon: user
 ---
 
-{{< banner title="关于我" sub="About · 见字如面" >}}
-
-## hello，欢迎来到我的个人网站 🚀
+{{< banner title="见字如面" sub="About · 欢迎光临" >}}
 
 ###  简单的个人信息
 - 📌 **GitHub 用户名**：Sutdown 
