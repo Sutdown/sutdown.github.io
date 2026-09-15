@@ -5,7 +5,7 @@ layout: "moments"
 menu:
     main:
         name: Moments
-        weight: 2.5
+        weight: 2
         params:
             icon: moments
 ---

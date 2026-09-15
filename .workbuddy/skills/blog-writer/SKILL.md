@@ -1,6 +1,6 @@
 ---
 name: blog-writer
-description: 为 SutdownBlog（Hugo + Stack 主题，站点 sutdown.github.io）按江舟本人的写作风格生成技术文章并落盘预览。当用户说「写篇博客 / 用 blog-writer 写 X / 把刚讨论的这个话题整理成文章」，或给出文章关键词、要求把某个讨论过的话题写成文章时使用。流程覆盖主题捕获 → 多方检索 → 风格对齐 → 成稿（front matter / 配图 / 参考链接）→ 本地 hugo server 预览 → 用户明确确认后才提交推送。
+description: 为 SutdownBlog（Hugo + Stack 主题，站点 sutdown.github.io）按江舟本人的写作风格生成技术文章并落盘预览。当用户说「写篇博客 / 用 blog-writer 写 X / 把刚讨论的这个话题整理成文章」，或给出文章关键词、要求把某个讨论过的话题写成文章时使用。会按主题区分语言调性（主观经历保留个人判断，严谨主题语言收紧）、用客观名词短语标题、套「一二三 + 1.1」层级。流程覆盖主题捕获 → 多方检索 → 风格对齐 → 成稿（front matter / 配图 / 参考链接）→ 本地 hugo server 预览 → 用户明确确认后才提交推送 → 改进沉淀回 skill。
 agent_created: true
 ---
 
@@ -68,6 +68,17 @@ agent_created: true
 再读同分类旧文 ≥3 篇（用 Glob 按分类目录找），重点看：开头怎么切入、标题怎么断、图表怎么用、
 结尾怎么收。写完后**对照黑名单自检一遍**再落盘。
 
+**落笔前必须先做三个判断（用户明确要求，不能省）：**
+
+1. **调性判断** —— 这篇是「主观经历」还是「严谨知识」？
+   见 `references/writing-style.md` 第五节后的「按主题区分语言调性」表。
+   主观经历（博客改造、折腾记录）→ 保留个人思想与判断，可写犹豫/返工/取舍；
+   严谨主题（原理、源码、协议）→ 术语精确、断言有出处、少语气词。
+2. **标题判断** —— 用「对象 + 内容类型」的客观名词短语，不写「一次…的…」抒情修饰，
+   不写「浅谈 / 一文读懂」套词。对照 writing-style.md 里的正反例表。
+3. **层级判断** —— `##` 用「一、二、三」、`###` 用「1.1/1.2」；
+   阶段性总结、横向对比类文章层级要明显（读者需要跳读）。
+
 ### Step 3 · 成稿落盘
 
 用脚手架建骨架（也可手写，但 front matter 必须一致）：
@@ -85,6 +96,10 @@ C:/Users/xiangfei/.workbuddy/binaries/python/versions/3.13.12/python.exe \
 - **不写 `image` 字段**：2026-09-02 起站点已移除封面图机制（`static/img/anime/` 已删，`header.html` 只剩 details partial），写了也不渲染。配图只放正文内
 - 目录用 `toc: true` + `##` / `###` 两级，不要四级以上
 - 结尾 `## 参考链接：` + `1 [标题](URL)` 编号列表
+
+**⚠️ 落笔前先确认主题的时间跨度**：用户说「这些天 / 最近 / 这一轮」时，
+先去 `git log` 看实际改动范围，不要只凭当前会话上下文下笔。
+（踩过：用户要写「重构博客的全过程」，我只写了当天的改动，被要求重写。）
 
 ### Step 4 · 配图
 
@@ -112,9 +127,25 @@ git add -A && git commit -m "..." && git push origin master
 - push 到 `master` 后由 GitHub Actions 构建发布到 `gh-pages`，站点 https://sutdown.github.io
 - 用户没说提交就绝不提交；用户说"先放着"就保持工作区改动不动
 
+### Step 7 · 改进沉淀（每次用完都要做）
+
+**用户明确要求：用这个 skill 的过程中，凡是发现合适的改进，自己主动补进 skill，不要等用户提。**
+
+写完一篇文章后，回头检查这几处，命中就当场改：
+
+| 检查项 | 记到哪 |
+| --- | --- |
+| 某个路径/命令/配置我找错了或猜错了 | `references/post-conventions.md` |
+| 用户对风格提了新要求（调性、标题、层级、用词） | `references/writing-style.md` |
+| 检索时发现更可靠的来源渠道或配图做法 | `references/sourcing.md` |
+| 流程步骤有遗漏、顺序不对、门禁没拦住问题 | 本文件 workflow |
+| 环境数值过时（页数、版本号、耗时） | 本文件「环境速查」 |
+
+改完在 memory 里记一句改了什么、为什么改。**不要让同一个坑踩两次。**
+
 ## 参考文件
 
-- `references/writing-style.md` — 风格卡 + 反 AI 味黑名单（Step 2 必读）
+- `references/writing-style.md` — 风格卡 + 反 AI 味黑名单 + 调性/标题/层级规范（Step 2 必读）
 - `references/post-conventions.md` — front matter / 路径 / 图片 / 环境坑（Step 3 必读）
 - `references/sourcing.md` — 检索渠道与配图获取（Step 1、Step 4）
 - `scripts/new_post.py` — 建文章骨架 + 图片目录
@@ -123,5 +154,6 @@ git add -A && git commit -m "..." && git push origin master
 
 - Hugo：`E:/app/hugp/hugo_extended_0.154.3_windows-amd64/hugo`（v0.154.3 extended）
 - Python：`C:/Users/xiangfei/.workbuddy/binaries/python/versions/3.13.12/python.exe`（自带 Pillow）
-- 构建参考：152 页 / 311 静态文件 / 约 6 秒（2026-09-16 实测；页数会随文章增加，只作量级参考）
-- 文章 URL 是**标题**不是文件名：`/p/<URL编码后的标题>/`，详见 `references/post-conventions.md`
+- 构建参考：152 页 / 312 静态文件 / 约 6 秒（2026-09-16 实测；页数会随文章增加，只作量级参考）
+- 文章 URL 用**标题**不是文件名：`/p/<标题小写化>/`（中文原样保留），
+  不确定时 `ls public/p/ | grep <关键词>`；详见 `references/post-conventions.md`
