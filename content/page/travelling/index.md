@@ -6,7 +6,7 @@ transitTitle: "开往远方"
 transitSub: "正在把你交给「开往」——一个随机跳转到其他博客的小站。很快就好。"
 menu:
     main:
-        weight: 5
+        weight: 6
         params: 
             icon: train-subway
 ---
