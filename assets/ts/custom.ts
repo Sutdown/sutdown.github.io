@@ -4,11 +4,15 @@
 document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      页面类型判定
-     - 阅读页（文章详情 / 独立页）应保持纯粹，仅保留顶部进度条，
-       关掉飘落花瓣、云朵、轨迹、光斑、小树等动态装饰，避免干扰阅读
+     - 阅读页（content/post/ 下的文章）应保持纯粹，仅保留顶部进度条，
+       关掉飘落花瓣、云朵、小树等动态装饰，避免干扰阅读
+     - 独立页（About / Links / Travelling，带 .page-standalone）
+       虽然也是 article-page，但保留全部装饰，和首页观感一致
      ======================================== */
   var isReading = !!document.querySelector('.article-page');
-  var isHome = window.location.pathname === '/' || window.location.pathname === '/index.html';
+  var isStandalone = !!document.querySelector('.page-standalone');
+  /* 装饰开关：独立页例外，其余非阅读页照常装饰 */
+  var decorEnabled = !isReading || isStandalone;
 
   /* ========================================
      文章目录 - 滚动高亮当前章节
@@ -159,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      春天装饰 - 樱花花瓣飘落（尊重 reduced-motion；阅读页关闭）
      ======================================== */
-  if (!isReading && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (decorEnabled && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var petalColors = ['#fbd6e0', '#f7c3d2', '#f3b5c8', '#f9d3da'];
     var petalSvg =
       '<svg viewBox="0 0 24 24"><path d="M12 2C7.5 7 5.5 11 5.5 14a6.5 6.5 0 0 0 13 0c0-3-2-7-6.5-12z"/></svg>';
@@ -217,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      春天装饰 - 底部小树（非阅读页）
      ======================================== */
-  if (!isReading) {
+  if (decorEnabled) {
     var tree = document.createElement('div');
     tree.className = 'spring-tree';
     tree.setAttribute('aria-hidden', 'true');
@@ -234,36 +238,6 @@ document.addEventListener('DOMContentLoaded', function () {
         '<circle cx="26" cy="14" r="2.2" fill="#f3b5c8"/>' +
       '</svg>';
     document.body.appendChild(tree);
-  }
-
-  /* ========================================
-     春天装饰 - 鼠标樱花轨迹（尊重 reduced-motion；非阅读页）
-     ======================================== */
-  if (!isReading && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    var trailSvg =
-      '<svg viewBox="0 0 24 24"><path d="M12 2C7.5 7 5.5 11 5.5 14a6.5 6.5 0 0 0 13 0c0-3-2-7-6.5-12z"/></svg>';
-    var trailColors = ['#fbd6e0', '#f7c3d2', '#f3b5c8', '#f9d3da'];
-    var lastTrail = 0;
-    document.addEventListener('mousemove', function (e) {
-      var now = Date.now();
-      if (now - lastTrail < 90) return;
-      lastTrail = now;
-      var el = document.createElement('div');
-      el.className = 'petal-trail';
-      var size = 8 + Math.random() * 8;
-      el.style.width = size + 'px';
-      el.style.height = size + 'px';
-      el.style.left = e.clientX + 'px';
-      el.style.top = e.clientY + 'px';
-      el.style.setProperty('--petal-color', trailColors[Math.floor(Math.random() * trailColors.length)]);
-      el.style.setProperty('--tx', (Math.random() * 60 - 30).toFixed(0) + 'px');
-      el.style.setProperty('--ty', (Math.random() * 50 - 10).toFixed(0) + 'px');
-      el.innerHTML = trailSvg;
-      document.body.appendChild(el);
-      window.setTimeout(function () {
-        el.remove();
-      }, 1200);
-    });
   }
 
   /* ========================================
@@ -354,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      精致装饰 - 卡片鼠标跟随光斑（非阅读页）
      ======================================== */
-  if (!isReading) {
+  if (decorEnabled) {
     var spotCards = document.querySelectorAll(
       '.widget, .article-list article, .article-list--compact article'
     );
@@ -370,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      春天装饰 - 云朵缓慢飘过（非阅读页）
      ======================================== */
-  if (!isReading && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (decorEnabled && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     var cloudSvg =
       '<svg viewBox="0 0 120 50"><path d="M30,40 C14,40 8,32 14,26 C16,16 28,10 38,16 C46,8 60,8 66,16 C80,12 92,20 88,30 C96,32 96,42 84,42 Z" fill="#ffffff" opacity="0.6"/></svg>';
     for (var ci = 0; ci < 3; ci++) {
@@ -388,7 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      春天装饰 - 导航栏下静止花枝（非阅读页）
      ======================================== */
-  if (!isReading) {
+  if (decorEnabled) {
     var branch = document.createElement('div');
     branch.className = 'nav-branch';
     branch.setAttribute('aria-hidden', 'true');

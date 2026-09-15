@@ -14,5 +14,10 @@ hasCJKLanguage = true
 # Change it to your Disqus shortname before using
 disqusShortname = "hugo-theme-stack"
 
+# 随心记（content/moments/）按月存一个 md，月文件的 date 常被写成「当月某天」，
+# 一旦落到今天或以后就会被 Hugo 当成未来内容而整个月不渲染 —— 对随笔集这类
+# 场景直接放行未来日期更符合直觉（写下的当下就该立刻可见）。
+buildFuture = true
+
 [pagination]
 pagerSize = 7

@@ -1,5 +1,12 @@
 {{ define "body-class" }}
     article-page
+    {{/* 独立页（About / Links / Travelling 等 content/page/ 下的页面）：
+       同样带 article-page，但它们不是「要静心读的长文」，
+       所以额外打个标记，让 custom.ts 保留花瓣/小树/白云等装饰。
+       判据是 section —— post 下才是真正的文章。 */}}
+    {{- if ne .Section "post" -}}
+        page-standalone
+    {{- end -}}
     {{/* 
         Enable the right sidebar if
             - Widget different from 'TOC' is enabled

@@ -1,0 +1,118 @@
+{{/*
+    随心记 / Moments —— 通读时间轴
+
+    数据来源：content/moments/<年>/<月>.md
+    每条记录用 ::: 分隔（正文本身就是时间顺序，不必额外维护 front matter）：
+
+        ::: 2026-09-16 01:40
+        正文可以是多段 Markdown，也支持图片 / 行内代码 / 链接
+        :::
+
+    渲染顺序：年份倒序 → 月文件倒序 → 条目标题倒序。
+    页首有年份快捷跳转条，移动端自动隐藏。
+*/}}
+
+{{ define "body-class" }}template-moments{{ end }}
+
+{{ define "main" }}
+    {{- $pages := .RegularPages -}}
+
+    {{- /* 先把所有条目拆出来（保留原始上下文以便 Markdownify） */}}
+    {{- $entries := slice -}}
+    {{- range $pages -}}
+        {{- $blocks := split .RawContent ":::" -}}
+        {{- range $i, $raw := $blocks -}}
+            {{- $block := trim $raw "\r\n" -}}
+            {{- if $block -}}
+                {{- $lines := split $block "\n" -}}
+                {{- $head := trim (index $lines 0) "\r\n" -}}
+                {{- $body := "" -}}
+                {{- if gt (len $lines) 1 -}}
+                    {{- $body = delimit (after 1 $lines) "\n" -}}
+                {{- end -}}
+
+                {{/* 首行必须是可解析的时间，否则跳过：
+                     这样内容里万一出现 ::: 也不会把整个文件吞掉 */}}
+                {{- $t := partial "helper/parse-time" $head -}}
+                {{- if not $t.IsZero -}}
+                    {{- $entries = $entries | append (dict
+                        "time" $t
+                        "body" $body
+                        "page" $)
+                    -}}
+                {{- end -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{- $entries = sort $entries "time" "desc" -}}
+
+
+    {{/* 按年分组，保持倒序 */}}
+    {{- $years := slice -}}
+    {{- range $entries -}}
+        {{- $y := .time.Format "2006" -}}
+        {{- if not (in $years $y) -}}
+            {{- $years = $years | append $y -}}
+        {{- end -}}
+    {{- end -}}
+
+    <header class="moments-header">
+        {{- with .Params.banner -}}
+            <div class="spring-banner moments-banner">
+                <div class="spring-banner-text">
+                    <div class="spring-banner-title">{{ .title }}</div>
+                    <div class="spring-banner-sub">{{ .sub }}</div>
+                </div>
+            </div>
+        {{- end -}}
+
+        <h3 class="section-title">{{ .Title }}</h3>
+        <p class="moments-desc">
+            {{ default "灵光一闪的碎片、睡前想通的一个点、改到凌晨的一行样式。按时间倒序，一月一存。" .Params.description }}
+        </p>
+
+        {{- if gt (len $years) 1 -}}
+            <nav class="moments-yearnav">
+                {{- range $years -}}
+                    <a href="#year-{{ . }}">{{ . }}</a>
+                {{- end -}}
+            </nav>
+        {{- end -}}
+    </header>
+
+    {{- if $entries -}}
+        {{- range $years -}}
+            {{- $year := . -}}
+            <div class="moments-year-block">
+                <h2 class="moments-year" id="year-{{ $year }}">{{ $year }}</h2>
+
+                <div class="moment-list">
+                    {{- range where $entries "time.Year" "eq" (int $year) -}}
+                        <section class="moment-item">
+                            <time
+                                class="moment-date"
+                                datetime="{{ .time.Format "2006-01-02T15:04:05+08:00" }}"
+                                title="{{ .time.Format "2006-01-02 15:04" }}"
+                            >{{ .time.Format "01 月 02 日 15:04" }}</time>
+
+                            <div class="moment-card">
+                                <div class="moment-content">
+                                    {{ .body | $.RenderString (dict "display" "block") }}
+                                </div>
+                            </div>
+                        </section>
+                    {{- end -}}
+                </div>
+            </div>
+        {{- end -}}
+    {{- else -}}
+        <p class="moment-empty">还没有记下什么，等一个念头。</p>
+    {{- end -}}
+
+    {{ partialCached "footer/footer" . }}
+{{ end }}
+
+{{ define "right-sidebar" }}
+    {{ partial "sidebar/right.html" (dict "Context" . "Scope" "homepage") }}
+{{ end }}

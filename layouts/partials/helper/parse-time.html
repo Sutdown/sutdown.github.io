@@ -1,0 +1,98 @@
+{{/*
+    将「2026-09-16 01:40」这类可读时间串解析为 time.Time。
+
+    日期部分支持：
+        YYYY-MM-DD / YYYY-M-D / YYYY-MM-DD HH:mm / YYYY-MM-DD HH:mm:ss
+        YYYY 年 M 月 D 日 [HH:mm] / YYYY.MM.DD / YYYY/MM/DD
+    - 分隔符 - . / 与年月日混用均可，数字位数不限（1 或 01 都行）
+    - 「今天 / 昨天 / 前天」按生成时刻换算
+    - 缺时间时，为「今天」取当前时刻，其余取 12:00（保证时间轴当天内顺序稳定）
+    - 解析失败返回零值 time，调用方需自行兜底
+
+    用法：{{ $t := partial "helper/parse-time" "2026-09-16 01:40" }}
+*/}}
+
+{{- $s := trim (printf "%v" .) " \t\n\r" -}}
+{{- $now := now -}}
+{{- $result := time.AsTime "0001-01-01T00:00:00Z" -}}
+
+{{- if $s -}}
+
+    {{/* ---------- 1. 相对日期补全 ---------- */}}
+    {{- if hasPrefix $s "今天" -}}
+        {{- $s = printf "%s%s" ($now.Format "2006-01-02") (strings.TrimPrefix "今天" $s) -}}
+    {{- else if hasPrefix $s "昨天" -}}
+        {{- $s = printf "%s%s" ($now.AddDate 0 0 -1).Format "2006-01-02" (strings.TrimPrefix "昨天" $s) -}}
+    {{- else if hasPrefix $s "前天" -}}
+        {{- $s = printf "%s%s" ($now.AddDate 0 0 -2).Format "2006-01-02" (strings.TrimPrefix "前天" $s) -}}
+    {{- end -}}
+
+    {{/* ---------- 2. 拆出日期段与时间段 ---------- */}}
+    {{- $ds := $s -}}
+    {{- $ts := "" -}}
+    {{- $withTime := false -}}
+
+    {{- if strings.Contains $s " " -}}
+        {{- $parts := split $s " " -}}
+        {{- $ds = index $parts 0 -}}
+        {{- if gt (len $parts) 1 -}}
+            {{- $ts = index $parts 1 -}}
+            {{- $withTime = true -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{- $ds = trim ($ds | replaceRE "年|月" "-" | replaceRE "日" "" | replaceRE "[./]" "-") " -" -}}
+
+    {{/* ---------- 3. 解析日期 ---------- */}}
+    {{- $dp := split $ds "-" -}}
+    {{- if eq (len $dp) 3 -}}
+        {{/* 必须先去掉前导零：Go 的 int 转换会把 "08" 当八进制字面量而报错 */}}
+        {{- $ys := replaceRE "^0+" "" (index $dp 0) -}}
+        {{- $ms := replaceRE "^0+" "" (index $dp 1) -}}
+        {{- $dstr := replaceRE "^0+" "" (index $dp 2) -}}
+        {{- $y := cond (eq $ys "") 0 (int $ys) -}}
+        {{- $m := cond (eq $ms "") 0 (int $ms) -}}
+        {{- $d := cond (eq $dstr "") 0 (int $dstr) -}}
+
+        {{- if and (gt $m 0) (le $m 12) (gt $d 0) (le $d 31) -}}
+
+            {{/* ---------- 4. 解析时间 ---------- */}}
+            {{- $hh := -1 -}}
+            {{- $mm := 0 -}}
+            {{- $ss := 0 -}}
+            {{- if $withTime -}}
+                {{- $tp := split (trim $ts " ") ":" -}}
+                {{- if gt (len $tp) 1 -}}
+                    {{- $hs := replaceRE "^0+" "" (index $tp 0) -}}
+                    {{- $ms2 := replaceRE "^0+" "" (index $tp 1) -}}
+                    {{- $hh = cond (eq $hs "") 0 (int $hs) -}}
+                    {{- $mm = cond (eq $ms2 "") 0 (int $ms2) -}}
+                    {{- if gt (len $tp) 2 -}}
+                        {{- $ss2 := replaceRE "^0+" "" (index $tp 2) -}}
+                        {{- $ss = cond (eq $ss2 "") 0 (int $ss2) -}}
+                    {{- end -}}
+                {{- end -}}
+            {{- end -}}
+
+            {{/* 缺时间时的默认值：今天用当前时刻，其余用 12:00 */}}
+            {{- $isToday := and (eq $y $now.Year) (eq $m (int $now.Month)) (eq $d $now.Day) -}}
+            {{- if lt $hh 0 -}}
+                {{- if $isToday -}}
+                    {{- $hh = $now.Hour -}}
+                    {{- $mm = $now.Minute -}}
+                    {{- $ss = $now.Second -}}
+                {{- else -}}
+                    {{- $hh = 12 -}}
+                {{- end -}}
+            {{- end -}}
+
+            {{- if and (ge $hh 0) (le $hh 23) (ge $mm 0) (le $mm 59) -}}
+                {{- $result = time.AsTime (printf "%04d-%02d-%02dT%02d:%02d:%02d+08:00" $y $m $d $hh $mm $ss) -}}
+            {{- end -}}
+
+        {{- end -}}
+    {{- end -}}
+
+{{- end -}}
+
+{{- return $result -}}

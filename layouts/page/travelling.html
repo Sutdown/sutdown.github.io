@@ -1,0 +1,53 @@
+{{/*
+    Travelling 专用布局 —— 跳转过渡页
+
+    这个页面实质是个外链中转（内容只有一句说明 + 一段 JS 跳转），
+    用长文模板渲染会带出一堆无意义的元信息（分类角标 / 100% 阅读时长 / 字数统计）、
+    目录挂件、CC 许可协议和「上一篇下一篇」，与页面实质严重不符。
+
+    所以这里只保留：手绘标题 + 转圈樱花 + 手动跳转兜底。
+    JS 自动跳转仍走 content 里的脚本，禁用了 JS 也能点按钮手动走。
+*/}}
+
+{{ define "body-class" }}article-page page-standalone travelling-page{{ end }}
+
+{{ define "main" }}
+    <article class="main-article travelling-transit">
+
+        <div class="transit-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="3" width="16" height="16" rx="3" />
+                <path d="M4 11h16" />
+                <path d="M12 3v8" />
+                <path d="M8 19l-2 3" />
+                <path d="M16 19l2 3" />
+            </svg>
+        </div>
+
+        <h1 class="transit-title">{{ default .Title .Params.transitTitle }}</h1>
+
+        <p class="transit-sub">
+            {{ default "正在送你前往「开往」——一个随机跳转到其他博客的小站。" .Params.transitSub }}
+        </p>
+
+        <div class="transit-flower" aria-hidden="true">
+            <span class="transit-petal">🌸</span>
+        </div>
+
+        <div class="transit-actions">
+            <a class="transit-btn" href="https://www.travellings.cn/go.html">
+                立即前往
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                    <polyline points="12 5 19 12 12 19" />
+                </svg>
+            </a>
+            <a class="transit-back" href="{{ "" | relLangURL }}">← 回到首页</a>
+        </div>
+
+        {{/* 正文里的跳转脚本仍要输出 */}}
+        <div class="transit-raw">{{ .Content }}</div>
+    </article>
+
+    {{ partialCached "footer/footer" . }}
+{{ end }}

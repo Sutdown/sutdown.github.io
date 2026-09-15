@@ -148,8 +148,9 @@
 
 .link-card-desc {
   margin: 0;
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
   font-size: 1.25rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--card-text-color-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -161,7 +162,8 @@
 .link-card-domain {
   display: inline-block;
   margin-top: 0.4rem;
-  font-size: 1.1rem;
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+  font-size: 1.15rem;
   color: var(--card-text-color-tertiary);
   border-bottom: 1px dashed rgba(var(--accent-color-rgb), 0.4);
 }
@@ -1354,6 +1356,145 @@
   color: rgba(var(--accent-color-rgb), 0.85);
 }
 
+/* ========================================
+   Travelling 跳转过渡页
+   ======================================== */
+.travelling-page {
+  /* 过渡页不需要目录与右侧栏，内容居中更像一个「门」 */
+  .main-article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+
+  .transit-raw {
+    /* 正文只承载自动跳转脚本，不展示那句英文说明 */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .transit-badge {
+    width: 62px;
+    height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.1);
+    border: 1px dashed rgba(var(--accent-color-rgb), 0.45);
+    border-radius: var(--radius-wobbly-sm);
+    margin-bottom: 1.4rem;
+
+    svg {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  .transit-title {
+    margin: 0 0 0.7rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--card-text-color-main);
+  }
+
+  .transit-sub {
+    max-width: 30rem;
+    margin: 0 0 1.8rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.35rem;
+    line-height: 1.8;
+    color: var(--card-text-color-secondary);
+  }
+
+  /* 转圈樱花：跳转等待时的轻量动效 */
+  .transit-flower {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 1.6rem;
+    animation: transit-spin 3.2s linear infinite;
+  }
+
+  .transit-petal {
+    display: block;
+    font-size: 2.2rem;
+    line-height: 46px;
+  }
+
+  .transit-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .transit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.6rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.3rem;
+    color: #fff;
+    background: var(--accent-color);
+    border-radius: var(--radius-wobbly-sm);
+    text-decoration: none;
+    transition: transform var(--dur-base) var(--ease-out),
+                box-shadow var(--dur-base) var(--ease-out);
+
+    svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lift);
+    }
+  }
+
+  .transit-back {
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.25rem;
+    color: var(--card-text-color-tertiary);
+    text-decoration: none;
+    transition: color var(--dur-base) var(--ease-out);
+
+    &:hover {
+      color: var(--accent-color);
+    }
+  }
+}
+
+@keyframes transit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 尊重系统的减弱动效设置 */
+@media (prefers-reduced-motion: reduce) {
+  .travelling-page .transit-flower {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .travelling-page {
+    .main-article { padding-top: 1.6rem; }
+    .transit-title { font-size: 2rem; }
+    .transit-sub { font-size: 1.25rem; }
+  }
+}
+
 /* 底部小树 */
 .spring-tree {
   position: fixed;
@@ -1394,32 +1535,6 @@ hr {
   }
   .spring-banner-title {
     font-size: 1.35rem;
-  }
-}
-
-/* ========================================
-   春天装饰 - 鼠标樱花轨迹
-   ======================================== */
-.petal-trail {
-  position: fixed;
-  z-index: 31;
-  pointer-events: none;
-  animation: petal-trail var(--dur-slow) var(--ease-out)-out forwards;
-}
-.petal-trail svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  fill: var(--petal-color, #f6c6d4);
-}
-@keyframes petal-trail {
-  0% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-    opacity: 0.9;
-  }
-  100% {
-    transform: translate(var(--tx, 20px), var(--ty, 30px)) rotate(130deg) scale(0.4);
-    opacity: 0;
   }
 }
 
@@ -1496,8 +1611,7 @@ hr {
 
 /* 深色模式樱花适配 */
 :root[data-scheme="dark"] {
-  .petal svg,
-  .petal-trail svg {
+  .petal svg {
     fill: #f5c4d2;
   }
 }
@@ -1552,8 +1666,7 @@ hr {
 }
 
 /* 手绘墨水描边：给樱花元素加浅棕线条，模拟手绘笔触 */
-.petal svg path,
-.petal-trail svg path {
+.petal svg path {
   stroke: var(--ink);
   stroke-width: 1;
   stroke-linejoin: round;
@@ -1953,9 +2066,9 @@ body.lightbox-open {
 }
 
 /* ========================================
-   随心记 - 灵感碎片时间线
+   Moments / 随心记 - 时间轴（列表页 + 卡片）
    ======================================== */
-.inspiration-list {
+.moment-list {
   position: relative;
   margin-top: 1.5rem;
   padding-left: 2.4rem;
@@ -1971,11 +2084,11 @@ body.lightbox-open {
   }
 }
 
-.inspiration-item {
+.moment-item {
   position: relative;
   margin-bottom: 1.4rem;
 
-  /* 时间轴上的樱花节点（居中压线，底色遮线形成断点） */
+  /* 时间轴节点：樱花压线，底色遮出断点 */
   &::before {
     content: "🌸";
     position: absolute;
@@ -1989,7 +2102,8 @@ body.lightbox-open {
     z-index: 1;
   }
 
-  .inspiration-date {
+  /* 日期与正文统一走手写体，跟全站手绘调性对齐 */
+  .moment-date {
     display: inline-block;
     font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
     font-size: 1.25rem;
@@ -1997,7 +2111,7 @@ body.lightbox-open {
     margin-bottom: 0.6rem;
   }
 
-  .inspiration-card {
+  .moment-card {
     background: var(--card-background);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-wobbly);
@@ -2012,13 +2126,14 @@ body.lightbox-open {
     }
   }
 
-  .inspiration-content {
-    font-size: 1.2rem;
-    line-height: 1.85;
+  .moment-content {
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 1.25rem;
+    line-height: 1.9;
     color: var(--card-text-color-main);
 
     p {
-      margin: 0.4em 0;
+      margin: 0.55em 0;
       &:first-child { margin-top: 0; }
       &:last-child { margin-bottom: 0; }
     }
@@ -2042,169 +2157,151 @@ body.lightbox-open {
     }
 
     img { border-radius: var(--radius-md); }
+
+    /* ---- 表情包 / 小贴纸 ----
+       正文里写 <span class="sticker">🎉</span>：
+       单独抬一行、微微倾斜，像一个贴上去的小贴纸。
+       想内联在句尾就直接用 emoji 或纯 <span class="emoji">，不占整行。 */
+    .sticker {
+      display: inline-block;
+      margin: 0.5em 0.25em 0.1em 0;
+      padding: 0.25rem 0.6rem;
+      font-size: 1.6rem;
+      line-height: 1;
+      background: rgba(var(--accent-color-rgb), 0.09);
+      border: 1px dashed rgba(var(--accent-color-rgb), 0.38);
+      border-radius: var(--radius-md);
+      transform: rotate(-2.5deg);
+      transition: transform var(--dur-base) var(--ease-out);
+
+      &:nth-of-type(even) { transform: rotate(2.5deg); }
+
+      &:hover { transform: rotate(0deg) scale(1.08); }
+    }
+
+    .emoji {
+      display: inline;
+      font-size: 1.15em;
+      line-height: 1;
+      vertical-align: -0.08em;
+    }
+
+    /* 无底色版本：只放大 emoji，当句末的语气装饰 */
+    .emoji-plain {
+      display: inline-block;
+      font-size: 1.3em;
+      line-height: 1;
+      vertical-align: -0.12em;
+    }
   }
 }
 
 /* 移动端收紧时间线 */
 @media (max-width: 768px) {
-  .inspiration-list {
+  .moment-list {
     padding-left: 1.9rem;
     &::before { left: 0.45rem; }
   }
-  .inspiration-item {
+  .moment-item {
     &::before {
       left: -1.45rem;
       font-size: 0.95rem;
     }
+    .moment-content { font-size: 1.2rem; }
   }
 }
 
 /* ========================================
-   Moments 页面 - 本地便签 + 分块（字号加大、中文优先可读）
+   Moments 页面 - 通读时间轴
    ======================================== */
-
-/* 随手写输入卡 */
-.inspiration-compose {
-  margin-top: 1.6rem;
-  padding: 1.4rem 1.6rem;
-  background: var(--card-background);
-  border: 2px dashed rgba(var(--accent-color-rgb), 0.45);
-  border-radius: var(--radius-wobbly);
-}
-
-.inspiration-input {
-  width: 100%;
-  min-height: 92px;
-  padding: 0.9rem 1.1rem;
-  background: transparent;
-  border: none;
-  outline: none;
-  resize: vertical;
-  font-size: 1.25rem;
-  line-height: 1.8;
-  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-  color: var(--card-text-color-main);
-
-  &::placeholder {
-    color: var(--card-text-color-tertiary);
-    font-size: 1.15rem;
-  }
-}
-
-.inspiration-compose-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.6rem;
-}
-
-.inspiration-add-btn {
-  flex-shrink: 0;
-  padding: 0.5rem 1.5rem;
-  font-size: 1.2rem;
-  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-  color: #fff;
-  background: var(--accent-color);
-  border: none;
-  border-radius: var(--radius-pill);
-  cursor: pointer;
-  transition: box-shadow var(--dur-base) var(--ease-out),
-              transform var(--dur-base) var(--ease-out);
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lift);
-  }
-}
-
-.inspiration-compose-hint {
-  font-size: 1.05rem;
-  color: var(--card-text-color-tertiary);
-}
-
-/* 分块标题 */
-.inspiration-block {
-  margin-top: 2.2rem;
-}
-
-.inspiration-block-title {
-  display: flex;
-  align-items: baseline;
-  gap: 0.8rem;
-  margin-bottom: 1.2rem;
-  padding-bottom: 0.4rem;
-  font-size: 1.5rem;
-  font-weight: 600;
-  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
-  color: var(--card-text-color-main);
-  border-bottom: 2px solid rgba(var(--accent-color-rgb), 0.25);
-}
-
-.inspiration-block-sub {
-  font-size: 1.1rem;
-  font-weight: 400;
-  color: var(--card-text-color-secondary);
-}
-
-/* 空状态 */
-.inspiration-empty {
-  font-size: 1.2rem;
-  color: var(--card-text-color-secondary);
-  padding: 0.6rem 0 1.2rem;
-}
-
-/* 草稿卡片：右侧删除按钮 */
-.inspiration-item.is-draft {
-  .inspiration-card {
-    padding-right: 3.4rem;
+.template-moments {
+  .moments-banner {
+    margin-bottom: 1.4rem;
   }
 
-  .inspiration-del {
-    position: absolute;
-    top: 0.7rem;
-    right: 0.9rem;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    line-height: 1;
+  .moments-desc {
+    margin: 0.4rem 0 0;
+    font-size: 1.3rem;
+    line-height: 1.7;
     color: var(--card-text-color-secondary);
-    background: transparent;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    opacity: 0.35;
-    transition: opacity var(--dur-fast) linear,
-                background var(--dur-fast) linear,
-                color var(--dur-fast) linear;
+  }
 
-    &:hover {
-      opacity: 1;
-      color: #fff;
-      background: var(--accent-color);
+  /* 顶部年份快捷跳转 */
+  .moments-yearnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1rem;
+
+    a {
+      padding: 3px 14px;
+      font-size: 1.2rem;
+      font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+      color: var(--accent-color-darker);
+      background: rgba(var(--accent-color-rgb), 0.08);
+      border: 1px dashed rgba(var(--accent-color-rgb), 0.45);
+      border-radius: var(--radius-wobbly-sm);
+      text-decoration: none;
+      transition: background var(--dur-base) var(--ease-out),
+                  border-color var(--dur-base) var(--ease-out),
+                  transform var(--dur-base) var(--ease-out);
+
+      &:hover {
+        background: rgba(var(--accent-color-rgb), 0.18);
+        border-color: var(--accent-color);
+        transform: translateY(-1px);
+      }
     }
   }
-}
 
-/* 深色下便签虚线描边更明显 */
-:root[data-scheme="dark"] {
-  .inspiration-compose {
-    border-color: rgba(232, 169, 184, 0.5);
-  }
-}
+  .moments-year-block {
+    margin-top: 2.4rem;
 
-/* 移动端便签输入区 */
-@media (max-width: 768px) {
-  .inspiration-compose {
-    padding: 1rem 1.1rem;
+    &:first-of-type {
+      margin-top: 1.4rem;
+    }
   }
-  .inspiration-block-title {
+
+  /* 年份分组标题 */
+  .moments-year {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 0.6rem;
+    font-size: 1.7rem;
+    font-weight: 700;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    color: var(--accent-color);
+    line-height: 1.4;
+
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(var(--accent-color-rgb), 0.45), transparent);
+    }
+  }
+
+  /* 时间戳：日期靠上，时间小字跟随 */
+  .moment-date {
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* 单条内容字号略大于侧栏随笔，长文更耐读 */
+  .moment-content {
     font-size: 1.35rem;
   }
-  .inspiration-compose-hint {
-    font-size: 0.95rem;
+}
+
+@media (max-width: 768px) {
+  .template-moments {
+    .moments-desc { font-size: 1.2rem; }
+    .moments-year { font-size: 1.5rem; }
+    .moment-content { font-size: 1.25rem; }
+
+    /* 年份条在窄屏会换行成两排，收益不大 */
+    .moments-yearnav { display: none; }
   }
 }
 
@@ -2274,6 +2371,24 @@ body.lightbox-open {
   --waline-theme-color: var(--accent-color);
   --waline-active-color: var(--accent-color);
   --waline-border: 1px dashed var(--border-color);
+
+  /* 评论区整体走手写体，与全站手绘调性一致。
+     Waline 组件自身会给内部元素设 font-family，所以这里连同
+     输入框 / 按钮 / 占位符一起显式覆盖，避免被内部样式盖掉。 */
+  font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+
+  .wl-panel,
+  .wl-card,
+  .wl-editor,
+  .wl-header,
+  .wl-meta,
+  .wl-info,
+  .wl-power,
+  input,
+  textarea,
+  button {
+    font-family: inherit;
+  }
 
   /* Waline 内部字号多用相对 em（相对根 font-size=10px 会显得过小），
      这里把评论各文字元素统一对齐到文章正文大小(15px) */
