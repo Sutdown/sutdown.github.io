@@ -9,7 +9,9 @@ Thumbs.db
 
 .vscode/
 
-# AI 助手工作记忆
-.workbuddy/
+# AI 助手工作记忆（不入库）
+.workbuddy/*
+# 项目级 Skill 例外：blog-writer 需要跟着仓库走
+!.workbuddy/skills/
 # 临时候选图（选图后删除）
 candidates_tmp/
