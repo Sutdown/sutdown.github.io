@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Hugo on Sutdown</title><link>https://sutdown.github.io/categories/hugo/</link><description>Recent content in Hugo on Sutdown</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Wed, 16 Sep 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://sutdown.github.io/categories/hugo/index.xml" rel="self" type="application/rss+xml"/><item><title>SutdownBlog 视觉重构记录</title><link>https://sutdown.github.io/p/sutdownblog-%E8%A7%86%E8%A7%89%E9%87%8D%E6%9E%84%E8%AE%B0%E5%BD%95/</link><pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/sutdownblog-%E8%A7%86%E8%A7%89%E9%87%8D%E6%9E%84%E8%AE%B0%E5%BD%95/</guid><description>&lt;p&gt;这个博客用的是 Hugo + Stack 主题，2026 年 1 月建站，到现在改过三轮。这篇把三个阶段的改动整理成一条线：换了什么、为什么换、踩了哪些坑。内容偏记录性质，不做教程。&lt;/p&gt;
+&lt;p&gt;三个阶段大致是这样分的：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;阶段&lt;/th&gt;
+&lt;th&gt;时间&lt;/th&gt;
+&lt;th&gt;重点&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;搭建期&lt;/td&gt;
+&lt;td&gt;2026-01&lt;/td&gt;
+&lt;td&gt;框架落地、内容迁移、页面骨架&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;内容期&lt;/td&gt;
+&lt;td&gt;2026-05 ~ 07&lt;/td&gt;
+&lt;td&gt;学习笔记批量入库，前端顺手调整&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;重构期&lt;/td&gt;
+&lt;td&gt;2026-09&lt;/td&gt;
+&lt;td&gt;视觉体系重建：配色、手绘风、独立页、随心记&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_page_redesign/redesign-phases.svg"
+loading="lazy"
+alt="三个阶段与配色演变"
+&gt;&lt;/p&gt;
+&lt;h2 id="一搭建期框架落地"&gt;&lt;a href="#%e4%b8%80%e6%90%ad%e5%bb%ba%e6%9c%9f%e6%a1%86%e6%9e%b6%e8%90%bd%e5%9c%b0" class="header-anchor"&gt;&lt;/a&gt;一、搭建期：框架落地
+&lt;/h2&gt;&lt;h3 id="11-从零到能跑"&gt;&lt;a href="#11-%e4%bb%8e%e9%9b%b6%e5%88%b0%e8%83%bd%e8%b7%91" class="header-anchor"&gt;&lt;/a&gt;1.1 从零到能跑
+&lt;/h3&gt;&lt;p&gt;2026 年 1 月 11 日那天的提交密度很高（十几条），基本是一天之内把站点跑起来：&lt;code&gt;Initial commit&lt;/code&gt; 之后紧跟着 &lt;code&gt;index&lt;/code&gt;、&lt;code&gt;comment&lt;/code&gt;、&lt;code&gt;post image&lt;/code&gt;、&lt;code&gt;remover 标签 and add toc&lt;/code&gt;，然后是内容批量入库。&lt;/p&gt;
+&lt;p&gt;技术选型上没有纠结太久。之前用宝塔面板 + Typecho 搭过一个动态博客（2023 年那篇《宝塔面板+typecho》记的就是那个），这次改用 Hugo 是因为它编译成纯静态，扔到 GitHub Pages 就完事，不需要维护服务器。&lt;/p&gt;
+&lt;h3 id="12-内容结构化"&gt;&lt;a href="#12-%e5%86%85%e5%ae%b9%e7%bb%93%e6%9e%84%e5%8c%96" class="header-anchor"&gt;&lt;/a&gt;1.2 内容结构化
+&lt;/h3&gt;&lt;p&gt;建站初期最集中的工作是给文章补 front matter。1 月 13 日有一条提交叫 &lt;code&gt;catrgory&lt;/code&gt;（拼错了，无伤大雅），一次性给 7 篇 AI 笔记补上分类字段。这种批量整理是必要的——&lt;strong&gt;分类、标签、目录这些结构信息如果不从第一天就规范化，后面会越积越乱&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;同期还删了主题自带的示例分类 &lt;code&gt;content/categories/example-category/&lt;/code&gt;，以及做了两处页面调整：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;content/page/about/index.md&lt;/code&gt; 重写（49 行）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;content/page/travelling/index.md&lt;/code&gt; 新建，配 &lt;code&gt;assets/icons/train-subway.svg&lt;/code&gt; 图标&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;到这一步，站点骨架成型：&lt;code&gt;content/post/&lt;/code&gt; 放文章，&lt;code&gt;content/page/&lt;/code&gt; 放独立页，四个栏目 Home / Archives / About / Travelling 挂在导航上。&lt;/p&gt;
+&lt;h3 id="13-评论与部署"&gt;&lt;a href="#13-%e8%af%84%e8%ae%ba%e4%b8%8e%e9%83%a8%e7%bd%b2" class="header-anchor"&gt;&lt;/a&gt;1.3 评论与部署
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;comment&lt;/code&gt; 这条提交接入了评论系统，最终用的是 Waline（serverURL 指向一个 Vercel 实例）。部署走 GitHub Actions，push 到 &lt;code&gt;master&lt;/code&gt; 触发构建，产物推到同仓库的 &lt;code&gt;gh-pages&lt;/code&gt; 分支。&lt;/p&gt;
+&lt;p&gt;这里有个细节值得记一下：&lt;strong&gt;源码和站点产物放在同一个仓库的两个分支里&lt;/strong&gt;（&lt;code&gt;master&lt;/code&gt; 存源码、&lt;code&gt;gh-pages&lt;/code&gt; 存构建结果），配置自洽，不需要额外的部署仓库。&lt;/p&gt;
+&lt;h2 id="二内容期笔记入库与布局微调"&gt;&lt;a href="#%e4%ba%8c%e5%86%85%e5%ae%b9%e6%9c%9f%e7%ac%94%e8%ae%b0%e5%85%a5%e5%ba%93%e4%b8%8e%e5%b8%83%e5%b1%80%e5%be%ae%e8%b0%83" class="header-anchor"&gt;&lt;/a&gt;二、内容期：笔记入库与布局微调
+&lt;/h2&gt;&lt;p&gt;5 月主要是往仓库里搬学习笔记，CS146S 的周记从 week1 一直补到 week9，中间夹着 LangChain、MCP 这些 AI 主题的整理。前端改动零散但有几个有意义：&lt;/p&gt;
+&lt;h3 id="21-分类挂件与页脚"&gt;&lt;a href="#21-%e5%88%86%e7%b1%bb%e6%8c%82%e4%bb%b6%e4%b8%8e%e9%a1%b5%e8%84%9a" class="header-anchor"&gt;&lt;/a&gt;2.1 分类挂件与页脚
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;8359bff&lt;/code&gt; 这条「前端调整」给 &lt;code&gt;custom.scss&lt;/code&gt; 加了 70 行，同时动了两处布局：&lt;code&gt;layouts/partials/footer/footer.html&lt;/code&gt; 补了 26 行，&lt;code&gt;layouts/partials/widget/categories.html&lt;/code&gt; 微调。这个阶段还是零敲碎打，没有形成体系——&lt;strong&gt;改一个地方就写一段 CSS，样式之间没有统一的设计变量&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id="22-归档页与索引调整"&gt;&lt;a href="#22-%e5%bd%92%e6%a1%a3%e9%a1%b5%e4%b8%8e%e7%b4%a2%e5%bc%95%e8%b0%83%e6%95%b4" class="header-anchor"&gt;&lt;/a&gt;2.2 归档页与索引调整
+&lt;/h3&gt;&lt;p&gt;5 月 14 日连续几条 &lt;code&gt;adjust&lt;/code&gt;、&lt;code&gt;archives&lt;/code&gt;、&lt;code&gt;前端调整&lt;/code&gt; 提交，主要在调归档页的展示。同期还处理过一次 git 冲突（&lt;code&gt;1cff054&lt;/code&gt; fix leftover git conflict markers in posts），说明当时有过一次不太顺利的合并。这些痕迹后来都清掉了。&lt;/p&gt;
+&lt;h3 id="23-关于主题目录"&gt;&lt;a href="#23-%e5%85%b3%e4%ba%8e%e4%b8%bb%e9%a2%98%e7%9b%ae%e5%bd%95" class="header-anchor"&gt;&lt;/a&gt;2.3 关于主题目录
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;52428df&lt;/code&gt; 这条提交叫 &lt;code&gt;ignore themes directory&lt;/code&gt;，把 &lt;code&gt;themes/&lt;/code&gt; 排除出版本控制。原因是主题通过 Hugo Modules 引入（&lt;code&gt;config/_default/module.toml&lt;/code&gt; 里声明 &lt;code&gt;github.com/CaiJimmy/hugo-theme-stack/v3&lt;/code&gt;），&lt;code&gt;themes/Stack/&lt;/code&gt; 是个空目录，真正的内容在模块缓存里。&lt;strong&gt;这意味着改主题只有两条路：覆盖 layouts/partials 里的同名文件，或者用 CSS 覆盖。&lt;/strong&gt; 后面重构期的所有改动都遵循这个原则。&lt;/p&gt;
+&lt;p&gt;7 月只有一条 &lt;code&gt;add&lt;/code&gt;，基本是间歇期。&lt;/p&gt;
+&lt;h2 id="三重构期视觉体系重建"&gt;&lt;a href="#%e4%b8%89%e9%87%8d%e6%9e%84%e6%9c%9f%e8%a7%86%e8%a7%89%e4%bd%93%e7%b3%bb%e9%87%8d%e5%bb%ba" class="header-anchor"&gt;&lt;/a&gt;三、重构期：视觉体系重建
+&lt;/h2&gt;&lt;p&gt;9 月是改动最密集的时段，40 条提交。这不是零散的调整，是一次完整的视觉体系重建。&lt;/p&gt;
+&lt;h3 id="31-配色藕粉--米白纸张"&gt;&lt;a href="#31-%e9%85%8d%e8%89%b2%e8%97%95%e7%b2%89--%e7%b1%b3%e7%99%bd%e7%ba%b8%e5%bc%a0" class="header-anchor"&gt;&lt;/a&gt;3.1 配色：藕粉 + 米白纸张
+&lt;/h3&gt;&lt;p&gt;起点是 &lt;code&gt;c9ca501&lt;/code&gt;「藕粉配色 + 渐变封面 + 微交互，整体视觉焕新」。核心决策是&lt;strong&gt;换掉主题默认的灰蓝 &lt;code&gt;#34495e&lt;/code&gt;，改用藕粉 &lt;code&gt;#d49ba8&lt;/code&gt;&lt;/strong&gt;，页面背景从纯白改成微暖的 &lt;code&gt;#fdf8f9&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;选藕粉不是随手挑的。之前的头像是浅灰紫 / 浅粉紫调（主色约 &lt;code&gt;#D0D0E0&lt;/code&gt;、&lt;code&gt;#E0D0E0&lt;/code&gt;），饱和度极低、明度偏高，属于莫兰迪浅调。配色如果跟着这个走，就得保持低饱和 + 高明度，避免霓虹色和高饱和撞色。藕粉正好落在这个区间。&lt;/p&gt;
+&lt;p&gt;同期修了一个隐蔽问题：主题没有定义 &lt;code&gt;--accent-color-rgb&lt;/code&gt;，而 &lt;code&gt;custom.scss&lt;/code&gt; 里有几处 &lt;code&gt;rgba(var(--accent-color-rgb), .1)&lt;/code&gt; 依赖它。变量缺失时不会报错，只是那些背景色&lt;strong&gt;静默失效&lt;/strong&gt;——侧边栏 hover 高亮就属于这种情况。补上定义之后才正常。&lt;/p&gt;
+&lt;h3 id="32-手绘春日风"&gt;&lt;a href="#32-%e6%89%8b%e7%bb%98%e6%98%a5%e6%97%a5%e9%a3%8e" class="header-anchor"&gt;&lt;/a&gt;3.2 手绘春日风
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;ea195f1&lt;/code&gt;「手绘春日风格改造」把配色推进到风格层，有四个动作：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;背景从 &lt;code&gt;#fdf8f9&lt;/code&gt; 再调成米白纸张色 &lt;code&gt;#fdf9f2&lt;/code&gt;，增加薄荷绿 / 淡黄 / 浅棕三个点缀色&lt;/li&gt;
+&lt;li&gt;标题字体换成手写体「霞鹜文楷」，通过 CDN 加载&lt;/li&gt;
+&lt;li&gt;卡片和挂件改用不规则边框（wobbly border），模拟手绘的不规则感&lt;/li&gt;
+&lt;li&gt;樱花元素统一加浅棕墨水描边，分隔线改成手绘波浪&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这里踩了一个值得记的坑：&lt;strong&gt;字体规则不能写在 SCSS 里&lt;/strong&gt;。Hugo 压缩 CSS 时会把带空格的字体名 &lt;code&gt;&amp;quot;LXGW WenKai&amp;quot;&lt;/code&gt; 处理成小写无引号的形式，字体就失效了。最后把字体规则内联写进 &lt;code&gt;layouts/partials/head/custom.html&lt;/code&gt; 的 &lt;code&gt;&amp;lt;style&amp;gt;&lt;/code&gt; 标签里，绕过压缩器，问题解决。&lt;/p&gt;
+&lt;h3 id="33-装饰体系"&gt;&lt;a href="#33-%e8%a3%85%e9%a5%b0%e4%bd%93%e7%b3%bb" class="header-anchor"&gt;&lt;/a&gt;3.3 装饰体系
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;1c48adc&lt;/code&gt; 到 &lt;code&gt;fdf1422&lt;/code&gt; 之间是一连串装饰相关的提交，最终保留下来的是：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;装饰&lt;/th&gt;
+&lt;th&gt;状态&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;樱花花瓣飘落&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;标题花饰&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;花枝横幅 + 底部小树 + 花枝分隔线&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;导航栏花枝、云朵飘过&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;页面底部左右溜达的小猫咪&lt;/td&gt;
+&lt;td&gt;做了 → 重画 → 移除&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;鼠标移动花瓣轨迹&lt;/td&gt;
+&lt;td&gt;做了 → 移除&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;卡片鼠标跟随光斑&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;深色模式樱花&lt;/td&gt;
+&lt;td&gt;保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;有两条是做了又拆的。猫咪前后改了三次（新增 → 重画更可爱 + 放慢速度 → 移除蹲坐小猫），最后只保留云朵和导航栏花枝。鼠标花瓣轨迹则是被主动删掉的——它跟着光标撒花瓣，刚做出来觉得挺有意思，实际用起来干扰阅读，尤其影响文章页。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;这里有个判断：装饰的价值不在数量，在于它是否干扰内容。&lt;/strong&gt; 背景元素（花瓣飘落、云朵）跟内容是分层的，不抢注意力；跟随鼠标的元素（花瓣轨迹、光斑）跟内容同层，就会让人分心。重构期最后的取舍基本是按照这条线来的。&lt;/p&gt;
+&lt;p&gt;还有一处实现细节：花瓣轨迹的 CSS 里原本写的是 &lt;code&gt;animation: petal-trail var(--dur-slow) var(--ease-out)-out forwards&lt;/code&gt; —— &lt;code&gt;var(--ease-out)-out&lt;/code&gt; 是拼接错误，这条动画从写下去就没生效过。删的时候才发现。&lt;/p&gt;
+&lt;h3 id="34-设计-token-落地"&gt;&lt;a href="#34-%e8%ae%be%e8%ae%a1-token-%e8%90%bd%e5%9c%b0" class="header-anchor"&gt;&lt;/a&gt;3.4 设计 token 落地
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;727c272&lt;/code&gt;「建立设计 token 并统一列表与正文排版」是个分水岭。在此之前所有样式都是散着写的（比如各处硬编码 &lt;code&gt;border-radius: 12px&lt;/code&gt;），这条提交之后统一收口成变量：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-scss" data-lang="scss"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nt"&gt;radius-wobbly&lt;/span&gt; &lt;span class="nt"&gt;手绘不规则圆角&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nt"&gt;radius-wobbly-sm&lt;/span&gt; &lt;span class="nt"&gt;小尺寸版本&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nt"&gt;shadow-lift&lt;/span&gt; &lt;span class="nt"&gt;悬浮阴影&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nt"&gt;dur-base&lt;/span&gt; &lt;span class="nt"&gt;基础动画时长&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="nt"&gt;ease-out&lt;/span&gt; &lt;span class="nt"&gt;缓动曲线&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这一步的实际收益不是「看起来整齐」，而是&lt;strong&gt;后面改视觉时只需要动变量值&lt;/strong&gt;。比如从米白调到纸张色、从灰蓝调到藕粉，都是改几个变量的量级，不用去各处找硬编码。&lt;/p&gt;
+&lt;h3 id="35-功能补全"&gt;&lt;a href="#35-%e5%8a%9f%e8%83%bd%e8%a1%a5%e5%85%a8" class="header-anchor"&gt;&lt;/a&gt;3.5 功能补全
+&lt;/h3&gt;&lt;p&gt;同期还补了几个功能性组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;图片灯箱&lt;/strong&gt;：点击正文图片放大查看&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;返回顶部进度环&lt;/strong&gt;：按钮边缘的圆环跟随滚动进度&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;移动端底部导航&lt;/strong&gt;：手机端底部固定栏&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代码块美化&lt;/strong&gt;：语言角标 + 复制按钮&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;阅读进度条&lt;/strong&gt;：顶部横向进度（仅文章页）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些的实现都遵循了「尊重 &lt;code&gt;prefers-reduced-motion&lt;/code&gt;」和「&lt;code&gt;IntersectionObserver&lt;/code&gt; 不可用时直接显示」两条兜底原则，避免在低端设备或特殊设置下出现内容不可见。&lt;/p&gt;
+&lt;h3 id="36-封面从有到无"&gt;&lt;a href="#36-%e5%b0%81%e9%9d%a2%e4%bb%8e%e6%9c%89%e5%88%b0%e6%97%a0" class="header-anchor"&gt;&lt;/a&gt;3.6 封面：从有到无
+&lt;/h3&gt;&lt;p&gt;封面这块改了很多轮，值得单独说，因为它反映了一个反复的决策过程：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;版本&lt;/th&gt;
+&lt;th&gt;做法&lt;/th&gt;
+&lt;th&gt;结果&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;主题默认，无封面&lt;/td&gt;
+&lt;td&gt;列表页略显单调&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;客户端随机动漫图 API&lt;/td&gt;
+&lt;td&gt;每次刷新都变，列表和详情不同图，否决&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;本地 16 张图随机&lt;/td&gt;
+&lt;td&gt;重复太多&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;本地 80 张图按哈希固定映射&lt;/td&gt;
+&lt;td&gt;每篇永久对应同一张，可用&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;5&lt;/td&gt;
+&lt;td&gt;「完整图 + 同图模糊铺底」双图层&lt;/td&gt;
+&lt;td&gt;解决竖图横图比例不一导致的裁切/留白&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;6&lt;/td&gt;
+&lt;td&gt;全部删除&lt;/td&gt;
+&lt;td&gt;最终方案&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;第 4 版的技术点是 &lt;code&gt;mod (hash.FNV32a .RelPermalink) 80&lt;/code&gt; —— 用页面路径的哈希取模，保证每篇文章永久对应同一张图，列表页和详情页天然一致，不会随机变化。&lt;/p&gt;
+&lt;p&gt;第 5 版解决的是&lt;strong&gt;图片比例问题&lt;/strong&gt;。那 80 张图宽高比从 0.71（竖）到 1.78（横）都有，单一 &lt;code&gt;object-fit&lt;/code&gt; 无法兼顾：用 &lt;code&gt;cover&lt;/code&gt; 会裁掉画面，用 &lt;code&gt;contain&lt;/code&gt; 会留白。最后的方案是双层——底层用 &lt;code&gt;cover&lt;/code&gt; + &lt;code&gt;blur(14px)&lt;/code&gt; 铺满，上层用 &lt;code&gt;contain&lt;/code&gt; 完整显示，两层叠加看不出留白。&lt;/p&gt;
+&lt;p&gt;第 6 版全部删除（&lt;code&gt;3c02650&lt;/code&gt;）。&lt;strong&gt;理由其实很简单：这些封面跟文章内容没有任何关系&lt;/strong&gt;，纯粹是为了让列表页不空。而且 &lt;code&gt;slug&lt;/code&gt; 哈希这个机制本身不透明——你没法通过修改文章来控制封面。删掉之后列表页靠排版和分类角标撑住，反而更干净。&lt;/p&gt;
+&lt;p&gt;清得不太干净，&lt;code&gt;header.html&lt;/code&gt; 简化后列表卡片上还挂着 &lt;code&gt;has-cover&lt;/code&gt; class。因为 &lt;code&gt;$image.exists&lt;/code&gt; 恒为 false，每张卡片都挂着一个空 class。后来 grep 编译后的 CSS 确认这个选择器出现 0 次，才删掉 &lt;code&gt;else&lt;/code&gt; 分支。&lt;/p&gt;
+&lt;h2 id="四独立页三个页面的改造"&gt;&lt;a href="#%e5%9b%9b%e7%8b%ac%e7%ab%8b%e9%a1%b5%e4%b8%89%e4%b8%aa%e9%a1%b5%e9%9d%a2%e7%9a%84%e6%94%b9%e9%80%a0" class="header-anchor"&gt;&lt;/a&gt;四、独立页：三个页面的改造
+&lt;/h2&gt;&lt;p&gt;About / Links / Travelling 三个独立页一开始跟整体风格不搭。这个问题的诊断过程比修复过程更有意思。&lt;/p&gt;
+&lt;h3 id="41-诊断找到共同的病根"&gt;&lt;a href="#41-%e8%af%8a%e6%96%ad%e6%89%be%e5%88%b0%e5%85%b1%e5%90%8c%e7%9a%84%e7%97%85%e6%a0%b9" class="header-anchor"&gt;&lt;/a&gt;4.1 诊断：找到共同的病根
+&lt;/h3&gt;&lt;p&gt;最初的判断是「字体和间距不对」，但动手前先做了一件事——把所有背景色变量拉出来对比：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;变量&lt;/th&gt;
+&lt;th&gt;值&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;页面背景 &lt;code&gt;--body-background&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;#fdf9f2&lt;/code&gt; 米白&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;卡片背景 &lt;code&gt;--card-background&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;#ffffff&lt;/code&gt; 纯白&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;问题出在这。文章页是一张纯白卡片浮在米白页面上，但&lt;strong&gt;文章内容足够密&lt;/strong&gt;（正文、代码块、配图把卡片填满了），白底看起来像「纸张」；独立页内容稀疏，同样一张纯白卡片铺在那里就是一大片空白。&lt;/p&gt;
+&lt;p&gt;所以「风格不搭」的表象，底层是&lt;strong&gt;内容密度差异把同一个颜色衬出了不同观感&lt;/strong&gt;。判断的时候要分清是「颜色本身不对」还是「颜色在这个场景下不对」，这次是后者。&lt;/p&gt;
+&lt;h3 id="42---card-padding理解横向对齐的钥匙"&gt;&lt;a href="#42---card-padding%e7%90%86%e8%a7%a3%e6%a8%aa%e5%90%91%e5%af%b9%e9%bd%90%e7%9a%84%e9%92%a5%e5%8c%99" class="header-anchor"&gt;&lt;/a&gt;4.2 &lt;code&gt;--card-padding&lt;/code&gt;：理解横向对齐的钥匙
+&lt;/h3&gt;&lt;p&gt;Stack 主题横向排版全靠一个变量 &lt;code&gt;--card-padding&lt;/code&gt;（响应式取 20 / 25 / 30px）：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-scss" data-lang="scss"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// 内容靠 padding 内缩
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nc"&gt;.article-content&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="na"&gt;padding&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="nf"&gt;var&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;card-padding&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;// 但某些块要顶到满宽，用等量负 margin 反向拉出去
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nc"&gt;.article-content&lt;/span&gt; &lt;span class="nt"&gt;blockquote&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nc"&gt;.article-content&lt;/span&gt; &lt;span class="nt"&gt;figure&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nc"&gt;.article-content&lt;/span&gt; &lt;span class="nc"&gt;.highlight&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nc"&gt;.article-content&lt;/span&gt; &lt;span class="nt"&gt;pre&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;margin-left&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;var&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;card-padding&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;margin-right&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;var&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;card-padding&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;width&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="nf"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="kt"&gt;%&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="nf"&gt;var&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;card-padding&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这是&lt;strong&gt;故意的设计&lt;/strong&gt;：代码块、引用块、图片比正文宽出两侧 30px，形成通栏出血，把阅读节奏切成几段。&lt;/p&gt;
+&lt;p&gt;理解这一条，所有横向对齐问题都有了解法：&lt;strong&gt;要顶满宽就用它的负值，要收在容器里就把负 margin 归零。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id="43-三次返工友链卡底色"&gt;&lt;a href="#43-%e4%b8%89%e6%ac%a1%e8%bf%94%e5%b7%a5%e5%8f%8b%e9%93%be%e5%8d%a1%e5%ba%95%e8%89%b2" class="header-anchor"&gt;&lt;/a&gt;4.3 三次返工：友链卡底色
+&lt;/h3&gt;&lt;p&gt;这是整个改造里返工最多的部分，因为「不好看」是模糊反馈，只能靠排除法逼近。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;版本&lt;/th&gt;
+&lt;th&gt;值&lt;/th&gt;
+&lt;th&gt;结果&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;第一版&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;#ffffff&lt;/code&gt; 纯白&lt;/td&gt;
+&lt;td&gt;白得发空，卡片像贴上去的补丁&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;第二版&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;transparent&lt;/code&gt; 全透明&lt;/td&gt;
+&lt;td&gt;和页面糊成一片，favicon 失去承托&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;定稿&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;#fffdf9&lt;/code&gt; 暖白&lt;/td&gt;
+&lt;td&gt;只比页面亮一档，卡片立住了&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;中间那版是判断失误。用户说「不需要白色背景」，我理解成「去掉背景色」，设成了 &lt;code&gt;transparent&lt;/code&gt;。结果卡片和页面同为米白，只有一圈描边在撑场面，看着像没画完。&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_page_redesign/card-background-tiers.svg"
+loading="lazy"
+alt="卡片底色的三段折中：三档之间只差 1~2 个色阶，观感差别很大"
+&gt;&lt;/p&gt;
+&lt;p&gt;三档之间色值差 1~2 个色阶，观感差得很远。&lt;strong&gt;底色这件事没有「随便挑一个」的余地。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id="44-favicon-那圈白的真相"&gt;&lt;a href="#44-favicon-%e9%82%a3%e5%9c%88%e7%99%bd%e7%9a%84%e7%9c%9f%e7%9b%b8" class="header-anchor"&gt;&lt;/a&gt;4.4 favicon 那圈白的真相
+&lt;/h3&gt;&lt;p&gt;还有个反馈是「头像框没底色发虚」。第一反应是去找卡片背景的锅，改了半天没用，最后决定去下载 favicon 二进制看看到底长什么样。结果是：&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;favicon.im&lt;/code&gt; 返回的是&lt;strong&gt;透明背景的 SVG&lt;/strong&gt;。GitHub 的图标就是一个 &lt;code&gt;fill=&amp;quot;#24292E&amp;quot;&lt;/code&gt; 的纯深色形状，&lt;strong&gt;本身没有任何白色底衬&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;所以那圈白根本不是装饰，是&lt;strong&gt;功能性承托&lt;/strong&gt;——深色图标直接压在米白页面上会糊。搞清楚之后改法就明确了：保留白底 &lt;code&gt;background: #fff&lt;/code&gt;，深色模式下给 &lt;code&gt;rgba(255,255,255,0.94)&lt;/code&gt;，既承托又不刺眼。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;别猜，去取证。&lt;/strong&gt; 一个 4KB 的 SVG 比盯着样式改半天有用。&lt;/p&gt;
+&lt;h3 id="45-about-页从分块到扁平"&gt;&lt;a href="#45-about-%e9%a1%b5%e4%bb%8e%e5%88%86%e5%9d%97%e5%88%b0%e6%89%81%e5%b9%b3" class="header-anchor"&gt;&lt;/a&gt;4.5 About 页：从分块到扁平
+&lt;/h3&gt;&lt;p&gt;About 页试过两个方向。第一版是按 &lt;code&gt;h3&lt;/code&gt; 把小节切成卡片（&lt;code&gt;custom.ts&lt;/code&gt; 里写了切块逻辑，配 &lt;code&gt;.about-card&lt;/code&gt; 样式），做完发现&lt;strong&gt;卡片框把本来就不多的内容切得更碎了&lt;/strong&gt;，用户直接否掉。第二版改成扁平展示，去掉所有分块容器，小节标题用手写体 + 左侧藕粉竖线标识。&lt;/p&gt;
+&lt;p&gt;这跟前面「装饰是否干扰内容」是同一个判断：&lt;strong&gt;内容稀疏的时候，容器越多越显空。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id="46-一个幽灵字段"&gt;&lt;a href="#46-%e4%b8%80%e4%b8%aa%e5%b9%bd%e7%81%b5%e5%ad%97%e6%ae%b5" class="header-anchor"&gt;&lt;/a&gt;4.6 一个幽灵字段
+&lt;/h3&gt;&lt;p&gt;清理 front matter 时发现 &lt;code&gt;content/page/about/index.md&lt;/code&gt; 里写着：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;layout&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;about&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;但 &lt;code&gt;layouts/&lt;/code&gt; 下根本没有 &lt;code&gt;about.html&lt;/code&gt;（&lt;code&gt;travelling.html&lt;/code&gt; 倒是有）。查 Hugo 的单页模板查找顺序：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;/layouts/TYPE/LAYOUT.html ← page/about.html（不存在）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;/layouts/SECTION/LAYOUT.html ← page/about.html（不存在）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;/layouts/TYPE/single.html ← page/single.html（不存在）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;/layouts/SECTION/single.html ← page/single.html（不存在）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;/layouts/_default/single.html ← 命中
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;一路回落到底，用的是默认单页模板。更关键的是：&lt;strong&gt;About 页的样式从来不是靠这个字段挂钩的&lt;/strong&gt;，而是靠 &lt;code&gt;single.html&lt;/code&gt; 里输出的 &lt;code&gt;page-{{ .ContentBaseName | urlize }}&lt;/code&gt; 生成的 class（即 &lt;code&gt;.page-about&lt;/code&gt;）。所以这个 &lt;code&gt;layout&lt;/code&gt; 字段从头到尾没起过作用，删掉即可。&lt;/p&gt;
+&lt;p&gt;如果遇到「写了但好像没生效」的配置，值得花几分钟去查找顺序表对一遍。&lt;/p&gt;
+&lt;h3 id="47-travelling-页"&gt;&lt;a href="#47-travelling-%e9%a1%b5" class="header-anchor"&gt;&lt;/a&gt;4.7 Travelling 页
+&lt;/h3&gt;&lt;p&gt;Travelling 最后没有做成内容页，而是改成了一个&lt;strong&gt;跳转过渡页&lt;/strong&gt;（&lt;code&gt;layouts/page/travelling.html&lt;/code&gt;），配转圈樱花动画。这个决定挺务实的——既然没有内容可写，与其留一个空页面，不如说明清楚它是干什么的。&lt;/p&gt;
+&lt;h2 id="五随心记moments"&gt;&lt;a href="#%e4%ba%94%e9%9a%8f%e5%bf%83%e8%ae%b0moments" class="header-anchor"&gt;&lt;/a&gt;五、随心记（Moments）
+&lt;/h2&gt;&lt;p&gt;&lt;code&gt;8a851cb&lt;/code&gt; 新建了「随心记」分区，用来放那些不成篇的碎片想法。&lt;/p&gt;
+&lt;h3 id="51-数据格式"&gt;&lt;a href="#51-%e6%95%b0%e6%8d%ae%e6%a0%bc%e5%bc%8f" class="header-anchor"&gt;&lt;/a&gt;5.1 数据格式
+&lt;/h3&gt;&lt;p&gt;按月分文件，条目用 &lt;code&gt;:::&lt;/code&gt; 分隔：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;::: 2026-09-16 01:40
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;正文，支持多段 / 图片 / 行内代码 / 链接
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;:::
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;模板用 &lt;code&gt;split .RawContent &amp;quot;:::&amp;quot;&lt;/code&gt; 切块，首行解析时间，&lt;strong&gt;解析失败则跳过该块&lt;/strong&gt;（防止内容里出现 &lt;code&gt;:::&lt;/code&gt; 把文件吞掉）。&lt;/p&gt;
+&lt;h3 id="52-三个坑"&gt;&lt;a href="#52-%e4%b8%89%e4%b8%aa%e5%9d%91" class="header-anchor"&gt;&lt;/a&gt;5.2 三个坑
+&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;int &amp;quot;08&amp;quot;&lt;/code&gt; 报错&lt;/strong&gt;：Go 的 &lt;code&gt;strconv.ParseInt&lt;/code&gt; 在 base 为 0 时把前缀 &lt;code&gt;0&lt;/code&gt; 当&lt;strong&gt;八进制&lt;/strong&gt;，&lt;code&gt;08&lt;/code&gt;、&lt;code&gt;09&lt;/code&gt; 这种合法的十进制写法会炸。&lt;code&gt;01&lt;/code&gt; 到 &lt;code&gt;07&lt;/code&gt; 恰好都是合法八进制，所以这个 bug 只在 8 月、9 月和每月 8 号 9 号才冒出来。修法是转 int 前先去掉前导零。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;trim &amp;quot; &amp;quot;&lt;/code&gt; 在管道里把整串吃成空&lt;/strong&gt;：&lt;code&gt;{{ .body | plainify | replaceRE ... | trim &amp;quot; &amp;quot; }}&lt;/code&gt; 结果为空，换成 &lt;code&gt;strings.TrimSpace&lt;/code&gt; 才正常。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;月文件 date 落在今天会被 Hugo 判为 future&lt;/strong&gt;，整个月不渲染。用 &lt;code&gt;hugo list future&lt;/code&gt; 可以查出来，已在配置里开 &lt;code&gt;buildFuture = true&lt;/code&gt;。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="53-阅读页净化"&gt;&lt;a href="#53-%e9%98%85%e8%af%bb%e9%a1%b5%e5%87%80%e5%8c%96" class="header-anchor"&gt;&lt;/a&gt;5.3 阅读页净化
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;574033a&lt;/code&gt; 这条提交做了件有意思的事：&lt;strong&gt;独立页恢复装饰，阅读页去掉装饰&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;原本逻辑是判断有没有 &lt;code&gt;.article-page&lt;/code&gt;，有就认为是阅读页，关掉花瓣、小树、云朵。但独立页（About / Links / Travelling）走的也是 &lt;code&gt;single.html&lt;/code&gt;，同样输出 &lt;code&gt;.article-page&lt;/code&gt;，于是被误判成阅读页，装饰全没了。&lt;/p&gt;
+&lt;p&gt;修法是在 &lt;code&gt;single.html&lt;/code&gt; 的 body-class 块里加标记：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-go-html-template" data-lang="go-html-template"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;ne&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="na"&gt;.Section&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;#34;post&amp;#34;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;page-standalone&lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;end&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;post&lt;/code&gt; 下面才是真阅读页。JS 改成：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-ts" data-lang="ts"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;isReading&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;querySelector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.article-page&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;isStandalone&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;!!&lt;/span&gt;&lt;span class="nb"&gt;document&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nx"&gt;querySelector&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;.page-standalone&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;decorEnabled&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="nx"&gt;isReading&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="nx"&gt;isStandalone&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这个改动的意义是&lt;strong&gt;把「读文章时该安静」和「逛页面时可以活泼」两种状态分开&lt;/strong&gt;。读文章需要专注，装饰会干扰；独立页是展示性的，装饰恰好补充了内容密度上的不足。&lt;/p&gt;
+&lt;h2 id="六两次栽在-css-权重上"&gt;&lt;a href="#%e5%85%ad%e4%b8%a4%e6%ac%a1%e6%a0%bd%e5%9c%a8-css-%e6%9d%83%e9%87%8d%e4%b8%8a" class="header-anchor"&gt;&lt;/a&gt;六、两次栽在 CSS 权重上
+&lt;/h2&gt;&lt;p&gt;重构期有两次印象比较深的翻车，都属于「代码写对了但没生效」这一类。&lt;/p&gt;
+&lt;h3 id="61-选择器权重输给主题"&gt;&lt;a href="#61-%e9%80%89%e6%8b%a9%e5%99%a8%e6%9d%83%e9%87%8d%e8%be%93%e7%bb%99%e4%b8%bb%e9%a2%98" class="header-anchor"&gt;&lt;/a&gt;6.1 选择器权重输给主题
+&lt;/h3&gt;&lt;p&gt;说明区的代码块顶穿了卡片描边。查出来的原因是主题给 &lt;code&gt;.article-content .highlight&lt;/code&gt; 加了通栏出血（就是 4.2 节那套负 margin），在说明卡里溢出 30px。&lt;/p&gt;
+&lt;p&gt;我一开始写的是 &lt;code&gt;.links-note-body .highlight&lt;/code&gt;，改完&lt;strong&gt;完全没生效&lt;/strong&gt;。算权重就明白了：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;选择器&lt;/th&gt;
+&lt;th&gt;权重 (a,b,c)&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.article-content .highlight&lt;/code&gt;（主题）&lt;/td&gt;
+&lt;td&gt;(0, 2, 1)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;&lt;code&gt;.links-note-body .highlight&lt;/code&gt;（我的）&lt;/td&gt;
+&lt;td&gt;(0, 2, 0)&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;差在最后一位。CSS 权重是&lt;strong&gt;从左往右逐列比，前一位赢了后面就不用看&lt;/strong&gt;，所以 (0,2,0) 无论写多少条都赢不了 (0,2,1)。最后上了 &lt;code&gt;!important&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;顺带纠正一个我原先的误解。我以为「两个 &lt;code&gt;!important&lt;/code&gt; 相撞就看源码顺序」，查 MDN 才发现不准确：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;When two important declarations from the same origin and layer apply to the same element, browsers select and use the declaration with the highest specificity. &lt;strong&gt;Only if the selectors had the same specificity would source order matter.&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;也就是说 &lt;code&gt;!important&lt;/code&gt; 相撞时&lt;strong&gt;先比权重，权重相同才比顺序&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id="62-被-grep-的上下文骗了"&gt;&lt;a href="#62-%e8%a2%ab-grep-%e7%9a%84%e4%b8%8a%e4%b8%8b%e6%96%87%e9%aa%97%e4%ba%86" class="header-anchor"&gt;&lt;/a&gt;6.2 被 grep 的上下文骗了
+&lt;/h3&gt;&lt;p&gt;验证的时候 grep 到这么一条：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-css" data-lang="css"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;article-content&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;highlight&lt;/span&gt; &lt;span class="nt"&gt;pre&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;margin-block-end&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="cp"&gt;!important&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;margin-left&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;calc&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nf"&gt;var&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;card&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;padding&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;-1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="cp"&gt;!important&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;当时紧张了一下——同样是 &lt;code&gt;!important&lt;/code&gt;，那不就变成「比权重再看顺序」了吗？赶紧去查它挂在谁身上。用正则按 &lt;code&gt;{}&lt;/code&gt; 成对解析之后发现，真实选择器是：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-css" data-lang="css"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;article-content&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;gitlab-embed-snippets&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;file-holder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;snippet-file-content&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;strong&gt;GitLab 嵌入片段&lt;/strong&gt;，跟代码块半点关系没有。是 &lt;code&gt;grep -A 1&lt;/code&gt; 抓上下文时，把两条无关规则的首尾连起来读了。&lt;/p&gt;
+&lt;p&gt;minified CSS 里一条规则体可以很长、选择器分组可以很多，grep 给出的「上下文」基本都是假的。要看清楚只有一条路：&lt;strong&gt;用正则把 &lt;code&gt;选择器 { 声明体 }&lt;/code&gt; 成对切出来&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2 id="七样式覆盖的两条原则"&gt;&lt;a href="#%e4%b8%83%e6%a0%b7%e5%bc%8f%e8%a6%86%e7%9b%96%e7%9a%84%e4%b8%a4%e6%9d%a1%e5%8e%9f%e5%88%99" class="header-anchor"&gt;&lt;/a&gt;七、样式覆盖的两条原则
+&lt;/h2&gt;&lt;p&gt;改主题这一年，实际可用的手段只有两条，它们对应不同的场景：&lt;/p&gt;
+&lt;h3 id="71-优先改-scss-变量"&gt;&lt;a href="#71-%e4%bc%98%e5%85%88%e6%94%b9-scss-%e5%8f%98%e9%87%8f" class="header-anchor"&gt;&lt;/a&gt;7.1 优先改 SCSS 变量
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;assets/scss/custom.scss&lt;/code&gt; 会被主题的 &lt;code&gt;style.scss&lt;/code&gt; 在最后一行 import，所以在里面覆盖变量最省事。改配色、圆角、阴影、动画时长都属于这一类，&lt;strong&gt;改一处全局生效，不会漏&lt;/strong&gt;。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-scss" data-lang="scss"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nd"&gt;:root&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;--accent-color&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#d49ba8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;--body-background&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mh"&gt;#fdf9f2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="na"&gt;--radius-wobbly&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="kt"&gt;px&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="72-覆盖-layouts-要整组写"&gt;&lt;a href="#72-%e8%a6%86%e7%9b%96-layouts-%e8%a6%81%e6%95%b4%e7%bb%84%e5%86%99" class="header-anchor"&gt;&lt;/a&gt;7.2 覆盖 layouts 要整组写
+&lt;/h3&gt;&lt;p&gt;改结构（不只改样式）就得覆盖 &lt;code&gt;layouts/&lt;/code&gt; 下的同名文件，因为主题是 Hugo Modules 引入的，改不到模块缓存里的源文件。&lt;/p&gt;
+&lt;p&gt;这里有个陷阱：&lt;strong&gt;主题的高权重选择器会让你只写一条的覆盖静默失效&lt;/strong&gt;。比如真图分支那段，主题的规则是：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-css" data-lang="css"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;article-page&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;main-article&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;article-header&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nc"&gt;article-image&lt;/span&gt; &lt;span class="nt"&gt;img&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;max-height&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;&lt;span class="kt"&gt;vh&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;object-fit&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;cover&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;如果只写 &lt;code&gt;.article-image img { object-fit: contain }&lt;/code&gt;，权重 (0,1,1) 对 (0,4,1)，&lt;strong&gt;会被完全覆盖，且不会报错&lt;/strong&gt;。必须写一整组同等或更高权重的选择器，并显式声明 &lt;code&gt;max-height: none&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;验证方法是下载编译后的 CSS，看 &lt;code&gt;object-fit&lt;/code&gt; 规则的&lt;strong&gt;出现顺序&lt;/strong&gt;——&lt;code&gt;contain&lt;/code&gt; 必须排在主题所有 &lt;code&gt;cover&lt;/code&gt; 之后。&lt;/p&gt;
+&lt;h2 id="八自定义-js-的唯一入口"&gt;&lt;a href="#%e5%85%ab%e8%87%aa%e5%ae%9a%e4%b9%89-js-%e7%9a%84%e5%94%af%e4%b8%80%e5%85%a5%e5%8f%a3" class="header-anchor"&gt;&lt;/a&gt;八、自定义 JS 的唯一入口
+&lt;/h2&gt;&lt;p&gt;这个坑比较隐蔽，记一下：主题通过 &lt;code&gt;js.Build&lt;/code&gt; 把 &lt;code&gt;assets/ts/custom.ts&lt;/code&gt; 编译成指纹化的 &lt;code&gt;/ts/custom.HASH.js&lt;/code&gt; 自动加载。&lt;strong&gt;所有自定义 JS 必须写在那个 .ts 文件里。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;之前我走的另一条路：写 &lt;code&gt;assets/js/custom.js&lt;/code&gt;，再用 &lt;code&gt;layouts/partials/footer/custom.html&lt;/code&gt; 静态引用 &lt;code&gt;/js/custom.js&lt;/code&gt;。这个路径会 &lt;strong&gt;404&lt;/strong&gt;，自定义 JS 从来没执行过。改成 &lt;code&gt;.ts&lt;/code&gt; 单一入口之后才生效。&lt;/p&gt;
+&lt;p&gt;现在 &lt;code&gt;custom.ts&lt;/code&gt; 承担的工作大致是：客户端重排（比如把说明区收进卡片）、装饰开关判断、挂件交互。&lt;strong&gt;模板里往 &lt;code&gt;&amp;lt;script&amp;gt;&lt;/code&gt; 注入值要用 &lt;code&gt;safeJS&lt;/code&gt;&lt;/strong&gt; 防止二次转义。&lt;/p&gt;
+&lt;h2 id="九这一轮改动的几个判断"&gt;&lt;a href="#%e4%b9%9d%e8%bf%99%e4%b8%80%e8%bd%ae%e6%94%b9%e5%8a%a8%e7%9a%84%e5%87%a0%e4%b8%aa%e5%88%a4%e6%96%ad" class="header-anchor"&gt;&lt;/a&gt;九、这一轮改动的几个判断
+&lt;/h2&gt;&lt;p&gt;把重构期的决策归纳一下，这几条是反复用到的：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;装饰不能干扰内容&lt;/strong&gt;。背景元素（花瓣、云朵）跟内容分层，可以留；跟随鼠标的元素（花瓣轨迹、光斑）跟内容同层，要谨慎。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;容器越多越显空&lt;/strong&gt;。内容稀疏时加卡片框是负优化，About 页分块被否掉就是这个原因。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;改视觉先改变量&lt;/strong&gt;。有设计 token 之后，调整成本从「各处找硬编码」降到「改几个值」。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;别猜，去取证&lt;/strong&gt;。favicon 白底那件事猜了两轮都错，下载一个文件就查明了。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;涉及「页面里已经有什么」的判断，先去构建产物里数一遍&lt;/strong&gt;。我曾想当然实现了一个装饰横栏（&lt;code&gt;branch-garland&lt;/code&gt;），验证时发现构建产物里 0 处、SCSS 里 0 条样式——纯属臆造，全部撤回。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id="参考链接"&gt;&lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="header-anchor"&gt;&lt;/a&gt;参考链接：
+&lt;/h2&gt;&lt;p&gt;1 &lt;a class="link" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Specificity" target="_blank" rel="noopener"
+&gt;Specificity - CSS | MDN&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2 &lt;a class="link" href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/important" target="_blank" rel="noopener"
+&gt;!important CSS keyword - CSS | MDN&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;3 &lt;a class="link" href="https://developer.mozilla.org/zh-CN/docs/Learn_web_development/Core/Styling_basics/Handling_conflicts" target="_blank" rel="noopener"
+&gt;层叠、优先级与继承 - MDN Web Docs&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;4 &lt;a class="link" href="https://hugo.opendocs.io/templates/lookup-order" target="_blank" rel="noopener"
+&gt;模板查找顺序 - Hugo 中文文档&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;5 &lt;a class="link" href="http://markdblackwell.gitlab.io/hugo-docsite-blue/templates/content" target="_blank" rel="noopener"
+&gt;Single Content Template - Hugo Docs&lt;/a&gt;&lt;/p&gt;</description></item><item><title>给博客配一个会写文章的 Skill</title><link>https://sutdown.github.io/p/%E7%BB%99%E5%8D%9A%E5%AE%A2%E9%85%8D%E4%B8%80%E4%B8%AA%E4%BC%9A%E5%86%99%E6%96%87%E7%AB%A0%E7%9A%84-skill/</link><pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/%E7%BB%99%E5%8D%9A%E5%AE%A2%E9%85%8D%E4%B8%80%E4%B8%AA%E4%BC%9A%E5%86%99%E6%96%87%E7%AB%A0%E7%9A%84-skill/</guid><description>&lt;p&gt;这篇不是教程，是记录：我给这个博客做了个写文章的 Skill，把「写之前要交代什么」和「写成什么样算过关」都写死进去，顺手还撞上一个挺有意思的 bug。&lt;/p&gt;
+&lt;h2 id="起因"&gt;&lt;a href="#%e8%b5%b7%e5%9b%a0" class="header-anchor"&gt;&lt;/a&gt;起因
+&lt;/h2&gt;&lt;p&gt;每次想让 AI 帮我写篇博客，开场白都长这样：文章放 &lt;code&gt;content/post/ai/&lt;/code&gt; 还是 &lt;code&gt;log/&lt;/code&gt;；front matter 里 &lt;code&gt;date&lt;/code&gt; 要带前导零、文件名里的日期&lt;strong&gt;不带&lt;/strong&gt;；图片路径是 &lt;code&gt;/img/...&lt;/code&gt; 不是 &lt;code&gt;/static/img/...&lt;/code&gt;；结尾要有 &lt;code&gt;## 参考链接：&lt;/code&gt;；写完不许自己 push。&lt;/p&gt;
+&lt;p&gt;这些机械要求说完，真正的问题才浮出来——写出来的东西一眼 AI。句子都很对，也都很难看：开头铺垫三行，中间四个平均分配的小节，结尾再来个「总而言之」。我不想每次都从头吵一遍，所以干脆把它做成一个 Skill。&lt;/p&gt;
+&lt;h2 id="skill-就是一个目录"&gt;&lt;a href="#skill-%e5%b0%b1%e6%98%af%e4%b8%80%e4%b8%aa%e7%9b%ae%e5%bd%95" class="header-anchor"&gt;&lt;/a&gt;Skill 就是一个目录
+&lt;/h2&gt;&lt;p&gt;没别的，一个文件夹：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;.workbuddy/skills/blog-writer/
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── SKILL.md 主流程 + 六条硬门禁
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── references/
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── writing-style.md 风格卡 + 反 AI 味黑名单
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── post-conventions.md front matter / 路径 / 图片 / 站点坑
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ └── sourcing.md 检索渠道与配图规范
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└── scripts/
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └── new_post.py 建 md 骨架 + 图片目录
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;它按&lt;strong&gt;三层渐进式披露&lt;/strong&gt;加载，这点挺聪明：平时只有 SKILL.md 的 &lt;code&gt;name&lt;/code&gt; 和 &lt;code&gt;description&lt;/code&gt; 挂在系统提示里（约 100 token），只有判断「这活儿跟它有关」才读正文，用到风格卡了才去读 &lt;code&gt;references/&lt;/code&gt;，脚本只把结果带回上下文、代码本身不进窗口。&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_blog_writer_skill/skill-layers.svg"
+loading="lazy"
+alt="Skill 的三层加载结构"
+&gt;&lt;/p&gt;
+&lt;h2 id="六条门禁"&gt;&lt;a href="#%e5%85%ad%e6%9d%a1%e9%97%a8%e7%a6%81" class="header-anchor"&gt;&lt;/a&gt;六条门禁
+&lt;/h2&gt;&lt;p&gt;流程反而是最省事的部分，真正让它「像我干的活」的是这几条不许跳过的门禁：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;门禁&lt;/th&gt;
+&lt;th&gt;内容&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;G1 主题&lt;/td&gt;
+&lt;td&gt;落笔前必须有主题笔记，写的是「我们讨论的那个话题」，不是关键词的通用科普&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;G2 风格&lt;/td&gt;
+&lt;td&gt;动笔前读同分类旧文 ≥3 篇，套风格卡&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;G3 来源&lt;/td&gt;
+&lt;td&gt;数据、版本号、论文结论必须有出处 URL，没有就降级成「个人理解」或删掉&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;G4 配图&lt;/td&gt;
+&lt;td&gt;至少 1 张图，放 &lt;code&gt;static/img/&amp;lt;dir&amp;gt;/&lt;/code&gt;，正文用 &lt;code&gt;/img/...&lt;/code&gt; 引用&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;G5 参考&lt;/td&gt;
+&lt;td&gt;结尾 &lt;code&gt;## 参考链接：&lt;/code&gt; 编号列表&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;G6 提交&lt;/td&gt;
+&lt;td&gt;必须起本地服务交给我预览，&lt;strong&gt;我明说才 push&lt;/strong&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;G6 是我特意加的。自动发布这种事，一次都不想试。&lt;/p&gt;
+&lt;h2 id="风格卡才是重头戏"&gt;&lt;a href="#%e9%a3%8e%e6%a0%bc%e5%8d%a1%e6%89%8d%e6%98%af%e9%87%8d%e5%a4%b4%e6%88%8f" class="header-anchor"&gt;&lt;/a&gt;风格卡才是重头戏
+&lt;/h2&gt;&lt;p&gt;风格卡我写了两页，一半是「该怎么写」，一半是「不许怎么写」。前者大致是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;开头一句话直给：本文从 X、Y、Z 几个角度讲清楚什么，&lt;strong&gt;不写铺垫段&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;中英术语混排，关键概念加粗，允许口语插入和自问自答（&lt;code&gt;那么这部分代码是怎么实现的？&lt;/code&gt;）&lt;/li&gt;
+&lt;li&gt;并列对比优先用表格，技术文必须有代码实践&lt;/li&gt;
+&lt;li&gt;结尾不写总结段，直接接参考链接&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;后者是黑名单，命中即重写：「在当今…的时代」「值得注意的是」「综上所述」「不仅仅是 A 更是 B」，以及那些形态上的毛病——全篇没有一张图一个表格、每个小节篇幅完全均等、通篇零第一人称零口语的「无菌体」。&lt;/p&gt;
+&lt;p&gt;外加自检三问：有没有一句「只有我会这么写」的话？去掉加粗和表格还看得出结构吗？有没有哪段是任何人都能写出来的正确废话？&lt;/p&gt;
+&lt;h2 id="一次翻车int08"&gt;&lt;a href="#%e4%b8%80%e6%ac%a1%e7%bf%bb%e8%bd%a6int08" class="header-anchor"&gt;&lt;/a&gt;一次翻车：int(&amp;ldquo;08&amp;rdquo;)
+&lt;/h2&gt;&lt;p&gt;给博客加「随心记」分区时我写了个时间解析的 helper，把 &lt;code&gt;2026-09-16 01:40&lt;/code&gt; 这种字符串拆成年月日。本地跑得好好的，某次预览时页面突然变成 &lt;code&gt;Hugo Server: Error&lt;/code&gt;，报的是：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;error calling int: unable to cast &amp;#34;08&amp;#34; of type string to int:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;strconv.ParseInt: parsing &amp;#34;08&amp;#34;: invalid syntax
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;原因在 Go 的 &lt;code&gt;strconv.ParseInt&lt;/code&gt;：base 为 0 时，前缀 &lt;code&gt;0&lt;/code&gt; 会被当成&lt;strong&gt;八进制&lt;/strong&gt;，&lt;code&gt;08&lt;/code&gt;、&lt;code&gt;09&lt;/code&gt; 这种合法的十进制写法就炸了。&lt;code&gt;01&lt;/code&gt; 到 &lt;code&gt;07&lt;/code&gt; 恰好都是合法八进制，所以这个 bug 只在 8 月和 9 月、以及每月 8 号 9 号才冒出来——藏得相当好。&lt;/p&gt;
+&lt;p&gt;修法是在转 int 前先把前导零去掉：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-go-html-template" data-lang="go-html-template"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="cp"&gt;{{-&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$ms&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;replaceRE&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;#34;^0+&amp;#34;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;index&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$dp&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;-}}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="cp"&gt;{{-&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$m&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;:=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;cond&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;eq&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$ms&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="s"&gt;&amp;#34;&amp;#34;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;0&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="nx"&gt;int&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$ms&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;-}}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;更有意思的是后半段：我打开 &lt;code&gt;parse-time.html&lt;/code&gt; 一看，前导零明明早就处理掉了，可错误还在。折腾半天才反应过来——&lt;strong&gt;hugo server 拿的是旧模板的缓存&lt;/strong&gt;，等它 rebuild 完再请求就 200 了。所以「代码明明修好了还报旧错」的时候，别急着怀疑人生，先重启服务。&lt;/p&gt;
+&lt;h2 id="顺带封面这件事"&gt;&lt;a href="#%e9%a1%ba%e5%b8%a6%e5%b0%81%e9%9d%a2%e8%bf%99%e4%bb%b6%e4%ba%8b" class="header-anchor"&gt;&lt;/a&gt;顺带：封面这件事
+&lt;/h2&gt;&lt;p&gt;这次预览还确认了一件事，博客现在&lt;strong&gt;没有文章封面图&lt;/strong&gt;了。列表页七张卡片、文章详情页，全站唯一的 &lt;code&gt;&amp;lt;img&amp;gt;&lt;/code&gt; 是侧边栏头像。&lt;/p&gt;
+&lt;p&gt;是之前主动删的（commit &lt;code&gt;3c02650&lt;/code&gt;）：&lt;code&gt;header.html&lt;/code&gt; 被简化成只剩 &lt;code&gt;partialCached &amp;quot;article/components/details&amp;quot;&lt;/code&gt;，&lt;code&gt;static/img/anime/&lt;/code&gt; 那 80 张图也一并清了。只是清得不够干净——列表卡片上还挂着 &lt;code&gt;has-cover&lt;/code&gt;：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-go-html-template" data-lang="go-html-template"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;&amp;lt;&lt;/span&gt;&lt;span class="nt"&gt;article&lt;/span&gt; &lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;&lt;/span&gt;&lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nx"&gt;$image&lt;/span&gt;&lt;span class="na"&gt;.exists&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;&lt;span class="s"&gt;has-image&lt;/span&gt;&lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;&lt;span class="s"&gt;has-cover&lt;/span&gt;&lt;span class="cp"&gt;{{&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="k"&gt;end&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="cp"&gt;}}&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;封面没了以后 &lt;code&gt;$image.exists&lt;/code&gt; 恒为 false，于是每张卡片都挂着一个空 class。我把编译后的 CSS 拉下来 grep 了一遍，&lt;code&gt;has-cover&lt;/code&gt; 出现 0 次，说明它早就没有任何样式对应了，直接删掉 &lt;code&gt;else&lt;/code&gt; 分支了事。&lt;/p&gt;
+&lt;p&gt;现在 front matter 里的 &lt;code&gt;image&lt;/code&gt; 字段完全无效，所以新文章一律不写，视觉表达只能靠正文里的图——这也是 G4 那条门禁现在更硬的原因。&lt;/p&gt;
+&lt;h2 id="参考链接"&gt;&lt;a href="#%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5" class="header-anchor"&gt;&lt;/a&gt;参考链接：
+&lt;/h2&gt;&lt;p&gt;1 &lt;a class="link" href="https://anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener"
+&gt;Equipping agents for the real world with Agent Skills&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2 &lt;a class="link" href="https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf" target="_blank" rel="noopener"
+&gt;The Complete Guide to Building Skills for Claude&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;3 &lt;a class="link" href="https://discourse.gohugo.io/t/creating-a-tpl-templates-test-case-that-uses-variables/7915" target="_blank" rel="noopener"
+&gt;Removing leading 0 from number in string, int function error - Hugo Discourse&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;4 &lt;a class="link" href="https://scripter.co/golang-quirk-number-strings-starting-with-0-are-octals/" target="_blank" rel="noopener"
+&gt;Golang Quirk: Number-strings starting with &amp;ldquo;0&amp;rdquo; are Octals&lt;/a&gt;&lt;/p&gt;</description></item></channel></rss>
