@@ -534,6 +534,275 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ========================================
+     Moments - 私密角落（描述末尾的小钥匙 + 密码解锁）
+
+     密文由 encrypt_moments.py 生成：明文写在 private/moments.md（已 gitignore），
+     只有密文 + salt + 校验值进仓库。这里做的是真解密——密码不在页面里，
+     校验值是明文的 SHA-256，只用来判断「密码对不对」，反推不出密码。
+     解开后的内容只留在内存 / sessionStorage，关掉标签页就忘掉。
+     ======================================== */
+  var secretBtn = document.querySelector('.moments-secret') as HTMLElement | null;
+  var vault = document.getElementById('moments-vault');
+
+  if (secretBtn && vault) {
+    var pwInput = vault.querySelector('.moments-vault-input') as HTMLInputElement;
+    var vaultBtn = vault.querySelector('.moments-vault-btn') as HTMLElement;
+    var vaultMsg = vault.querySelector('.moments-vault-msg') as HTMLElement;
+    var hintBtn = vault.querySelector('.moments-vault-hint-btn') as HTMLElement | null;
+    var hintText = vault.querySelector('.moments-vault-hint-text') as HTMLElement | null;
+    var privateBlock = document.getElementById('moments-private-block');
+    var STORE_KEY = 'moments-private-open';
+    var payload: any = null;
+
+    try {
+      payload = JSON.parse(vault.getAttribute('data-vault') || '{}');
+    } catch (e) {
+      payload = null;
+    }
+
+    function b64decode(s: string): Uint8Array {
+      var bin = window.atob(s);
+      var out = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    }
+
+    function b64encode(bytes: Uint8Array): string {
+      var s = '';
+      for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+      return window.btoa(s);
+    }
+
+    async function deriveHmacKey(password: string, salt: Uint8Array, iterations: number) {
+      var enc = new TextEncoder();
+      var baseKey = await crypto.subtle.importKey(
+        'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
+      );
+      var bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', salt: salt, iterations: iterations, hash: 'SHA-256' },
+        baseKey,
+        256
+      );
+      return crypto.subtle.importKey(
+        'raw', bits, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+      );
+    }
+
+    /* 与 encrypt_moments.py 完全对齐：PBKDF2 取密钥 → HMAC(key, counter) 拼流密钥 → XOR */
+    async function decryptVault(password: string): Promise<string | null> {
+      var salt = b64decode(payload.salt);
+      var data = b64decode(payload.data);
+      var hmacKey = await deriveHmacKey(password, salt, payload.iter);
+
+      var ks = new Uint8Array(data.length);
+      var off = 0;
+      var blockIndex = 0;
+      var ctr = new Uint8Array(4);
+      while (off < data.length) {
+        ctr[0] = (blockIndex >>> 24) & 255;
+        ctr[1] = (blockIndex >>> 16) & 255;
+        ctr[2] = (blockIndex >>> 8) & 255;
+        ctr[3] = blockIndex & 255;
+        var block = new Uint8Array(await crypto.subtle.sign('HMAC', hmacKey, ctr));
+        for (var j = 0; j < block.length && off + j < data.length; j++) ks[off + j] = block[j];
+        off += block.length;
+        blockIndex++;
+      }
+
+      var plain = new Uint8Array(data.length);
+      for (var k = 0; k < data.length; k++) plain[k] = data[k] ^ ks[k];
+
+      var digest = new Uint8Array(await crypto.subtle.digest('SHA-256', plain));
+      if (b64encode(digest) !== payload.check) return null;
+      return new TextDecoder().decode(plain);
+    }
+
+    function setMsg(text: string, isError: boolean) {
+      vaultMsg.textContent = text;
+      vaultMsg.classList.toggle('is-error', !!isError);
+    }
+
+    function renderPrivate(list: Array<{ time: string; html: string }>) {
+      if (!privateBlock) return;
+
+      /* 按年份倒序分组，每组渲染成一段「年份 + 时间轴」，跟公开条目同样的分节结构。
+         list 已由加密脚本按时间倒序排好，这里只要顺延切分即可。 */
+      var groups: Array<{ year: string; items: Array<{ time: string; html: string }> }> = [];
+      list.forEach(function (item) {
+        var year = item.time.slice(0, 4);
+        var last = groups[groups.length - 1];
+        if (!last || last.year !== year) {
+          groups.push({ year: year, items: [item] });
+        } else {
+          last.items.push(item);
+        }
+      });
+
+      var html = '<div class="moments-private-head">这几条，只有你我知道</div>';
+      groups.forEach(function (g) {
+        html += '<div class="moments-year-block">';
+        html += '<h2 class="moments-year">' + g.year + '</h2>';
+        html += '<div class="moment-list">';
+        g.items.forEach(function (item) {
+          var parts = item.time.slice(0, 10).split('-');
+          var label = parts[1] + ' 月 ' + parts[2] + ' 日 ' + item.time.slice(11, 16);
+          html +=
+            '<section class="moment-item">' +
+              '<time class="moment-date" datetime="' + item.time.replace(' ', 'T') + '" title="' + item.time + '">' +
+                label +
+              '</time>' +
+              '<div class="moment-card"><div class="moment-content">' + item.html + '</div></div>' +
+            '</section>';
+        });
+        html += '</div></div>';
+      });
+      html +=
+        '<div class="moments-private-foot">' +
+          '<span>解开后就先放在这个标签页里，关掉它就忘了。</span>' +
+          '<button type="button" class="moments-relock">重新上锁</button>' +
+        '</div>';
+
+      privateBlock.innerHTML = html;
+      privateBlock.removeAttribute('hidden');
+
+      var relock = privateBlock.querySelector('.moments-relock') as HTMLElement | null;
+      if (relock) relock.addEventListener('click', lockPrivate);
+    }
+
+    function lockPrivate() {
+      if (privateBlock) {
+        privateBlock.innerHTML = '';
+        privateBlock.setAttribute('hidden', '');
+      }
+      try {
+        window.sessionStorage.removeItem(STORE_KEY);
+      } catch (e) { /* 无痕模式下忽略 */ }
+
+      (secretBtn as HTMLElement).classList.remove('is-unlocked');
+      (secretBtn as HTMLElement).setAttribute('aria-expanded', 'false');
+      vaultMsg.textContent = '';
+      pwInput.value = '';
+      setHintOpen(false);
+    }
+
+    async function tryUnlock() {
+      var password = pwInput.value;
+      if (!password) {
+        setMsg('先写点什么吧', true);
+        pwInput.focus();
+        return;
+      }
+      if (!payload || !payload.data) {
+        setMsg('这一页还没有上锁的内容', true);
+        return;
+      }
+      /* WebCrypto 只在 https / localhost 下可用（局域网 http 访问会走到这里） */
+      if (!window.crypto || !window.crypto.subtle) {
+        setMsg('当前环境不支持加密，请改用 https 或 localhost 打开', true);
+        return;
+      }
+
+      vaultBtn.setAttribute('disabled', '');
+      setMsg('正在试…', false);
+
+      try {
+        var text = await decryptVault(password);
+        if (text === null) {
+          setMsg('好像不太对，再想想？', true);
+          vault.classList.add('is-shaking');
+          window.setTimeout(function () {
+            vault.classList.remove('is-shaking');
+          }, 460);
+          pwInput.select();
+        } else {
+          var list = JSON.parse(text);
+          try {
+            window.sessionStorage.setItem(STORE_KEY, text);
+          } catch (e) { /* 存不下就算了，刷新后重输 */ }
+
+          renderPrivate(list);
+          (secretBtn as HTMLElement).classList.add('is-unlocked');
+          vault.setAttribute('hidden', '');
+          (secretBtn as HTMLElement).setAttribute('aria-expanded', 'false');
+          pwInput.value = '';
+          setMsg('解开了 ' + list.length + ' 条', false);
+        }
+      } catch (e) {
+        setMsg('出了点问题，刷新页面再试一次', true);
+      }
+
+      vaultBtn.removeAttribute('disabled');
+    }
+
+    (secretBtn as HTMLElement).addEventListener('click', function () {
+      var unlocked = (secretBtn as HTMLElement).classList.contains('is-unlocked');
+      /* 已解锁时再点一下 = 收起并重新上锁 */
+      if (unlocked) {
+        lockPrivate();
+        vault.setAttribute('hidden', '');
+        return;
+      }
+
+      var opened = !vault.hasAttribute('hidden');
+      if (opened) {
+        vault.setAttribute('hidden', '');
+        (secretBtn as HTMLElement).setAttribute('aria-expanded', 'false');
+      } else {
+        vault.removeAttribute('hidden');
+        (secretBtn as HTMLElement).setAttribute('aria-expanded', 'true');
+        pwInput.focus();
+      }
+    });
+
+    vaultBtn.addEventListener('click', tryUnlock);
+    pwInput.addEventListener('keydown', function (e) {
+      if ((e as KeyboardEvent).key === 'Enter') {
+        e.preventDefault();
+        tryUnlock();
+      }
+    });
+
+    /* 提示：默认藏着，点一下才展开；再点一下收回去。
+       按钮上的字也跟着换，免得人以为点了没反应。 */
+    function setHintOpen(open: boolean) {
+      if (!hintBtn || !hintText) return;
+
+      if (open) hintText.removeAttribute('hidden');
+      else hintText.setAttribute('hidden', '');
+
+      hintBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+
+      var label = hintBtn.querySelector('.moments-vault-hint-label');
+      if (label) label.textContent = open ? '我先自己想想' : '悄悄给点提示';
+    }
+
+    if (hintBtn && hintText) {
+      hintBtn.addEventListener('click', function () {
+        setHintOpen(hintText.hasAttribute('hidden'));
+      });
+    }
+
+    /* 同一个标签页里刷新不用重输密码 */
+    (function restore() {
+      var cached: string | null = null;
+      try {
+        cached = window.sessionStorage.getItem(STORE_KEY);
+      } catch (e) {
+        cached = null;
+      }
+      if (!cached) return;
+      try {
+        renderPrivate(JSON.parse(cached));
+        (secretBtn as HTMLElement).classList.add('is-unlocked');
+      } catch (e) {
+        try {
+          window.sessionStorage.removeItem(STORE_KEY);
+        } catch (e2) { /* ignore */ }
+      }
+    })();
+  }
+
+  /* ========================================
      交互组件 - 移动端底部导航
      首页 / 归档 / 搜索 / 返回顶部
      ======================================== */

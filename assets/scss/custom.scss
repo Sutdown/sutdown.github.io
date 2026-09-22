@@ -2500,6 +2500,24 @@ body.lightbox-open {
    Moments 页面 - 通读时间轴
    ======================================== */
 .template-moments {
+  /* 页面主标题
+     主题 .section-title 的默认值是给侧栏挂件标题设计的：1.6rem、正文深灰、
+     text-transform: uppercase。放在页面最顶上，比下面的年份标题（1.7rem 藕粉）
+     还小还沉，撑不起页头。这里放大并换成藕粉 + 手写体，跟整页调性统一。
+
+     ⚠️ 选择器必须带上 .moments-header：.section-title 是全站通用类，
+     侧栏的「归档 / 分类云 / 标签云 / 博客统计」标题也在 body.template-moments
+     之内，只用 .template-moments .section-title 会把它们一并放大成粉色。 */
+  .moments-header .section-title {
+    margin: 0 0 0.25rem;
+    font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    line-height: 1.28;
+    letter-spacing: 0.02em;
+    color: var(--accent-color);
+  }
+
   .moments-banner {
     margin-bottom: 1.4rem;
   }
@@ -2581,6 +2599,7 @@ body.lightbox-open {
 
 @media (max-width: 768px) {
   .template-moments {
+    .moments-header .section-title { font-size: 2rem; }
     .moments-desc { font-size: 1.2rem; }
     .moments-year { font-size: 1.5rem; }
     .moment-content { font-size: 1.25rem; }
@@ -2588,6 +2607,341 @@ body.lightbox-open {
     /* 年份条在窄屏会换行成两排，收益不大 */
     .moments-yearnav { display: none; }
   }
+}
+
+/* 屏幕阅读器专用文本（小钥匙按钮的可访问名） */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ========================================
+   Moments - 私密角落（描述末尾的小钥匙 + 密码解锁）
+   ======================================== */
+.template-moments {
+  /* 小钥匙：默认很淡，hover 才亮起来 —— 留给细心人的一个小彩蛋 */
+  .moments-secret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    margin-left: 0.35rem;
+    padding: 0;
+    vertical-align: -0.4rem;
+    color: var(--card-text-color-tertiary);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity var(--dur-base) var(--ease-out),
+                color var(--dur-base) var(--ease-out),
+                transform var(--dur-base) var(--ease-out);
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      color: var(--accent-color);
+      transform: rotate(-14deg) scale(1.15);
+    }
+
+    .moments-secret-icon {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    /* 已解锁：换成更深的颜色，提示「再点一下就重新上锁」 */
+    &.is-unlocked {
+      opacity: 1;
+      color: var(--accent-color);
+      &:hover { transform: rotate(0deg) scale(1.1); }
+    }
+  }
+
+  /* 密码面板 */
+  .moments-vault {
+    margin-top: 1.2rem;
+    animation: vault-in var(--dur-base) var(--ease-out) both;
+
+    .moments-vault-inner {
+      padding: 1.5rem 1.6rem 1.4rem;
+      background: rgba(var(--accent-color-rgb), 0.05);
+      border: 1px dashed rgba(var(--accent-color-rgb), 0.45);
+      border-radius: var(--radius-wobbly);
+      font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+    }
+
+    .moments-vault-title {
+      font-size: 1.45rem;
+      color: var(--accent-color-darker);
+      letter-spacing: 0.02em;
+
+      .moments-vault-moon { margin-right: 0.35rem; }
+    }
+
+    .moments-vault-tip {
+      margin: 0.6rem 0 1.1rem;
+      font-size: 1.25rem;
+      line-height: 1.8;
+      color: var(--card-text-color-secondary);
+    }
+
+    .moments-vault-form {
+      display: flex;
+      gap: 0.7rem;
+      align-items: stretch;
+    }
+
+    .moments-vault-input {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding: 0.55rem 0.9rem;
+      font-family: inherit;
+      font-size: 1.3rem;
+      color: var(--card-text-color-main);
+      background: var(--card-background);
+      border: 1px solid rgba(var(--accent-color-rgb), 0.4);
+      border-radius: var(--radius-wobbly-sm);
+      outline: none;
+      transition: border-color var(--dur-base) var(--ease-out),
+                  box-shadow var(--dur-base) var(--ease-out);
+
+      &::placeholder { color: var(--card-text-color-tertiary); }
+
+      &:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.16);
+      }
+    }
+
+    .moments-vault-btn {
+      flex: 0 0 auto;
+      padding: 0.55rem 1.5rem;
+      font-family: inherit;
+      font-size: 1.3rem;
+      color: var(--accent-color-darker);
+      background: rgba(var(--accent-color-rgb), 0.12);
+      border: 1px solid rgba(var(--accent-color-rgb), 0.5);
+      border-radius: var(--radius-wobbly-sm);
+      cursor: pointer;
+      transition: background var(--dur-base) var(--ease-out),
+                  transform var(--dur-base) var(--ease-out);
+
+      &:hover { background: rgba(var(--accent-color-rgb), 0.24); transform: translateY(-1px); }
+      &:active { transform: translateY(0); }
+      &:disabled { opacity: 0.55; cursor: default; transform: none; }
+    }
+
+    /* 提示：默认收着，点一下才展开。给的是线索不是答案。
+       早先这条做成了三级灰 + 淡虚线，太像装饰文字了 —— 用户反馈「加个提示按钮」，
+       说明它没被认成一个能点的东西。现在改成藕粉描边 + 淡底 + 更亮的正文色，
+       角色仍是「一句小声的旁白」，但一眼看得出能点。 */
+    .moments-vault-hint {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem 0.8rem;
+      margin-top: 0.8rem;
+    }
+
+    .moments-vault-hint-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.2rem 0.95rem 0.2rem 0.7rem;
+      font-family: inherit;
+      font-size: 1.25rem;
+      color: var(--accent-color-darker);
+      background: rgba(var(--accent-color-rgb), 0.07);
+      border: 1px solid rgba(var(--accent-color-rgb), 0.45);
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      transition: color var(--dur-base) var(--ease-out),
+                  border-color var(--dur-base) var(--ease-out),
+                  background var(--dur-base) var(--ease-out);
+
+      &:hover,
+      &:focus-visible {
+        color: var(--accent-color-darker);
+        background: rgba(var(--accent-color-rgb), 0.17);
+        border-color: rgba(var(--accent-color-rgb), 0.8);
+      }
+
+      /* 展开后按钮退到一边，别跟提示抢注意力 */
+      &[aria-expanded="true"] {
+        color: var(--accent-color-darker);
+        background: none;
+        opacity: 0.7;
+      }
+
+      .moments-vault-hint-icon {
+        flex: 0 0 auto;
+        width: 1.5rem;
+        height: 1.5rem;
+        transform-origin: 50% 85%;
+      }
+
+      /* 灯泡歪一下：鼠标碰到时才动，不抢戏 */
+      &:hover .moments-vault-hint-icon,
+      &:focus-visible .moments-vault-hint-icon {
+        animation: hint-wink 0.62s var(--ease-out);
+      }
+    }
+
+    .moments-vault-hint-text {
+      flex: 1 1 100%;
+      margin: 0;
+      padding: 0.6rem 0.95rem;
+      font-size: 1.2rem;
+      line-height: 1.8;
+      color: var(--accent-color-darker);
+      background: rgba(var(--accent-color-rgb), 0.07);
+      border-left: 2px solid rgba(var(--accent-color-rgb), 0.45);
+      border-radius: 0 var(--radius-wobbly-sm) var(--radius-wobbly-sm) 0;
+      animation: vault-in var(--dur-base) var(--ease-out) both;
+
+      /* 显式写一遍：父容器是 flex，留给 UA 的 [hidden] 不稳妥 */
+      &[hidden] { display: none; }
+
+      em {
+        font-style: normal;
+        color: var(--accent-color-darker);
+        border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.5);
+      }
+
+      code {
+        margin: 0 0.15rem;
+        padding: 0.05rem 0.4rem;
+        font-size: 1.15rem;
+        letter-spacing: 0.06em;
+        color: var(--accent-color-darker);
+        background: rgba(var(--accent-color-rgb), 0.16);
+        border: none;
+        border-radius: 0.35rem;
+      }
+
+      .moments-vault-hint-heart {
+        margin-left: 0.15rem;
+        color: var(--accent-color);
+      }
+    }
+
+    .moments-vault-msg {
+      min-height: 1.7rem;
+      margin: 0.7rem 0 0;
+      font-size: 1.2rem;
+      color: var(--card-text-color-tertiary);
+
+      &.is-error { color: #c2606f; }
+    }
+
+    /* 密码错误时抖一下 */
+    &.is-shaking .moments-vault-inner {
+      animation: vault-shake 0.42s var(--ease-out);
+    }
+  }
+
+  /* 解锁后的私密条目：同一条时间轴，换一副更安静的样子 */
+  .moments-private-block {
+    margin-top: 1.6rem;
+    animation: vault-in var(--dur-base) var(--ease-out) both;
+
+    .moments-private-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.9rem;
+      font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+      font-size: 1.35rem;
+      color: var(--accent-color-darker);
+
+      &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, rgba(var(--accent-color-rgb), 0.4), transparent);
+      }
+    }
+
+    /* 解锁后按年份分节，复用公开条目的 .moments-year-block / .moments-year。
+       但第一段的顶部间距是给「页面时间轴」留的，私密区首段要紧贴标题，收窄。 */
+    .moments-year-block {
+      margin-top: 1.8rem;
+
+      &:first-of-type {
+        margin-top: 0.4rem;
+      }
+    }
+
+    /* 时间轴节点换成小锁，跟公开条目区分开 */
+    .moment-item::before {
+      content: "🔒";
+      font-size: 0.9rem;
+    }
+
+    .moment-card {
+      background: rgba(var(--accent-color-rgb), 0.05);
+      border-style: dashed;
+      border-color: rgba(var(--accent-color-rgb), 0.42);
+
+      &:hover {
+        border-style: solid;
+        border-color: var(--accent-color);
+      }
+    }
+  }
+
+  .moments-private-foot {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    font-size: 1.2rem;
+    color: var(--card-text-color-tertiary);
+
+    button {
+      padding: 0.2rem 0.9rem;
+      font-family: "LXGW WenKai", "Kaiti SC", "KaiTi", sans-serif;
+      font-size: 1.2rem;
+      color: var(--accent-color-darker);
+      background: none;
+      border: 1px dashed rgba(var(--accent-color-rgb), 0.5);
+      border-radius: var(--radius-wobbly-sm);
+      cursor: pointer;
+      transition: background var(--dur-base) var(--ease-out);
+
+      &:hover { background: rgba(var(--accent-color-rgb), 0.14); }
+    }
+  }
+}
+
+@keyframes vault-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vault-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+/* 提示灯泡：忍不住想说话似的歪两下 */
+@keyframes hint-wink {
+  0%   { transform: rotate(0deg); }
+  30%  { transform: rotate(-18deg); }
+  60%  { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
 }
 
 /* ========================================
@@ -2730,6 +3084,57 @@ body.lightbox-open {
   .wl-btn-primary,
   .wl-btn.primary {
     border-radius: var(--radius-pill);
+  }
+}
+
+/* ========================================
+   Moments 私密角落 - 深色模式
+   （放在文件末尾：前面已有 6 个 :root[data-scheme="dark"] 块，
+    新块放最后才能确保自己的设置不被后面的同属性规则覆盖）
+   ======================================== */
+:root[data-scheme="dark"] {
+  .template-moments {
+    .moments-vault-inner {
+      background: rgba(232, 169, 184, 0.08);
+      border-color: rgba(232, 169, 184, 0.4);
+    }
+
+    .moments-vault-msg.is-error {
+      color: #f0a4b0;
+    }
+
+    /* 提示在深色下也换成更亮的那支藕粉，否则 0.07 的底色几乎看不见 */
+    .moments-vault-hint-btn {
+      border-color: rgba(232, 169, 184, 0.4);
+
+      &:hover,
+      &:focus-visible,
+      &[aria-expanded="true"] {
+        color: #e8a9b8;
+        background: rgba(232, 169, 184, 0.1);
+        border-color: rgba(232, 169, 184, 0.65);
+      }
+    }
+
+    .moments-vault-hint-text {
+      color: #e8a9b8;
+      background: rgba(232, 169, 184, 0.09);
+      border-left-color: rgba(232, 169, 184, 0.45);
+
+      em { color: #e8a9b8; border-bottom-color: rgba(232, 169, 184, 0.5); }
+
+      code {
+        color: #e8a9b8;
+        background: rgba(232, 169, 184, 0.18);
+      }
+
+      .moments-vault-hint-heart { color: #e8a9b8; }
+    }
+
+    .moments-private-block .moment-card {
+      background: rgba(232, 169, 184, 0.07);
+      border-color: rgba(232, 169, 184, 0.4);
+    }
   }
 }
 

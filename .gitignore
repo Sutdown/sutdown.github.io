@@ -15,3 +15,6 @@ Thumbs.db
 !.workbuddy/skills/
 # 临时候选图（选图后删除）
 candidates_tmp/
+
+# 私密随心记的明文（只有加密后的 data/moments-private.json 入库）
+private/

@@ -16,6 +16,9 @@
 
 {{ define "main" }}
     {{- $pages := .RegularPages -}}
+    {{- /* 私密随心记：由 encrypt_moments.py 生成，只有密文 + salt + 校验值，
+           明文写在 private/moments.md（已 gitignore），永远不进仓库 */ -}}
+    {{- $vault := index .Site.Data "moments-private" -}}
 
     {{- /* 先把所有条目拆出来（保留原始上下文以便 Markdownify） */}}
     {{- $entries := slice -}}
@@ -69,8 +72,87 @@
 
         <h3 class="section-title">{{ .Title }}</h3>
         <p class="moments-desc">
-            {{ default "灵光一闪的碎片、睡前想通的一个点、改到凌晨的一行样式。按时间倒序，一月一存。" .Params.description }}
+            {{- default "想到就记下来。倒着读，一月一页。" .Params.description -}}
+            {{- with $vault -}}
+                {{/* 描述末尾的小钥匙：点开后要密码才能看「仅我可见」的那部分 */}}
+                <button
+                    class="moments-secret"
+                    type="button"
+                    aria-expanded="false"
+                    aria-controls="moments-vault"
+                    title="这里好像还藏着点什么"
+                >
+                    <svg class="moments-secret-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="7.5" cy="12" r="3.5"></circle>
+                        <path d="M11 12h10"></path>
+                        <path d="M17.5 12v3"></path>
+                        <path d="M20.5 12v2.2"></path>
+                    </svg>
+                    <span class="sr-only">解锁仅我可见的随心记</span>
+                </button>
+            {{- end -}}
         </p>
+
+        {{- with $vault -}}
+            {{/* 密文放在 data 属性里而不是 <script> 里：Go html/template 在 <script>
+                 上下文会按 JS 规则转义，把整个 JSON 变成字符串字面量，前端要多 parse 一次。
+                 属性上下文只做 HTML 转义，getAttribute 拿回来就是干净的 JSON。 */}}
+            <div
+                class="moments-vault"
+                id="moments-vault"
+                data-vault="{{ $vault | jsonify }}"
+                hidden
+            >
+                <div class="moments-vault-inner">
+                    <div class="moments-vault-title">
+                        <span class="moments-vault-moon" aria-hidden="true">🌙</span>
+                        你发现了一个上锁的角落
+                    </div>
+                    <p class="moments-vault-tip">
+                        这里收着一些只写给自己的碎碎念。知道密码的话，欢迎进来坐坐；
+                        不知道的话，也谢谢你替我保守这个秘密。
+                    </p>
+                    <div class="moments-vault-form">
+                        <input
+                            class="moments-vault-input"
+                            type="password"
+                            placeholder="密码"
+                            autocomplete="off"
+                            spellcheck="false"
+                            aria-label="私密随心记的密码"
+                        >
+                        <button class="moments-vault-btn" type="button">看看</button>
+                    </div>
+
+                    {{/* 提示默认藏着，点一下才展开 —— 先让人自己想，想不出来再偷看 */}}
+                    <div class="moments-vault-hint">
+                        <button
+                            class="moments-vault-hint-btn"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="moments-vault-hint"
+                        >
+                            <svg class="moments-vault-hint-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M9 18.5h6"></path>
+                                <path d="M10 21.2h4"></path>
+                                <path d="M12 2.8a6.2 6.2 0 0 0-3.6 11.2c.5.4.8 1 .8 1.6v.4h5.6v-.4c0-.6.3-1.2.8-1.6A6.2 6.2 0 0 0 12 2.8Z"></path>
+                            </svg>
+                            <span class="moments-vault-hint-label">悄悄给点提示</span>
+                        </button>
+
+                        <p class="moments-vault-hint-text" id="moments-vault-hint" hidden>
+                            唔……偷偷告诉你：是我的<em>出生日期</em>呀。
+                            把年月日连起来，八位数字就是它啦
+                            <span class="moments-vault-hint-heart" aria-hidden="true">♡</span>
+                        </p>
+                    </div>
+
+                    <p class="moments-vault-msg" role="status" aria-live="polite"></p>
+                </div>
+            </div>
+        {{- end -}}
 
         {{- if gt (len $years) 1 -}}
             <nav class="moments-yearnav">
@@ -80,6 +162,11 @@
             </nav>
         {{- end -}}
     </header>
+
+    {{- with $vault -}}
+        {{/* 解锁后由 JS 填充：只存在内存 / sessionStorage，不在构建产物里 */}}
+        <div class="moments-private-block" id="moments-private-block" hidden></div>
+    {{- end -}}
 
     {{- if $entries -}}
         {{- range $years -}}
