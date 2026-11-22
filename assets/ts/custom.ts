@@ -4,15 +4,12 @@
 document.addEventListener('DOMContentLoaded', function () {
   /* ========================================
      页面类型判定
-     - 阅读页（content/post/ 下的文章）应保持纯粹，仅保留顶部进度条，
-       关掉飘落花瓣、云朵、小树等动态装饰，避免干扰阅读
-     - 独立页（About / Links / Travelling，带 .page-standalone）
-       虽然也是 article-page，但保留全部装饰，和首页观感一致
+     - 全站统一保留装饰：首页、归档、独立页、文章页都显示
+       飘落花瓣、小树、小猫等，文章打开后也有装饰陪伴。
+       （动态动画仍尊重 prefers-reduced-motion 无障碍设置）
      ======================================== */
-  var isReading = !!document.querySelector('.article-page');
-  var isStandalone = !!document.querySelector('.page-standalone');
-  /* 装饰开关：独立页例外，其余非阅读页照常装饰 */
-  var decorEnabled = !isReading || isStandalone;
+  /* 装饰开关：恒开，文章页不再隐藏装饰 */
+  var decorEnabled = true;
 
   /* ========================================
      文章目录 - 滚动高亮当前章节
@@ -238,6 +235,14 @@ document.addEventListener('DOMContentLoaded', function () {
         '<circle cx="26" cy="14" r="2.2" fill="#f3b5c8"/>' +
       '</svg>';
     document.body.appendChild(tree);
+
+    /* 树下的小猫：贴着小树右侧坐着，和树共用 decorEnabled 开关，
+       阅读页自动隐藏、独立页保留；图片走静态 SVG，避免内联超长 path。 */
+    var cat = document.createElement('div');
+    cat.className = 'spring-cat';
+    cat.setAttribute('aria-hidden', 'true');
+    cat.innerHTML = '<img src="/img/spring-cat.svg" alt="" />';
+    document.body.appendChild(cat);
   }
 
   /* ========================================

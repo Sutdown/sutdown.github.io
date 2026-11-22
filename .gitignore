@@ -18,3 +18,7 @@ candidates_tmp/
 
 # 私密随心记的明文（只有加密后的 data/moments-private.json 入库）
 private/
+
+# 本地预览产物
+.hugo-live/
+.hugo-server.log

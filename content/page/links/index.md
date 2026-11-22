@@ -4,22 +4,27 @@ links:
   - title: GitHub
     description: 面向开发者的代码托管与协作平台，用于版本控制、开源项目管理和软件开发协作。
     website: https://github.com
+    image: /img/avatars/github.svg
 
   - title: Eucaly
     description: 互联网自留地，欢迎串门。
     website: https://isntbunny.github.io/
-  
+    image: /img/avatars/eucaly.svg
+
   - title: 孤筝
     description: 互联网自留地，欢迎串门。
     website: https://www.guzhengsvt.cn/zh-cn/
-  
+    image: /img/avatars/guzheng.svg
+
   - title: z-library
     description: 一个提供大量电子书和学术文献资源的在线数字图书馆平台。
     website: https://zh.z-library.sk/
-  
+    image: /img/avatars/zlibrary.svg
+
   - title: 李乾坤
     description: 互联网野生技术大佬。
     website: https://qiankunli.github.io/
+    image: /img/avatars/qiankun.svg
 menu:
     main: 
         weight: 5

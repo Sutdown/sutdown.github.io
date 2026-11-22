@@ -9,14 +9,44 @@
    rgba(var(--accent-color-rgb), .1) 依赖它，缺失会导致 hover 背景静默失效
    ======================================== */
 :root {
-  --accent-color: #d49ba8;
-  --accent-color-darker: #a66574;
-  --accent-color-rgb: 212, 155, 168;
+  /* 亮色 = C 方案：暖灰收敛 + 藕粉收深；深色块权重更高，不受影响 */
+  --accent-color: #c78d9b;
+  --accent-color-darker: #a8717f;
+  --accent-color-rgb: 199, 141, 155;
   --accent-color-text: #fff;
-  --body-background: #fdf9f2;
+  --body-background: #f7f5f2;
+  /* 卡片全透明：内容直接落在纸面上，卡片边界只靠淡描边 + wobbly 圆角勾勒。
+     深色块主题值权重更高，不受影响。 */
+  --card-background: transparent;
+  --body-text-color: #6f6a65;
+  --card-text-color-main: #4a4540;
+  --card-text-color-secondary: #6f6a65;
+  --card-text-color-tertiary: #8c857c;
+  --card-separator-color: rgba(160, 140, 125, 0.22);
   --accent-green: #a8c9b0;
   --accent-yellow: #f5deb3;
   --ink: #c9a992;
+
+  /* ============ 简约纸感背景 ============
+     不加色块、不加噪点，只铺极淡有秩序的细线。
+     网格(32px 方格) + 横纹(6px 平行线) 合成一张 SVG 平铺，
+     角落点缀单独定位，固定在视口两角。*/
+  --paper-weave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M0 .5H32M.5 0V32' fill='none' stroke='%23b8a08c' stroke-opacity='.16' stroke-width='.7'/%3E%3Cpath d='M0 6H32M0 12H32M0 18H32M0 24H32M0 30H32' fill='none' stroke='%23b8a08c' stroke-opacity='.06' stroke-width='.5'/%3E%3C/svg%3E");
+  --corner-arc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cpath d='M2 44 Q 34 6 82 16' fill='none' stroke='%23d49ba8' stroke-opacity='.5' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='100' cy='12' r='1.5' fill='%23d49ba8' fill-opacity='.4'/%3E%3C/svg%3E");
+  --corner-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 2 L16.2 11.8 L26 14 L16.2 16.2 L14 26 L11.8 16.2 L2 14 L11.8 11.8 Z' fill='%23d49ba8' fill-opacity='.38'/%3E%3C/svg%3E");
+
+  /* ============ 春日花纹（线稿感，低饱和，稀疏）============
+     两种：散落小花 / 边缘花藤，各自独立定位在视口边缘，
+     正文区不铺图案，避免干扰阅读。只在浅色生效，深色块不定义。
+     左下角不放花枝——会和站点已有的樱花树装饰叠在一起显乱。 */
+  --flower-vine: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='56'%3E%3Cpath d='M4 30 Q 54 48 104 30 Q 154 12 204 30 Q 254 48 304 30 Q 354 12 416 30' fill='none' stroke='%23a8c9b0' stroke-width='1.3' opacity='.5'/%3E%3Cpath d='M78 38 Q 84 31 90 38 Q 84 45 78 38 Z' fill='%23a8c9b0' opacity='.4'/%3E%3Cpath d='M278 38 Q 284 31 290 38 Q 284 45 278 38 Z' fill='%23a8c9b0' opacity='.4'/%3E%3Cg opacity='.55' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='1'%3E%3Cg transform='translate(54,34)'%3E%3Ccircle cx='0' cy='-4.5' r='2.9'/%3E%3Ccircle cx='4.3' cy='-1.4' r='2.9'/%3E%3Ccircle cx='2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-1.4' r='2.9'/%3E%3C/g%3E%3Cg transform='translate(154,26)'%3E%3Ccircle cx='0' cy='-4.5' r='2.9'/%3E%3Ccircle cx='4.3' cy='-1.4' r='2.9'/%3E%3Ccircle cx='2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-1.4' r='2.9'/%3E%3C/g%3E%3Cg transform='translate(254,34)'%3E%3Ccircle cx='0' cy='-4.5' r='2.9'/%3E%3Ccircle cx='4.3' cy='-1.4' r='2.9'/%3E%3Ccircle cx='2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-1.4' r='2.9'/%3E%3C/g%3E%3Cg transform='translate(354,26)'%3E%3Ccircle cx='0' cy='-4.5' r='2.9'/%3E%3Ccircle cx='4.3' cy='-1.4' r='2.9'/%3E%3Ccircle cx='2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-2.7' cy='3.6' r='2.9'/%3E%3Ccircle cx='-4.3' cy='-1.4' r='2.9'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --flower-scatter: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cpath d='M34 46 Q 40 39 46 46 Q 40 53 34 46 Z' fill='%23a8c9b0' opacity='.4'/%3E%3Cpath d='M118 132 Q 124 125 130 132 Q 124 139 118 132 Z' fill='%23a8c9b0' opacity='.4'/%3E%3Cg opacity='.5' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='1'%3E%3Cg transform='translate(52,58)'%3E%3Ccircle cx='0' cy='-5' r='3.2'/%3E%3Ccircle cx='4.8' cy='-1.5' r='3.2'/%3E%3Ccircle cx='3' cy='4' r='3.2'/%3E%3Ccircle cx='-3' cy='4' r='3.2'/%3E%3Ccircle cx='-4.8' cy='-1.5' r='3.2'/%3E%3C/g%3E%3Cg transform='translate(138,84)'%3E%3Ccircle cx='0' cy='-5' r='3.2'/%3E%3Ccircle cx='4.8' cy='-1.5' r='3.2'/%3E%3Ccircle cx='3' cy='4' r='3.2'/%3E%3Ccircle cx='-3' cy='4' r='3.2'/%3E%3Ccircle cx='-4.8' cy='-1.5' r='3.2'/%3E%3C/g%3E%3Cg transform='translate(88,146)'%3E%3Ccircle cx='0' cy='-5' r='3.2'/%3E%3Ccircle cx='4.8' cy='-1.5' r='3.2'/%3E%3Ccircle cx='3' cy='4' r='3.2'/%3E%3Ccircle cx='-3' cy='4' r='3.2'/%3E%3Ccircle cx='-4.8' cy='-1.5' r='3.2'/%3E%3C/g%3E%3C/g%3E%3Ccircle cx='52' cy='58' r='1.5' fill='%23c78d9b'/%3E%3Ccircle cx='138' cy='84' r='1.5' fill='%23c78d9b'/%3E%3Ccircle cx='88' cy='146' r='1.5' fill='%23c78d9b'/%3E%3C/svg%3E");
+
+  /* ---- 春日新增元素：蝴蝶 / 飞燕与云 / 嫩芽与郁金香 ----
+     延续线稿感、低饱和、淡粉+淡绿配色，只在视口边缘点缀。 */
+  --spring-butterflies: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='130'%3E%3Cg transform='translate(44,44)' opacity='.62'%3E%3Cpath d='M0 0 C -14 -16, -23 -5, -5 4 C -23 13, -14 24, 0 4 Z' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='1'/%3E%3Cpath d='M0 0 C 14 -16, 23 -5, 5 4 C 23 13, 14 24, 0 4 Z' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='1'/%3E%3Cpath d='M0 -3 L 0 11' fill='none' stroke='%23c78d9b' stroke-width='1.6' stroke-linecap='round'/%3E%3Cpath d='M0 -3 Q -5 -12 -10 -13 M 0 -3 Q 5 -12 10 -13' fill='none' stroke='%23c78d9b' stroke-width='.9' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(122,88) scale(.68)' opacity='.55'%3E%3Cpath d='M0 0 C -14 -16, -23 -5, -5 4 C -23 13, -14 24, 0 4 Z' fill='%23e6f0e8' stroke='%23a8c9b0' stroke-width='1.2'/%3E%3Cpath d='M0 0 C 14 -16, 23 -5, 5 4 C 23 13, 14 24, 0 4 Z' fill='%23e6f0e8' stroke='%23a8c9b0' stroke-width='1.2'/%3E%3Cpath d='M0 -3 L 0 11' fill='none' stroke='%23a8c9b0' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M0 -3 Q -5 -12 -10 -13 M 0 -3 Q 5 -12 10 -13' fill='none' stroke='%23a8c9b0' stroke-width='1.1' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E");
+  --spring-birds: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='210' height='90'%3E%3Cg transform='translate(56,42)' opacity='.6'%3E%3Cpath d='M-20 2 Q -10 -10 0 0 Q 10 -10 20 2' fill='none' stroke='%23a8c9b0' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M-4 3 L -7 10 M 4 3 L 7 10' fill='none' stroke='%23a8c9b0' stroke-width='1' stroke-linecap='round'/%3E%3C/g%3E%3Cg transform='translate(120,58) scale(.7)' opacity='.5'%3E%3Cpath d='M-20 2 Q -10 -10 0 0 Q 10 -10 20 2' fill='none' stroke='%23a8c9b0' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M-4 3 L -7 10 M 4 3 L 7 10' fill='none' stroke='%23a8c9b0' stroke-width='1' stroke-linecap='round'/%3E%3C/g%3E%3Cpath d='M150 26 Q 150 17 160 17 Q 164 10 173 14 Q 183 10 187 19 Q 197 19 197 27 Z' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='.9' opacity='.4'/%3E%3C/svg%3E");
+  --spring-sprouts: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='140'%3E%3Cg transform='translate(52,68)'%3E%3Cpath d='M0 -22 L -9 -5 Q 0 6 9 -5 Z' fill='%23f4d5dd' stroke='%23c78d9b' stroke-width='1' opacity='.62'/%3E%3Cpath d='M0 4 L 0 34' fill='none' stroke='%23a8c9b0' stroke-width='1.3' opacity='.55'/%3E%3Cpath d='M0 24 Q -15 20 -11 11 Q -2 15 0 24 Z' fill='%23a8c9b0' opacity='.4'/%3E%3Cpath d='M0 18 Q 13 14 10 6 Q 2 10 0 18 Z' fill='%23a8c9b0' opacity='.4'/%3E%3C/g%3E%3Cg transform='translate(126,104)'%3E%3Cpath d='M0 22 Q 0 6 0 -4' fill='none' stroke='%23a8c9b0' stroke-width='1.3' opacity='.55'/%3E%3Cpath d='M0 8 Q -13 4 -10 -5 Q -2 0 0 8 Z' fill='%23a8c9b0' opacity='.42'/%3E%3Cpath d='M0 3 Q 12 -1 9 -10 Q 1 -5 0 3 Z' fill='%23a8c9b0' opacity='.42'/%3E%3C/g%3E%3Cg transform='translate(150,40)'%3E%3Cpath d='M0 8 L 1 22' fill='none' stroke='%23a8c9b0' stroke-width='1' opacity='.5'/%3E%3Ccircle cx='-5' cy='2' r='4' fill='%23a8c9b0' opacity='.38'/%3E%3Ccircle cx='5' cy='2' r='4' fill='%23a8c9b0' opacity='.38'/%3E%3Ccircle cx='0' cy='-5' r='4' fill='%23a8c9b0' opacity='.38'/%3E%3C/g%3E%3C/svg%3E");
 
   /* ============ 设计 Token ============
      圆角 4 档 + 手绘 3 档；阴影 3 档（语义命名，深色自动覆盖）；
@@ -44,9 +74,77 @@
   --accent-color-darker: #f0c2ce;
   --accent-color-rgb: 232, 169, 184;
 
+  /* 深色底用亮色细线，透明度压低，避免发灰或刺眼 */
+  --paper-weave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M0 .5H32M.5 0V32' fill='none' stroke='%23e8d5c8' stroke-opacity='.10' stroke-width='.7'/%3E%3Cpath d='M0 6H32M0 12H32M0 18H32M0 24H32M0 30H32' fill='none' stroke='%23e8d5c8' stroke-opacity='.04' stroke-width='.5'/%3E%3C/svg%3E");
+  --corner-arc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cpath d='M2 44 Q 34 6 82 16' fill='none' stroke='%23e8a9b8' stroke-opacity='.34' stroke-width='1.2' stroke-linecap='round'/%3E%3Ccircle cx='100' cy='12' r='1.5' fill='%23e8a9b8' fill-opacity='.28'/%3E%3C/svg%3E");
+  --corner-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M14 2 L16.2 11.8 L26 14 L16.2 16.2 L14 26 L11.8 16.2 L2 14 L11.8 11.8 Z' fill='%23e8a9b8' fill-opacity='.3'/%3E%3C/svg%3E");
+
+  /* 深色不加花纹：设为 none，八层 background 声明中前五层不渲染，深色保持原样 */
+  --flower-vine: none;
+  --flower-scatter: none;
+  --spring-butterflies: none;
+  --spring-birds: none;
+  --spring-sprouts: none;
+
   --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.28);
   --shadow-lift: 0 10px 26px rgba(0, 0, 0, 0.42), 0 4px 8px rgba(0, 0, 0, 0.16);
   --shadow-float: 0 18px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   简约纸感背景 - 全站统一
+   主题用 background 简写铺了纯色 --body-background，
+   这里最后加载，只覆盖 image 系列属性，不动底色。
+   八层：飞燕(左上) + 蝴蝶(右上) + 花藤(顶) + 散落花(右中)
+        + 嫩芽(底中) + 右上弧线 + 右下小星 + 纸纹平铺。
+       全部固定在视口边缘，正文区不铺图案，避免干扰阅读。
+       注：左下角不放花枝——会和站点已有的樱花树装饰叠在一起显乱。
+   fixed 让点缀相对视口稳定；移动端降 scroll 防 Safari 白块。
+   ======================================== */
+body {
+  background-image:
+    var(--spring-birds),
+    var(--spring-butterflies),
+    var(--flower-vine),
+    var(--flower-scatter),
+    var(--spring-sprouts),
+    var(--corner-arc),
+    var(--corner-star),
+    var(--paper-weave);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+  background-position: left 4% top 11%, right 7% top 23%, center top 8px, right 3% center, center bottom 3%, right 34px top 26px, right 28px bottom 24px, 0 0;
+  background-size: 210px 90px, 170px 130px, 420px 56px, 180px 180px, 190px 140px, 120px 60px, 28px 28px, 32px 32px;
+  background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+  body {
+    background-attachment: scroll;
+  }
+}
+
+/* ========================================
+   明暗切换按钮归位到菜单列表
+   主题给 #dark-mode-toggle 设了 margin-top:auto，会把它顶到侧栏最底部。
+   这里把它移回菜单流，紧跟最后一项 Travelling 之后，和菜单左对齐。
+   ======================================== */
+#main-menu #dark-mode-toggle,
+#main-menu #i18n-switch {
+  margin-top: 0;
+}
+
+/* 卡片极细描边（outline 不影响布局、不碰已有阴影）。
+   :not(dark) 限定只在浅色生效，深色卡片保持主题原样。 */
+:root:not([data-scheme="dark"]) {
+  --card-outline: rgba(160, 140, 125, 0.24);
+
+  .article-list article,
+  .article-list--compact article,
+  .widget,
+  .moment-card {
+    outline: 1px solid var(--card-outline);
+    outline-offset: -1px;
+  }
 }
 
 /* 手写体标题规则已移到 head/custom.html 内联 style，
@@ -97,11 +195,9 @@
 }
 
 .links article {
-  /* 卡片底色用「比页面米白再浅一点的暖白」，而不是纯白 or 全透明：
-     - 全透明（上一版）会让卡片和页面糊在一起，favicon 也失去承托
-     - 纯白 #fff 又太跳，压在米白底上「白得发空」
-     这里用极浅暖白，和整站的莫兰迪浅调一致，仅比页面底亮一档。 */
-  background: #fffdf9;
+  /* 卡片全透明：和全站文章卡一致，内容直接落在带纸纹的页面上，
+     边界只靠藕粉描边 + wobbly 圆角勾勒，不再有白色贴片感。 */
+  background: transparent;
   border: 1px solid rgba(var(--accent-color-rgb), 0.3);
   border-radius: var(--radius-wobbly);
   transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
@@ -124,7 +220,7 @@
   &:hover {
     transform: translateY(-3px);
     border-color: var(--accent-color);
-    background: #fffefa;
+    background: transparent;
     box-shadow: var(--shadow-lift);
   }
 }
@@ -143,7 +239,9 @@
   height: 46px;
   border: 1px solid rgba(var(--accent-color-rgb), 0.3);
   border-radius: var(--radius-wobbly-sm);
-  background: #fff;
+  /* 贴合背景：头像本身就是淡色手绘 SVG，去掉白底让它落在纸纹上。
+     深色模式仍给一层暗底，避免淡色头像在深底上失去承托。 */
+  background: transparent;
   overflow: hidden;
   color: var(--accent-color);
 
@@ -151,8 +249,8 @@
   img {
     position: relative;
     z-index: 1;
-    width: 26px;
-    height: 26px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
     border-radius: 0;
     box-shadow: none;
@@ -220,9 +318,17 @@
    —— 同样的暖白底、wobbly 圆角、藕粉描边，
    只是内部排版换成「段落 + 列表 + 代码块」。 */
 .links-note {
+  /* 与上方友链网格同宽：网格渲染在 .article-content 之外（占满整栏），
+     而说明卡在 .article-content 内，被主题的 padding: 0 var(--card-padding) 收窄了一圈。
+     用等量负 margin 把卡片拉回整栏宽，两个大框的左右边缘才对得齐。 */
   margin-top: 2rem;
+  /* 分条写、且让 calc() 落在声明末尾：
+     压缩器会把 `margin: 2rem calc(...) 0` 里的空格吃掉变成 `calc(...)0`，
+     整条声明就失效了。 */
+  margin-left: calc(var(--card-padding) * -1);
+  margin-right: calc(var(--card-padding) * -1);
   padding: 0 1.25rem 1.25rem;
-  background: #fffdf9;
+  background: transparent;
   border: 1px solid rgba(var(--accent-color-rgb), 0.3);
   border-radius: var(--radius-wobbly);
 }
@@ -1797,6 +1903,25 @@
   height: 100%;
 }
 
+/* 树下的小猫：贴着小树右侧坐在草地上，和树同一基线。
+   图片本身是彩色橘猫，保持原色作为画面里的一点暖意；
+   跟小树一样在移动端隐藏、阅读页由 decorEnabled 关掉。 */
+.spring-cat {
+  position: fixed;
+  left: 72px;
+  bottom: 10px;
+  width: 54px;
+  height: 54px;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0.92;
+}
+.spring-cat img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 /* 分隔线 - 手绘波浪 */
 hr {
   border: none;
@@ -1805,9 +1930,10 @@ hr {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2,15C18,7,34,20,52,12C70,6,86,19,104,12C122,6,140,18,158,11C176,6,188,14,198,9' fill='none' stroke='%23c9a992' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
-/* 移动端适配：小树隐藏、横幅收紧 */
+/* 移动端适配：小树和小猫一起隐藏、横幅收紧 */
 @media (max-width: 768px) {
-  .spring-tree {
+  .spring-tree,
+  .spring-cat {
     display: none;
   }
   .spring-banner {
@@ -1826,6 +1952,18 @@ hr {
 /* ========================================
    精致装饰 - 代码块美化
    ======================================== */
+
+/* 代码块全透明（仅浅色）：底色有两层——
+   ① .highlight 容器本身：主题设 background-color: var(--pre-background-color)=#fafafa
+   ② 内层 div.chroma / pre.chroma：主题 .chroma 设 #fafafa
+   两层都要清掉才真的透明。文章页与 Links 说明区共用这套 DOM。
+   !important 压过主题的 --pre-background-color；描边/圆角/复制按钮/语言标签保留。
+   深色模式原样不动。 */
+:root:not([data-scheme="dark"]) .highlight,
+:root:not([data-scheme="dark"]) .highlight .chroma {
+  background-color: transparent !important;
+}
+
 .article-content .highlight {
   position: relative;
   border-radius: var(--radius-lg);
@@ -2963,6 +3101,19 @@ body.lightbox-open {
   box-shadow: var(--shadow-lift);
 }
 
+/* 正文图片白底融入页面（仅浅色）：
+   multiply 把图片里的纯白底乘成页面米色，图表/文字内容不变，
+   像直接印在纸上而不是贴了一张白方块。
+   同时去掉图片阴影——混合模式下阴影会被一起乘进去变脏。
+   深色模式在下方单独处理（保留描边+阴影，防止深底图融掉），不受影响。 */
+:root:not([data-scheme="dark"]) .article-content img {
+  mix-blend-mode: multiply;
+  box-shadow: none;
+}
+:root:not([data-scheme="dark"]) .article-content img:hover {
+  box-shadow: none;
+}
+
 /* 2) 深色模式对比度校对：给正文图/代码块描边，防止深底图融入背景 */
 :root[data-scheme="dark"] {
   .article-content img {
@@ -3010,6 +3161,7 @@ body.lightbox-open {
   --waline-theme-color: var(--accent-color);
   --waline-active-color: var(--accent-color);
   --waline-border: 1px dashed var(--border-color);
+
 
   /* 评论区整体走手写体，与全站手绘调性一致。
      Waline 组件自身会给内部元素设 font-family，所以这里连同
@@ -3085,6 +3237,16 @@ body.lightbox-open {
   .wl-btn.primary {
     border-radius: var(--radius-pill);
   }
+}
+
+/* 评论区全透明（仅浅色）：Waline 主面板 .wl-panel / emoji·gif 弹层 /
+   输入框聚焦底分别走这三个变量，设为 transparent 后直接落在页面纸纹上。
+   --waline-white 是按钮文字色、--waline-info-bgcolor 是元信息小标签底，保留不动。
+   :not(dark) 限定深色评论区保持主题原样。 */
+:root:not([data-scheme="dark"]) .waline-container {
+  --waline-bgcolor: transparent;
+  --waline-bgcolor-light: transparent;
+  --waline-bgcolor-hover: transparent;
 }
 
 /* ========================================
