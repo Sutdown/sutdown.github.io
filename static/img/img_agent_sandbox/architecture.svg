@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 420" width="100%" role="img" aria-label="Agent Sandbox 的管理路径与执行路径分离">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .band { fill: #fdf8ef; stroke: #ece3d5; stroke-width: 1.2; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .band-lab { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; font-weight: 600; fill: #b5637a; letter-spacing: 0.5px; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.6; fill: none; }
+      .num { font-family: ui-monospace,Consolas,monospace; font-size: 10.5px; font-weight: 700; fill: #b5637a; }
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="420" rx="10"/>
+
+  <!-- 管理路径 -->
+  <rect class="band" x="24" y="24" width="852" height="176" rx="12"/>
+  <text class="band-lab" x="40" y="44">管理路径 · 创建与维护对象</text>
+
+  <rect class="card" x="44" y="58" width="160" height="118" rx="8"/>
+  <text class="name" x="60" y="82">SDK</text>
+  <text class="desc" x="60" y="102">Go / Python / TS</text>
+  <text class="desc" x="60" y="119">创建 Sandbox</text>
+  <text class="desc" x="60" y="136">或 SandboxClaim</text>
+
+  <path class="flow-hi" d="M204 117 H 292" marker-end="url(#ah)"/>
+  <text class="num" x="238" y="108">apply</text>
+
+  <rect class="card-hi" x="292" y="58" width="252" height="118" rx="8"/>
+  <text class="name" x="308" y="82">Controller</text>
+  <text class="desc" x="308" y="102">watch + reconcile</text>
+  <text class="desc" x="308" y="119">对比 spec 与 status</text>
+  <text class="desc" x="308" y="136">决定下一步做什么</text>
+
+  <path class="flow" d="M544 117 H 620" marker-end="url(#a)"/>
+  <text class="num" x="566" y="108">读写</text>
+
+  <rect class="card" x="620" y="58" width="236" height="118" rx="8"/>
+  <text class="name" x="636" y="82">Kubernetes 对象</text>
+  <text class="desc" x="636" y="102">Pod（名 = Sandbox 名）</text>
+  <text class="desc" x="636" y="119">headless Service（稳定 DNS）</text>
+  <text class="desc" x="636" y="136">PVC（持久工作目录）</text>
+
+  <!-- 执行路径 -->
+  <rect class="band" x="24" y="222" width="852" height="164" rx="12"/>
+  <text class="band-lab" x="40" y="242">执行路径 · 把命令送进沙箱（不经过控制器）</text>
+
+  <rect class="card" x="44" y="256" width="160" height="110" rx="8"/>
+  <text class="name" x="60" y="280">调用方</text>
+  <text class="desc" x="60" y="300">Agent 后端 /</text>
+  <text class="desc" x="60" y="317">用户会话</text>
+
+  <path class="flow-hi" d="M204 311 H 292" marker-end="url(#ah)"/>
+  <text class="num" x="230" y="302">执行请求</text>
+
+  <rect class="card" x="292" y="256" width="252" height="110" rx="8"/>
+  <text class="name" x="308" y="280">sandbox-router</text>
+  <text class="desc" x="308" y="300">按 Sandbox ID 找到</text>
+  <text class="desc" x="308" y="317">对应 Pod IP 并转发</text>
+
+  <path class="flow-hi" d="M544 311 H 620" marker-end="url(#ah)"/>
+  <text class="num" x="568" y="302">HTTP / exec</text>
+
+  <rect class="card-hi" x="620" y="256" width="236" height="110" rx="8"/>
+  <text class="name" x="636" y="280">sandboxd（Pod 内）</text>
+  <text class="desc" x="636" y="300">执行命令、读写文件</text>
+  <text class="desc" x="636" y="317">返回输出与退出码</text>
+
+  <text class="desc" x="40" y="404">隔离交给运行时：Pod 的 spec.runtimeClassName 指向 gVisor / Kata 的 RuntimeClass，Agent Sandbox 自己不实现隔离。</text>
+</svg>

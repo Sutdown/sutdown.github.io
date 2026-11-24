@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-label="WarmPool 与 Claim 的关系：领养空闲实例、冷启动创建、异步补货">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .zone { fill: #fdf8ef; stroke: #e6dccd; stroke-width: 1.2; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .card-dim { fill: #faf7f1; stroke: #e5dccd; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #6b655c; }
+      .lbl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #b5637a; }
+      .zone-lab { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; font-weight: 600; fill: #b5637a; letter-spacing: 0.5px; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="p1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="440" rx="10"/>
+
+  <rect class="zone" x="40" y="52" width="470" height="158" rx="12"/>
+  <text class="zone-lab" x="58" y="76">SANDBOXWARMPOOL · 提前建好的一批沙箱</text>
+
+  <rect class="card-dim" x="58" y="90" width="132" height="104" rx="8"/>
+  <text class="name" x="72" y="112">Sandbox</text>
+  <text class="desc" x="72" y="134">空闲</text>
+  <text class="desc" x="72" y="152">Pod 已 Ready</text>
+  <text class="desc" x="72" y="170">还没人用</text>
+
+  <rect class="card-dim" x="204" y="90" width="132" height="104" rx="8"/>
+  <text class="name" x="218" y="112">Sandbox</text>
+  <text class="desc" x="218" y="134">空闲</text>
+  <text class="desc" x="218" y="152">Pod 已 Ready</text>
+  <text class="desc" x="218" y="170">还没人用</text>
+
+  <rect class="card-dim" x="350" y="90" width="132" height="104" rx="8"/>
+  <text class="name" x="364" y="112">Sandbox</text>
+  <text class="desc" x="364" y="134">空闲</text>
+  <text class="desc" x="364" y="152">Pod 已 Ready</text>
+  <text class="desc" x="364" y="170">还没人用</text>
+
+  <path class="flow-hi" d="M600 96 H 518" marker-end="url(#p1h)"/>
+  <text class="lbl" x="516" y="120">领养空闲实例</text>
+
+  <rect class="card" x="600" y="52" width="300" height="96" rx="8"/>
+  <text class="name" x="616" y="76">SandboxClaim</text>
+  <text class="desc" x="616" y="98">只声明需要哪个池：</text>
+  <text class="desc" x="616" y="116">warmPoolRef: python-warmpool</text>
+  <text class="desc" x="616" y="134">不用写完整的 Pod 定义</text>
+
+  <path class="flow" d="M750 148 V 186" marker-end="url(#p1)"/>
+  <text class="lbl" x="762" y="172">不满足条件时</text>
+
+  <rect class="card" x="600" y="190" width="300" height="110" rx="8"/>
+  <text class="name" x="616" y="214">走冷启动：新建 Sandbox</text>
+  <text class="desc" x="616" y="236">Claim 设了 spec.env 或</text>
+  <text class="desc" x="616" y="254">spec.volumeClaimTemplates，定制内容</text>
+  <text class="desc" x="616" y="272">套不到已启动的预热 Pod 上；</text>
+  <text class="desc" x="616" y="290">池里没有合适候选也走这条</text>
+
+  <rect class="card" x="40" y="252" width="470" height="86" rx="8"/>
+  <text class="name" x="58" y="276">SandboxWarmPool Controller</text>
+  <text class="desc" x="58" y="298">发现池内空闲容量不足，继续创建替代 Sandbox，</text>
+  <text class="desc" x="58" y="316">尽量维持 spec.replicas；Claim 的等待有上限，默认 2 秒</text>
+
+  <path class="flow-hi" d="M275 252 V 214" marker-end="url(#p1h)"/>
+  <text class="lbl" x="286" y="236">异步补货</text>
+
+  <text class="desc" x="40" y="382">预热池不是沙箱总量的上限：来不及等就转冷启动，池子自己慢慢补回来。</text>
+  <text class="desc" x="40" y="404">突发流量下只有一部分请求能领养到实例；持续高并发会反复经历「领养 — 冷启动 — 补货」。</text>
+</svg>

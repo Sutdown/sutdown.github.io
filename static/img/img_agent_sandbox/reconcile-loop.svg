@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" width="100%" role="img" aria-label="Controller 的 reconcile 循环：感知变化、对比期望与实际、协调资源、写回状态">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="r1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="r1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="360" rx="10"/>
+
+  <rect class="card" x="390" y="40" width="180" height="66" rx="8"/>
+  <text class="name" x="406" y="64">感知变化</text>
+  <text class="desc" x="406" y="86">Sandbox 或 Pod 有变动</text>
+
+  <path class="flow" d="M570 73 H 800 V 132" marker-end="url(#r1)"/>
+
+  <rect class="card-hi" x="700" y="140" width="200" height="72" rx="8"/>
+  <text class="name" x="716" y="164">对比</text>
+  <text class="desc" x="716" y="185">读 spec（期望）</text>
+  <text class="desc" x="716" y="202">再读 status（现状）</text>
+
+  <path class="flow" d="M800 212 V 268 H 578" marker-end="url(#r1)"/>
+
+  <rect class="card" x="390" y="236" width="180" height="66" rx="8"/>
+  <text class="name" x="406" y="260">协调资源</text>
+  <text class="desc" x="406" y="282">创建 / 更新 / 删除</text>
+
+  <path class="flow" d="M390 269 H 180 V 216" marker-end="url(#r1)"/>
+
+  <rect class="card" x="80" y="140" width="200" height="72" rx="8"/>
+  <text class="name" x="96" y="164">写回 status</text>
+  <text class="desc" x="96" y="185">conditions、是否就绪</text>
+  <text class="desc" x="96" y="202">由控制器侧负责</text>
+
+  <path class="flow-hi" d="M180 140 V 73 H 386" marker-end="url(#r1h)"/>
+
+  <text class="desc" x="480" y="326" text-anchor="middle">同一份 spec 反复调和要幂等：已经满足要求时不做多余操作，不能每次都新建一遍资源。</text>
+</svg>

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 672" width="100%" role="img" aria-label="Kubernetes 整体结构：集群、控制面、节点、Pod、容器，以及网络与存储">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .zone { fill: #fdf8ef; stroke: #e6dccd; stroke-width: 1.2; }
+      .zone-2 { fill: #fffaf3; stroke: #e0d5c4; stroke-width: 1.1; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #6b655c; }
+      .zone-lab { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; font-weight: 600; fill: #b5637a; letter-spacing: 0.5px; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.3; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="a2h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="672" rx="10"/>
+
+  <rect class="zone" x="28" y="20" width="904" height="632" rx="16"/>
+  <text class="zone-lab" x="48" y="46">K8S CLUSTER · 整个 K8s 系统</text>
+
+  <rect class="card" x="360" y="58" width="240" height="46" rx="8"/>
+  <text class="name" x="376" y="78">kubectl / SDK / CI-CD</text>
+  <text class="desc" x="376" y="94">声明期望状态，提交给集群</text>
+  <path class="flow-hi" d="M480 104 V 118" marker-end="url(#a2h)"/>
+
+  <rect class="zone-2" x="48" y="120" width="864" height="112" rx="12"/>
+  <text class="zone-lab" x="66" y="142">控制面 CONTROL PLANE</text>
+  <rect class="card" x="66" y="152" width="192" height="62" rx="7"/>
+  <text class="name" x="80" y="174">API Server</text>
+  <text class="desc" x="80" y="193">统一入口，认证鉴权</text>
+  <rect class="card" x="272" y="152" width="176" height="62" rx="7"/>
+  <text class="name" x="286" y="174">etcd</text>
+  <text class="desc" x="286" y="193">状态数据库 / 账本</text>
+  <rect class="card" x="462" y="152" width="176" height="62" rx="7"/>
+  <text class="name" x="476" y="174">Scheduler</text>
+  <text class="desc" x="476" y="193">决定 Pod 去哪个 Node</text>
+  <rect class="card" x="652" y="152" width="240" height="62" rx="7"/>
+  <text class="name" x="666" y="174">Controller Manager</text>
+  <text class="desc" x="666" y="193">自动纠偏，维持期望状态</text>
+
+  <path class="flow" d="M480 232 V 258" marker-end="url(#a2)"/>
+
+  <rect class="zone-2" x="48" y="260" width="420" height="188" rx="12"/>
+  <text class="zone-lab" x="66" y="282">NODE 1 · 一台真正干活的机器</text>
+  <rect class="card-hi" x="66" y="292" width="384" height="138" rx="10"/>
+  <text class="name" x="82" y="314">Pod</text>
+  <text class="desc" x="82" y="331">最基本的运行单位</text>
+  <rect class="card" x="82" y="342" width="352" height="72" rx="8"/>
+  <text class="name" x="98" y="364">Container</text>
+  <text class="desc" x="98" y="383">my-server:v1</text>
+  <text class="desc" x="98" y="400">后端程序跑在这里</text>
+
+  <rect class="zone-2" x="492" y="260" width="420" height="188" rx="12"/>
+  <text class="zone-lab" x="510" y="282">NODE 2 · 副本打散到不同机器</text>
+  <rect class="card-hi" x="510" y="292" width="384" height="138" rx="10"/>
+  <text class="name" x="526" y="314">Pod</text>
+  <text class="desc" x="526" y="331">最基本的运行单位</text>
+  <rect class="card" x="526" y="342" width="352" height="72" rx="8"/>
+  <text class="name" x="542" y="364">Container</text>
+  <text class="desc" x="542" y="383">my-server:v1</text>
+  <text class="desc" x="542" y="400">对外提供同一份服务</text>
+
+  <path class="flow" d="M258 448 V 470" marker-end="url(#a2)"/>
+  <path class="flow" d="M702 448 V 470" marker-end="url(#a2)"/>
+
+  <rect class="zone-2" x="48" y="472" width="420" height="160" rx="12"/>
+  <text class="zone-lab" x="66" y="494">网络 · 怎么找到这些 Pod</text>
+  <rect class="card" x="66" y="504" width="120" height="56" rx="7"/>
+  <text class="name" x="80" y="526">Service</text>
+  <text class="desc" x="80" y="544">稳定访问入口</text>
+  <rect class="card" x="200" y="504" width="120" height="56" rx="7"/>
+  <text class="name" x="214" y="526">DNS</text>
+  <text class="desc" x="214" y="544">按名字解析</text>
+  <rect class="card" x="334" y="504" width="116" height="56" rx="7"/>
+  <text class="name" x="348" y="526">CNI</text>
+  <text class="desc" x="348" y="544">Pod 网络与 IP</text>
+  <text class="desc" x="66" y="584">外加 kube-proxy 负责传统 Service 转发，</text>
+  <text class="desc" x="66" y="602">NetworkPolicy 控制 Pod 之间允许通过的流量。</text>
+
+  <rect class="zone-2" x="492" y="472" width="420" height="160" rx="12"/>
+  <text class="zone-lab" x="510" y="494">存储 · 文件的生命周期</text>
+  <rect class="card" x="510" y="504" width="88" height="56" rx="7"/>
+  <text class="name" x="522" y="526">PVC</text>
+  <text class="desc" x="522" y="544">申请存储</text>
+  <rect class="card" x="608" y="504" width="88" height="56" rx="7"/>
+  <text class="name" x="620" y="526">PV</text>
+  <text class="desc" x="620" y="544">持久化资源</text>
+  <rect class="card" x="706" y="504" width="112" height="56" rx="7"/>
+  <text class="name" x="718" y="526">StorageClass</text>
+  <text class="desc" x="718" y="544">定义供应方式</text>
+  <rect class="card" x="828" y="504" width="70" height="56" rx="7"/>
+  <text class="name" x="838" y="526">CSI</text>
+  <text class="desc" x="838" y="544">对接底层</text>
+  <text class="desc" x="510" y="584">Pod 删除后，只要 PVC / PV 和底层存储还在，</text>
+  <text class="desc" x="510" y="602">新 Pod 挂载后还能读到原来的文件。</text>
+</svg>

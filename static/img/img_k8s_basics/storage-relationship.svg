@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="100%" role="img" aria-label="存储概念关系：Pod 挂载 PVC，PVC 绑定 PV，PV 由 StorageClass 与 CSI 供应">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .lbl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #b5637a; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+    </style>
+    <marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="300" rx="10"/>
+
+  <rect class="card" x="40" y="96" width="130" height="104" rx="8"/>
+  <text class="name" x="56" y="120">Pod</text>
+  <text class="desc" x="56" y="142">执行代码</text>
+  <text class="desc" x="56" y="159">把工作目录</text>
+  <text class="desc" x="56" y="176">挂进来</text>
+
+  <path class="flow" d="M170 148 H 196" marker-end="url(#s1)"/>
+  <text class="lbl" x="183" y="136" text-anchor="middle">挂载</text>
+
+  <rect class="card-hi" x="196" y="96" width="144" height="104" rx="8"/>
+  <text class="name" x="212" y="120">PVC</text>
+  <text class="desc" x="212" y="142">申请单：</text>
+  <text class="desc" x="212" y="159">要 10 GiB 的</text>
+  <text class="desc" x="212" y="176">持久化工作目录</text>
+
+  <path class="flow" d="M340 148 H 366" marker-end="url(#s1)"/>
+  <text class="lbl" x="353" y="136" text-anchor="middle">绑定</text>
+
+  <rect class="card" x="366" y="96" width="144" height="104" rx="8"/>
+  <text class="name" x="382" y="120">PV</text>
+  <text class="desc" x="382" y="142">实际的一块卷</text>
+  <text class="desc" x="382" y="159">持久化资源</text>
+  <text class="desc" x="382" y="176">独立于 Pod</text>
+
+  <path class="flow" d="M510 148 H 536" marker-end="url(#s1)"/>
+  <text class="lbl" x="523" y="136" text-anchor="middle">供应</text>
+
+  <rect class="card" x="536" y="96" width="164" height="104" rx="8"/>
+  <text class="name" x="552" y="120">StorageClass</text>
+  <text class="desc" x="552" y="142">定义供应方式：</text>
+  <text class="desc" x="552" y="159">用哪家存储、</text>
+  <text class="desc" x="552" y="176">什么参数与回收策略</text>
+
+  <path class="flow" d="M700 148 H 726" marker-end="url(#s1)"/>
+  <text class="lbl" x="713" y="136" text-anchor="middle">调用</text>
+
+  <rect class="card" x="726" y="96" width="194" height="104" rx="8"/>
+  <text class="name" x="742" y="120">CSI</text>
+  <text class="desc" x="742" y="142">对接云盘 / NFS /</text>
+  <text class="desc" x="742" y="159">分布式存储的驱动，</text>
+  <text class="desc" x="742" y="176">真正去创建这块卷</text>
+
+  <text class="desc" x="40" y="240">Kubernetes 把计算和存储分开管理：Pod 负责运行任务，Volume 提供挂载，PVC 申请，</text>
+  <text class="desc" x="40" y="262">PV 表示持久化资源，StorageClass 定义供应方式，CSI 对接底层存储。</text>
+</svg>

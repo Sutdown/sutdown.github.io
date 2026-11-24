@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="100%" role="img" aria-label="SandboxTemplate、SandboxWarmPool 与 SandboxClaim 的关系">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .zone { fill: #fdf8ef; stroke: #e6dccd; stroke-width: 1.2; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .card-dim { fill: #faf7f1; stroke: #e0d5c4; stroke-width: 1.1; stroke-dasharray: 4 3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #6b655c; }
+      .lbl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #b5637a; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+      .flow-dash { stroke: #bfae9d; stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+    <marker id="ad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#bfae9d"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="400" rx="10"/>
+
+  <!-- Template -->
+  <rect class="card-hi" x="36" y="60" width="204" height="122" rx="8"/>
+  <text class="name" x="52" y="84">SandboxTemplate</text>
+  <text class="desc" x="52" y="106">可复用的配置蓝图：</text>
+  <text class="desc" x="52" y="124">podTemplate、</text>
+  <text class="desc" x="52" y="142">volumeClaimTemplates、</text>
+  <text class="desc" x="52" y="160">Service 配置</text>
+
+  <path class="flow-hi" d="M240 121 H 296" marker-end="url(#ah)"/>
+  <text class="lbl" x="246" y="112">引用</text>
+
+  <!-- WarmPool -->
+  <rect class="zone" x="300" y="36" width="564" height="196" rx="14"/>
+  <text class="name" x="318" y="60">SandboxWarmPool</text>
+  <text class="desc" x="318" y="78">spec.replicas 维持一批已就绪的空闲沙箱</text>
+
+  <rect class="card" x="330" y="94" width="150" height="118" rx="8"/>
+  <text class="desc" x="344" y="114">Sandbox</text>
+  <text class="desc" x="344" y="134">空闲实例</text>
+  <text class="desc" x="344" y="152">Pod 已 Ready</text>
+  <text class="desc" x="344" y="170">IP 已上报</text>
+
+  <rect class="card" x="510" y="94" width="150" height="118" rx="8"/>
+  <text class="desc" x="524" y="114">Sandbox</text>
+  <text class="desc" x="524" y="134">空闲实例</text>
+  <text class="desc" x="524" y="152">Pod 已 Ready</text>
+
+  <rect class="card" x="690" y="94" width="150" height="118" rx="8"/>
+  <text class="desc" x="704" y="114">Sandbox</text>
+  <text class="desc" x="704" y="134">空闲实例</text>
+  <text class="desc" x="704" y="152">Pod 已 Ready</text>
+
+  <!-- Claim -->
+  <rect class="card-hi" x="36" y="250" width="204" height="110" rx="8"/>
+  <text class="name" x="52" y="274">SandboxClaim</text>
+  <text class="desc" x="52" y="296">申请单：只写需要哪个池</text>
+  <text class="desc" x="52" y="313">spec.warmPoolRef.name</text>
+  <text class="desc" x="52" y="331">= python-warmpool</text>
+
+  <path class="flow-hi" d="M240 300 C 286 300, 290 200, 330 154" marker-end="url(#ah)"/>
+  <text class="lbl" x="246" y="252">领养空闲实例</text>
+
+  <!-- 冷启动 -->
+  <rect class="card-dim" x="330" y="268" width="230" height="92" rx="8"/>
+  <text class="name" x="346" y="292">新建 Sandbox</text>
+  <text class="desc" x="346" y="312">冷启动路径：</text>
+  <text class="desc" x="346" y="330">带去 env 或独立卷的申请</text>
+  <text class="desc" x="346" y="347">无法直接套到已启动的实例上</text>
+
+  <path class="flow-dash" d="M240 336 C 270 336, 296 320, 326 314" marker-end="url(#ad)"/>
+
+  <text class="desc" x="596" y="300">池里的实例不够时，控制器先短暂等待候选</text>
+  <text class="desc" x="596" y="318">（默认 2s），再转冷启动；池自身异步补货。</text>
+  <text class="desc" x="596" y="344">两者不是串行步骤，而是两条并行路径。</text>
+</svg>
