@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 500" width="860" height="500" font-family="'LXGW WenKai','Kaiti SC',sans-serif">
+  <rect width="860" height="480" fill="#fdf9f2"/>
+
+  <text x="40" y="46" font-size="22" font-weight="700" fill="#8a6270">三个阶段与配色演变</text>
+  <text x="40" y="72" font-size="14" fill="#9b8b90">2026 年 1 月建站至今的改动主线，色块对应该阶段的主色</text>
+
+  <!-- 阶段一 -->
+  <rect x="40" y="100" width="240" height="200" rx="14" fill="#ffffff" stroke="#d8dee3" stroke-width="1.2"/>
+  <rect x="40" y="100" width="240" height="6" rx="3" fill="#34495e"/>
+  <text x="60" y="140" font-size="17" font-weight="700" fill="#3d4a56">2026 年 1 月</text>
+  <text x="60" y="164" font-size="14" fill="#6b7883">搭建期</text>
+  <line x1="60" y1="182" x2="260" y2="182" stroke="#e6ebee" stroke-width="1"/>
+  <text x="60" y="208" font-size="13" fill="#6b7883">· Hugo + Stack 主题落地</text>
+  <text x="60" y="230" font-size="13" fill="#6b7883">· 内容批量入库 + 分类规范化</text>
+  <text x="60" y="252" font-size="13" fill="#6b7883">· About / Travelling 建页</text>
+  <text x="60" y="274" font-size="13" fill="#6b7883">· 接入 Waline 评论</text>
+  <rect x="60" y="288" width="44" height="3" rx="1.5" fill="#34495e"/>
+  <text x="112" y="292" font-size="11" fill="#8d99a4">主题默认灰蓝</text>
+
+  <!-- 阶段二 -->
+  <rect x="310" y="100" width="240" height="200" rx="14" fill="#ffffff" stroke="#d8dee3" stroke-width="1.2"/>
+  <rect x="310" y="100" width="240" height="6" rx="3" fill="#8a9ba8"/>
+  <text x="330" y="140" font-size="17" font-weight="700" fill="#3d4a56">2026 年 5-7 月</text>
+  <text x="330" y="164" font-size="14" fill="#6b7883">内容期</text>
+  <line x1="330" y1="182" x2="530" y2="182" stroke="#e6ebee" stroke-width="1"/>
+  <text x="330" y="208" font-size="13" fill="#6b7883">· CS146S 周记 week1-week9</text>
+  <text x="330" y="230" font-size="13" fill="#6b7883">· LangChain / MCP 笔记整理</text>
+  <text x="330" y="252" font-size="13" fill="#6b7883">· 分类挂件 + 页脚微调</text>
+  <text x="330" y="274" font-size="13" fill="#6b7883">· 归档页展示调整</text>
+  <rect x="330" y="288" width="44" height="3" rx="1.5" fill="#8a9ba8"/>
+  <text x="382" y="292" font-size="11" fill="#8d99a4">仍为默认配色</text>
+
+  <!-- 阶段三 -->
+  <rect x="580" y="100" width="240" height="200" rx="14" fill="#fffdf9" stroke="#d49ba8" stroke-width="1.5"/>
+  <rect x="580" y="100" width="240" height="6" rx="3" fill="#d49ba8"/>
+  <text x="600" y="140" font-size="17" font-weight="700" fill="#8a6270">2026 年 9 月</text>
+  <text x="600" y="164" font-size="14" fill="#9b8b90">重构期 · 40 次提交</text>
+  <line x1="600" y1="182" x2="800" y2="182" stroke="#f0e2e6" stroke-width="1"/>
+  <text x="600" y="208" font-size="13" fill="#7d6a70">· 藕粉配色 + 米白纸张底</text>
+  <text x="600" y="230" font-size="13" fill="#7d6a70">· 霞鹜文楷手写体 + 手绘边框</text>
+  <text x="600" y="252" font-size="13" fill="#7d6a70">· 设计 token 收口样式</text>
+  <text x="600" y="274" font-size="13" fill="#7d6a70">· 独立页改造 + 随心记</text>
+  <rect x="600" y="288" width="44" height="3" rx="1.5" fill="#d49ba8"/>
+  <text x="652" y="292" font-size="11" fill="#9b8b90">藕粉 + 米白</text>
+
+  <!-- 箭头 -->
+  <path d="M286 200 L304 200" stroke="#c8b8be" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <path d="M556 200 L574 200" stroke="#c8b8be" stroke-width="1.5" fill="none" marker-end="url(#a)"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#c8b8be" stroke-width="1.5" stroke-linecap="round"/>
+    </marker>
+  </defs>
+
+  <!-- 底部：关键判断 -->
+  <line x1="40" y1="334" x2="820" y2="334" stroke="#e3d5d9" stroke-width="1"/>
+  <text x="40" y="364" font-size="15" font-weight="700" fill="#8a6270">重构期反复用到的判断</text>
+
+  <text x="40" y="398" font-size="13" fill="#7d6a70">装饰不能干扰内容 —— 背景元素可留，跟随鼠标的元素影响阅读</text>
+  <text x="40" y="424" font-size="13" fill="#7d6a70">容器越多越显空 —— 内容稀疏时加卡片框是负优化</text>
+  <text x="40" y="450" font-size="13" fill="#7d6a70">改视觉先改变量 —— 有设计 token 后，调整成本从各处找硬编码降到改几个值</text>
+  <text x="40" y="478" font-size="12" fill="#a89aa0">别猜，去取证 —— 有疑问先查构建产物，而不是盯着样式改</text>
+</svg>

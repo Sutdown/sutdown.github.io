@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" width="100%" role="img" aria-label="Kubernetes 集群由控制面和工作节点组成">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .zone { fill: #fdf8ef; stroke: #e6dccd; stroke-width: 1.2; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .ttl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 13.5px; font-weight: 600; fill: #3d3a37; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .zone-lab { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11.5px; font-weight: 600; fill: #b5637a; letter-spacing: 0.6px; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.3; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.6; fill: none; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="560" rx="10"/>
+
+  <rect class="card" x="60" y="26" width="210" height="52" rx="8"/>
+  <text class="name" x="76" y="48">kubectl / SDK</text>
+  <text class="desc" x="76" y="65">声明期望状态</text>
+  <path class="flow-hi" d="M165 78 V 94" marker-end="url(#arrow-hi)"/>
+
+  <rect class="zone" x="40" y="96" width="880" height="156" rx="14"/>
+  <text class="zone-lab" x="60" y="120">控制面 CONTROL PLANE · 管理、调度、维护集群状态</text>
+
+  <rect class="card-hi" x="70" y="136" width="215" height="92" rx="8"/>
+  <text class="name" x="86" y="160">API Server</text>
+  <text class="desc" x="86" y="182">集群的统一入口</text>
+  <text class="desc" x="86" y="199">认证、鉴权、对象管理</text>
+
+  <rect class="card" x="325" y="136" width="180" height="92" rx="8"/>
+  <text class="name" x="341" y="160">etcd</text>
+  <text class="desc" x="341" y="182">分布式键值数据库</text>
+  <text class="desc" x="341" y="199">保存集群状态，不跑容器</text>
+
+  <rect class="card" x="545" y="136" width="165" height="92" rx="8"/>
+  <text class="name" x="561" y="160">Scheduler</text>
+  <text class="desc" x="561" y="182">决定 Pod 去哪个 Node</text>
+  <text class="desc" x="561" y="199">看资源、亲和、污点</text>
+
+  <rect class="card" x="750" y="136" width="150" height="92" rx="8"/>
+  <text class="name" x="766" y="160">Controller</text>
+  <text class="name" x="766" y="176">Manager</text>
+  <text class="desc" x="766" y="199">比较期望与实际，纠偏</text>
+
+  <path class="flow-hi" d="M480 252 V 290" marker-end="url(#arrow-hi)"/>
+  <text class="desc" x="492" y="276">把 Pod 配置下发到节点</text>
+
+  <rect class="zone" x="40" y="296" width="880" height="190" rx="14"/>
+  <text class="zone-lab" x="60" y="320">节点面 WORKER NODE · 真正运行 Pod / Container</text>
+
+  <rect class="card" x="70" y="334" width="150" height="124" rx="8"/>
+  <text class="name" x="86" y="358">Kubelet</text>
+  <text class="desc" x="86" y="380">节点上的管家</text>
+  <text class="desc" x="86" y="397">管理本机 Pod</text>
+  <text class="desc" x="86" y="414">的生命周期</text>
+
+  <rect class="card" x="250" y="334" width="150" height="124" rx="8"/>
+  <text class="name" x="266" y="358">Runtime</text>
+  <text class="desc" x="266" y="380">containerd /</text>
+  <text class="desc" x="266" y="397">CRI-O</text>
+  <text class="desc" x="266" y="414">通过 CRI 交互</text>
+
+  <rect class="card-hi" x="430" y="334" width="150" height="124" rx="8"/>
+  <text class="name" x="446" y="358">Pod</text>
+  <text class="desc" x="446" y="380">最基本的运行单位</text>
+  <text class="desc" x="446" y="397">里面放一个或</text>
+  <text class="desc" x="446" y="414">几个容器</text>
+
+  <rect class="card" x="610" y="334" width="130" height="124" rx="8"/>
+  <text class="name" x="626" y="358">CNI</text>
+  <text class="desc" x="626" y="380">分配 Pod IP</text>
+  <text class="desc" x="626" y="397">建立网络连接</text>
+  <text class="desc" x="626" y="414">Calico 等</text>
+
+  <rect class="card" x="770" y="334" width="130" height="124" rx="8"/>
+  <text class="name" x="786" y="358">kube-proxy</text>
+  <text class="desc" x="786" y="380">Service 流量</text>
+  <text class="desc" x="786" y="397">转发</text>
+  <text class="desc" x="786" y="414">iptables / IPVS</text>
+
+  <path class="flow" d="M220 396 H 250" marker-end="url(#arrow)"/>
+  <path class="flow" d="M400 396 H 430" marker-end="url(#arrow)"/>
+  <path class="flow" d="M580 396 H 610" marker-end="url(#arrow)"/>
+  <path class="flow" d="M740 396 H 770" marker-end="url(#arrow)"/>
+
+  <text class="desc" x="480" y="522" text-anchor="middle">控制面负责决定「应该是什么样」，节点面上的组件负责把 Pod 真正跑起来</text>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="100%" role="img" aria-label="Sandbox 的生命周期：创建、运行、挂起、恢复与到期清理">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .card-dim { fill: #faf7f1; stroke: #e5dccd; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .lbl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #b5637a; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="900" height="240" rx="10"/>
+
+  <rect class="card" x="36" y="96" width="136" height="92" rx="8"/>
+  <text class="name" x="52" y="122">创建</text>
+  <text class="desc" x="52" y="144">apply 一份</text>
+  <text class="desc" x="52" y="161">Sandbox YAML</text>
+
+  <path class="flow" d="M172 142 H 204" marker-end="url(#a)"/>
+
+  <rect class="card-hi" x="208" y="96" width="168" height="92" rx="8"/>
+  <text class="name" x="224" y="122">Running</text>
+  <text class="desc" x="224" y="144">Pod 在跑</text>
+  <text class="desc" x="224" y="161">PVC 已挂载</text>
+
+  <path class="flow-hi" d="M376 142 H 408" marker-end="url(#ah)"/>
+  <text class="lbl" x="378" y="132">挂起</text>
+
+  <rect class="card-dim" x="412" y="96" width="176" height="92" rx="8"/>
+  <text class="name" x="428" y="122">Suspended</text>
+  <text class="desc" x="428" y="144">Pod 已删除</text>
+  <text class="desc" x="428" y="161">PVC 与身份保留</text>
+
+  <path class="flow-hi" d="M500 96 V 54 H 292 V 96" marker-end="url(#ah)"/>
+  <text class="lbl" x="330" y="46">恢复：新建 Pod，挂回同一块 PVC</text>
+
+  <path class="flow" d="M588 142 H 648" marker-end="url(#a)"/>
+  <text class="lbl" x="592" y="132">到期</text>
+
+  <rect class="card" x="648" y="96" width="216" height="92" rx="8"/>
+  <text class="name" x="664" y="122">到期清理</text>
+  <text class="desc" x="664" y="144">按该沙箱的生命周期规则</text>
+  <text class="desc" x="664" y="161">决定保留还是删除</text>
+
+  <text class="desc" x="36" y="218">挂起时删 Pod、保留 PVC 和身份；恢复时新建 Pod 挂回同一块 PVC，卷上的文件还在。</text>
+</svg>

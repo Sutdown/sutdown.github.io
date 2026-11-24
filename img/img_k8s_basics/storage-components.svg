@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-label="一次存储申请中控制器、调度器、节点组件与 CSI 插件的协同">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11px; fill: #6b655c; }
+      .step { font-family: ui-monospace,Consolas,monospace; font-size: 11px; font-weight: 700; fill: #b5637a; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-dash { stroke: #c78d9b; stroke-width: 1.3; fill: none; stroke-dasharray: 5 4; }
+    </style>
+    <marker id="s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="s2h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="400" rx="10"/>
+
+  <rect class="card" x="40" y="56" width="260" height="104" rx="8"/>
+  <text class="step" x="56" y="80">①</text>
+  <text class="name" x="78" y="80">创建 PVC</text>
+  <text class="desc" x="56" y="106">Agent 要一个 10 GiB 的</text>
+  <text class="desc" x="56" y="125">持久化工作目录，先提交</text>
+  <text class="desc" x="56" y="144">一份 PVC 声明。</text>
+
+  <path class="flow" d="M300 108 H 336" marker-end="url(#s2)"/>
+
+  <rect class="card" x="336" y="56" width="264" height="104" rx="8"/>
+  <text class="step" x="352" y="80">②</text>
+  <text class="name" x="374" y="80">控制器发现未绑定</text>
+  <text class="desc" x="352" y="106">K8s 的控制器看到 PVC 还没有</text>
+  <text class="desc" x="352" y="125">对应的 PV，按 StorageClass</text>
+  <text class="desc" x="352" y="144">决定怎么供应。</text>
+
+  <path class="flow" d="M600 108 H 636" marker-end="url(#s2)"/>
+
+  <rect class="card" x="636" y="56" width="284" height="104" rx="8"/>
+  <text class="step" x="652" y="80">③</text>
+  <text class="name" x="674" y="80">CSI 插件创建 PV</text>
+  <text class="desc" x="652" y="106">CSI 插件去底层存储真正建卷，</text>
+  <text class="desc" x="652" y="125">PV 与 PVC 完成绑定，卷有了</text>
+  <text class="desc" x="652" y="144">独立于 Pod 的生命周期。</text>
+
+  <path class="flow-dash" d="M778 160 V 194 H 170 V 228" marker-end="url(#s2h)"/>
+
+  <rect class="card" x="40" y="228" width="260" height="104" rx="8"/>
+  <text class="step" x="56" y="252">④</text>
+  <text class="name" x="78" y="252">调度器选节点</text>
+  <text class="desc" x="56" y="278">Scheduler 根据资源需求、</text>
+  <text class="desc" x="56" y="297">亲和与污点规则，决定 Pod</text>
+  <text class="desc" x="56" y="316">跑在哪台 Node 上。</text>
+
+  <path class="flow" d="M300 280 H 336" marker-end="url(#s2)"/>
+
+  <rect class="card" x="336" y="228" width="264" height="104" rx="8"/>
+  <text class="step" x="352" y="252">⑤</text>
+  <text class="name" x="374" y="252">节点上挂载卷</text>
+  <text class="desc" x="352" y="278">节点组件按 Pod 配置把这块</text>
+  <text class="desc" x="352" y="297">卷挂进容器，容器里的程序</text>
+  <text class="desc" x="352" y="316">就能读写 result.csv。</text>
+
+  <path class="flow" d="M600 280 H 636" marker-end="url(#s2)"/>
+
+  <rect class="card-hi" x="636" y="228" width="284" height="104" rx="8"/>
+  <text class="step" x="652" y="252">⑥</text>
+  <text class="name" x="674" y="252">Pod 删了，数据还在</text>
+  <text class="desc" x="652" y="278">只要 PVC、PV 和底层存储保留，</text>
+  <text class="desc" x="652" y="297">新 Pod 具备访问条件并成功挂载，</text>
+  <text class="desc" x="652" y="316">就能继续读原来的文件。</text>
+
+  <text class="desc" x="40" y="368">实际结果取决于存储类型、回收策略及删除操作；控制器、调度器、节点组件和 CSI 插件是协同工作的。</text>
+</svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-label="Controller 如何通过 LIST 与 WATCH 感知资源变化">
+  <defs>
+    <style>
+      .bg { fill: #fffdf9; }
+      .card { fill: #ffffff; stroke: #ddd2c2; stroke-width: 1.2; }
+      .card-hi { fill: #fdf3f5; stroke: #dcb0bc; stroke-width: 1.3; }
+      .name { font-family: ui-monospace,Consolas,monospace; font-size: 12.5px; font-weight: 600; fill: #3d3a37; }
+      .desc { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #6b655c; }
+      .lbl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 10.5px; fill: #b5637a; }
+      .flow { stroke: #b9ac9b; stroke-width: 1.4; fill: none; }
+      .flow-hi { stroke: #c78d9b; stroke-width: 1.5; fill: none; }
+    </style>
+    <marker id="w1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b9ac9b"/>
+    </marker>
+    <marker id="w1h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#c78d9b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="960" height="430" rx="10"/>
+
+  <rect class="card" x="60" y="48" width="230" height="72" rx="8"/>
+  <text class="name" x="76" y="72">etcd</text>
+  <text class="desc" x="76" y="94">持久化保存资源数据</text>
+  <text class="desc" x="76" y="110">只是存，不负责跑容器</text>
+
+  <path class="flow" d="M175 120 V 160" marker-start="url(#w1)" marker-end="url(#w1)"/>
+
+  <rect class="card-hi" x="60" y="164" width="300" height="86" rx="8"/>
+  <text class="name" x="76" y="188">API Server</text>
+  <text class="desc" x="76" y="210">统一访问入口，处理资源操作，</text>
+  <text class="desc" x="76" y="227">并向 Watch 客户端提供变更事件</text>
+
+  <path class="flow" d="M640 207 H 364" marker-end="url(#w1)"/>
+  <rect class="card" x="640" y="164" width="270" height="86" rx="8"/>
+  <text class="name" x="656" y="188">Kubelet / 其他组件</text>
+  <text class="desc" x="656" y="210">把 Pod 的状态更新回 Pod 对象，</text>
+  <text class="desc" x="656" y="227">控制器才知道容器进程退出了</text>
+
+  <path class="flow-hi" d="M210 250 V 292" marker-end="url(#w1h)"/>
+  <text class="lbl" x="222" y="276">LIST 拿全量 + resourceVersion，再 WATCH 增量</text>
+
+  <rect class="card" x="60" y="296" width="300" height="80" rx="8"/>
+  <text class="name" x="76" y="320">Informer 缓存</text>
+  <text class="desc" x="76" y="342">事件先更新本地缓存，</text>
+  <text class="desc" x="76" y="359">reconcile 读缓存，不每次打 apiserver</text>
+
+  <path class="flow" d="M360 336 H 396" marker-end="url(#w1)"/>
+
+  <rect class="card" x="396" y="296" width="180" height="80" rx="8"/>
+  <text class="name" x="412" y="320">工作队列</text>
+  <text class="desc" x="412" y="342">把要处理的对象</text>
+  <text class="desc" x="412" y="359">排进队列</text>
+
+  <path class="flow" d="M576 336 H 612" marker-end="url(#w1)"/>
+
+  <rect class="card" x="612" y="296" width="298" height="80" rx="8"/>
+  <text class="name" x="628" y="320">Reconcile</text>
+  <text class="desc" x="628" y="342">由 worker 逐个执行；反应快，</text>
+  <text class="desc" x="628" y="359">但缓存有延迟，可能看到旧数据</text>
+
+  <text class="desc" x="60" y="408">连接断了就从已知版本续听；历史版本已经被压缩，就重新 LIST 一次再恢复监听。</text>
+</svg>

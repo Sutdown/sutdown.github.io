@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kubernetes on Sutdown</title><link>https://sutdown.github.io/categories/kubernetes/</link><description>Recent content in Kubernetes on Sutdown</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 24 Nov 2026 00:00:00 +0000</lastBuildDate><atom:link href="https://sutdown.github.io/categories/kubernetes/index.xml" rel="self" type="application/rss+xml"/><item><title>Agent Sandbox</title><link>https://sutdown.github.io/p/agent-sandbox/</link><pubDate>Tue, 24 Nov 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/agent-sandbox/</guid><description>&lt;h2 id="1-定义"&gt;&lt;a href="#1-%e5%ae%9a%e4%b9%89" class="header-anchor"&gt;&lt;/a&gt;1 定义
+&lt;/h2&gt;&lt;p&gt;Agent Sandbox 是一个 &lt;strong&gt;Kubernetes 控制器(Operator)&lt;/strong&gt;,提供一种名为 &lt;strong&gt;&lt;code&gt;Sandbox&lt;/code&gt;&lt;/strong&gt; 的自定义资源:&lt;strong&gt;有状态、单实例、由单个 Pod 承载、拥有稳定身份(网络 + 持久存储)的工作负载&lt;/strong&gt;,可挂起/恢复、可到期清理、可预热池秒级分配。可理解为&amp;quot;&lt;strong&gt;跑在 K8s 上的轻量级单容器虚拟机&lt;/strong&gt;&amp;quot;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;解决的问题：Deployment(无状态多副本)、StatefulSet(编号副本)、裸 Pod(一次性无身份)都不适合&amp;quot;一个有身份、有状态、要隔离的沙箱&amp;quot;。&lt;/li&gt;
+&lt;li&gt;典型场景：AI agent 执行不可信代码、RL/评测、notebook、云开发环境。&lt;/li&gt;
+&lt;li&gt;一句话定位：管理层只负责声明式地创建与维护对象；真正的隔离交给运行时(gVisor/Kata)，连通交给数据面(router/sandboxd)。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;span class="lnt"&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; 客户端 │ 控制面(本项目核心) │ 数据面 / 运行时
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ┌──────────────────┐ │ ┌──────────────────────────────────┐ │ ┌───────────────────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ Go/Python/TS SDK │ │ │ Controller(大脑):watch+reconcile │ │ │ sandbox-router(按ID路由) │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ 创建 Sandbox/Claim│──────┼─▶│ Sandbox(核心) │──┼▶ │ sandboxd(Pod内:执行/文件) │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └──────────────────┘ │ │ Template/Claim/WarmPool(扩展) │ │ │ RuntimeClass→gVisor/Kata │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ └───────────────┬──────────────────┘ │ │ (真正的隔离) │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ │ 建/维护标准对象 │ └───────────────────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ ▼ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ Pod + headless Service + PVC │
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="2-整体架构和沙箱资源模型"&gt;&lt;a href="#2-%e6%95%b4%e4%bd%93%e6%9e%b6%e6%9e%84%e5%92%8c%e6%b2%99%e7%ae%b1%e8%b5%84%e6%ba%90%e6%a8%a1%e5%9e%8b" class="header-anchor"&gt;&lt;/a&gt;2 整体架构和沙箱资源模型
+&lt;/h2&gt;&lt;p&gt;Agent Sandbox 并不是另起炉灶实现一套容器系统，而是在 Kubernetes 之上增加一层专门管理沙箱生命周期的抽象。&lt;/p&gt;
+&lt;p&gt;普通 Kubernetes 资源主要提供 Pod、Service、PVC 等基础能力；Agent Sandbox 则引入 &lt;code&gt;Sandbox&lt;/code&gt;这样的自定义资源，让用户可以直接描述“我需要一个什么样的沙箱”，再由控制器负责把这个声明落实为实际运行的资源。&lt;/p&gt;
+&lt;p&gt;所以实际上，我们需要理解这三个问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;Sandbox&lt;/code&gt; 如何描述期望的沙箱？ &lt;strong&gt;沙箱的状态是&amp;quot;本地的、不共享的、跨请求连续的&amp;quot;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Controller 如何把这份描述变成实际运行的资源？ &amp;mdash; deployment/reconcile为pod分配资源，schedule能将pod分配给node&lt;/li&gt;
+&lt;li&gt;Controller 如何判断沙箱是否已经达到预期状态？ &amp;mdash; reconcile，比较spec（期望状态）和status（控制器观察的状态）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="21-sandbox运行链路"&gt;&lt;a href="#21-sandbox%e8%bf%90%e8%a1%8c%e9%93%be%e8%b7%af" class="header-anchor"&gt;&lt;/a&gt;2.1 Sandbox运行链路
+&lt;/h3&gt;&lt;p&gt;首先看sandbox的运行链路和基本概念：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CRD（CustomResourceDefinition）：扩展 Kubernetes API，定义 &lt;code&gt;Sandbox&lt;/code&gt;这种自定义资源类型。&lt;/li&gt;
+&lt;li&gt;Controller：持续观察资源变化，负责协调底层资源。&lt;/li&gt;
+&lt;li&gt;Reconcile：比较期望状态与实际状态，通过创建、更新等操作，使实际状态逐步符合预期。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;对k8s有基本了解的话，容易发现deployment和reconcile都是对于pod的期望状态和实际状态进行更新。但 reconcile本身属于Sandbox 和 Deployment 共同的底层机制。那问题来了，为什么不直接去掉depolyment，统一交给sandbox管理？
+事实上，完全是可以这么做的。
+我们先要确立，沙箱需要：&lt;strong&gt;单例 + 稳定名字 + 挂起时删 pod 但保留 PVC/身份 + 到期策略 + 细分 conditions + 领养预热 pod。&lt;strong&gt;而Deployment 的期望是&amp;quot;N 个可互换的匿名副本&amp;quot;，给 pod 起随机后缀名(&lt;code&gt;xxx-7d9f-abcde&lt;/code&gt;)→ 没有稳定身份，所以1个svc对应1个deployment确认身份。
+在&lt;a class="link" href="https://github.com/kubernetes-sigs/agent-sandbox" target="_blank" rel="noopener"
+&gt;agent sandbox&lt;/a&gt;设计中，采用裸pod：
+直接&lt;/strong&gt;绕过 Deployment，&lt;strong&gt;把 Pod 名直接设成 Sandbox 名,身份和生命周期完全握在自己的 reconcile 里。类似于自己造一台贴合&amp;quot;有状态单例&amp;quot;的引擎,费力但语义最干净、规模最省；
+但在&lt;/strong&gt;微云智能体管理平台&lt;/strong&gt;的沙箱设计中，
+每个沙箱 = 一个单副本 Deployment(&lt;code&gt;DEFAULT_REPLICAS=1&lt;/code&gt;,挂起时 &lt;code&gt;STOP_REPLICAS=0&lt;/code&gt;,见 &lt;code&gt;KubeDeploymentService&lt;/code&gt;)。它复用了 Deployment controller 现成的 reconcile 自愈(pod 挂了,ReplicaSet 自动重建)。
+所以风险在于：如果未来沙箱数量继续涨、或对&amp;quot;稳定身份 / 至多一个&amp;quot;要求变高,&amp;ldquo;单副本 Deployment + 外层控制面&amp;quot;这条路的对象开销和失联双实例风险会逐渐显现，对应线上事故：&lt;a class="link" href="https://ku.baidu-int.com/knowledge/HFVrC7hq1Q/HXFtYvbMQj/iM_fdBfZc4/vhx7YYdso5b6Cm?t=mention&amp;amp;mt=doc&amp;amp;dt=doc" target="_blank" rel="noopener"
+&gt;【2026-09-14 P3 SWS】微云沙箱集群网络组件异常&lt;/a&gt;（当前根本在于4w+需要一个足以支撑的承载点）&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Deployment&lt;/strong&gt;:每沙箱 = Deployment + ReplicaSet + Pod = &lt;strong&gt;3 层对象&lt;/strong&gt;(+Service)。10000 沙箱 = 30000+ 对象,apiserver/etcd 和 Deployment/RS 控制器都要处理。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Deployment&lt;/strong&gt;:语义是&amp;rdquo;&lt;strong&gt;至少 N 个&lt;/strong&gt;&amp;quot;,节点失联会&lt;strong&gt;果断在别处重建&lt;/strong&gt;新 pod → 可能出现&amp;quot;旧 pod 可能还活着 + 新 pod&amp;quot;&lt;strong&gt;短暂并存&lt;/strong&gt;。对有状态(尤其微云用 RWX 共享卷)有&lt;strong&gt;双实例/脑裂&lt;/strong&gt;风险。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;Sandbox：沙箱的管理抽象，不等于 Pod 本身。包括metadata：对象身份与元信息，spec：用户期望的配置 和 status：控制器观察到的状态三部分。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/architecture.svg"
+loading="lazy"
+alt="Sandbox 运行链路"
+&gt;&lt;/p&gt;
+&lt;p&gt;针对Sandbox 资源定义与 YAML 格式，Kubernetes 资源通常包含三个核心部分：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;metadata&lt;/code&gt;：资源身份与元信息，如名称、命名空间。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;spec&lt;/code&gt;：用户声明的期望配置。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;status&lt;/code&gt;：控制器反馈的实际状态与就绪情况。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;apiVersion: agents.x-k8s.io/v1beta1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;kind: Sandbox
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; name: python-sandbox
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; podTemplate:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; spec:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; containers:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; - name: python
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; image: python:3.12
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; command: [&amp;#34;sh&amp;#34;, &amp;#34;-c&amp;#34;, &amp;#34;sleep 3600&amp;#34;]
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; resources:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; requests:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cpu: &amp;#34;500m&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; memory: &amp;#34;512Mi&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; limits:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; cpu: &amp;#34;1&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; memory: &amp;#34;1Gi&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;该示例声明了一个使用 Python 镜像、具有指定 CPU 和内存配置的沙箱。podTemplate 描述底层 Pod 的运行配置；示例中的 sleep 3600 仅用于维持容器运行，不代表实际 Agent 执行逻辑。&lt;/p&gt;
+&lt;h2 id="3-沙箱生命周期与controller机制"&gt;&lt;a href="#3-%e6%b2%99%e7%ae%b1%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f%e4%b8%8econtroller%e6%9c%ba%e5%88%b6" class="header-anchor"&gt;&lt;/a&gt;3 沙箱生命周期与Controller机制
+&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Sandbox 声明期望状态 → Controller 执行 Reconcile → 检查并协调 Pod、PVC、Service → 判断资源是否就绪 → 更新 Sandbox.status → Watch 感知变化并再次触发调和。
+Agent Sandbox 并不是简单地创建一个 Pod，而是通过 Kubernetes Controller 持续协调 Sandbox 及其关联资源，使实际运行状态尽可能符合用户声明的期望状态。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="31-controller-与-reconcile如何管理沙箱"&gt;&lt;a href="#31-controller-%e4%b8%8e-reconcile%e5%a6%82%e4%bd%95%e7%ae%a1%e7%90%86%e6%b2%99%e7%ae%b1" class="header-anchor"&gt;&lt;/a&gt;3.1 Controller 与 Reconcile：如何管理沙箱
+&lt;/h3&gt;&lt;p&gt;Agent Sandbox 并不是创建一次 Pod 就结束，而是通过 Kubernetes Controller 持续协调实际资源，使其尽可能符合 Sandbox.spec 声明的期望状态。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Controller：负责管理 Sandbox 及其关联资源。&lt;/li&gt;
+&lt;li&gt;Reconcile（调和）：读取当前状态，对比期望状态，执行必要的创建、更新、删除等操作。&lt;/li&gt;
+&lt;li&gt;幂等性：同一调和逻辑重复执行，不应不断创建重复资源；已经满足要求时，应尽量不做多余操作。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/reconcile-loop.svg"
+loading="lazy"
+alt="Controller 的 reconcile 循环"
+&gt;
+Sandbox YAML 描述的是用户的期望配置，控制器再根据这些配置协调实际资源。
+例如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;spec.podTemplate：描述沙箱 Pod 的模板，包括容器镜像、启动命令、资源限制等。&lt;/li&gt;
+&lt;li&gt;存储相关模板或配置：声明需要的持久化存储，具体是否创建 PVC 取决于实际配置和控制器逻辑。&lt;/li&gt;
+&lt;li&gt;Service 相关配置：控制是否需要为沙箱提供相应的网络访问方式。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此，声明资源不等于资源已经创建成功，创建成功也不等于沙箱已经可用。
+控制器通常还需要判断资源是否已经存在、是否属于当前 Sandbox，以及现有配置是否满足要求。对于关联资源，不能只根据名称判断归属，还需要检查 OwnerReference 等关联信息，避免误处理其他沙箱的资源。&lt;/p&gt;
+&lt;h3 id="32-资源状态与异常处理如何判断沙箱是否可用"&gt;&lt;a href="#32-%e8%b5%84%e6%ba%90%e7%8a%b6%e6%80%81%e4%b8%8e%e5%bc%82%e5%b8%b8%e5%a4%84%e7%90%86%e5%a6%82%e4%bd%95%e5%88%a4%e6%96%ad%e6%b2%99%e7%ae%b1%e6%98%af%e5%90%a6%e5%8f%af%e7%94%a8" class="header-anchor"&gt;&lt;/a&gt;3.2 资源状态与异常处理：如何判断沙箱是否可用
+&lt;/h3&gt;&lt;p&gt;Sandbox 的就绪状态不能仅通过“Pod 是否存在”来判断，而要结合 Pod 的运行状态、Ready 条件，以及配置要求的其他资源进行综合判断。&lt;/p&gt;
+&lt;p&gt;（1）资源检查流程&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/readiness-check.svg"
+loading="lazy"
+alt="资源检查流程"
+&gt;
+（2）常见异常及处理层次&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align: left"&gt;异常情况&lt;/th&gt;
+&lt;th style="text-align: left"&gt;主要处理机制&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;容器进程退出&lt;/td&gt;
+&lt;td style="text-align: left"&gt;Kubelet 根据容器状态和重启策略尝试重启&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Pod 调度失败&lt;/td&gt;
+&lt;td style="text-align: left"&gt;Kubernetes Scheduler、节点资源和相关调度配置共同影响处理&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Pod 被删除&lt;/td&gt;
+&lt;td style="text-align: left"&gt;Controller 观察变化并触发 Reconcile，再根据 Sandbox 生命周期规则决定后续操作&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Pod 未就绪&lt;/td&gt;
+&lt;td style="text-align: left"&gt;检查容器状态、Readiness Probe、依赖资源等原因&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;PVC 或 Service 异常&lt;/td&gt;
+&lt;td style="text-align: left"&gt;根据资源类型检查存储、配置及关联资源状态&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;这里有一个重要区别：重新调和不等于自动重建所有异常资源。&lt;/p&gt;
+&lt;p&gt;例如，容器进程退出时，Kubelet 可能直接重启容器，不需要 Sandbox Controller 重新创建 Pod；如果 Pod 被删除，控制器是否重新创建，则要看该 Sandbox 的生命周期规则与具体实现。对于配置错误、资源不足等问题，即使控制器反复调和，也不一定能自行修复。&lt;/p&gt;
+&lt;h3 id="33-api-server-与-watch系统如何感知资源变化"&gt;&lt;a href="#33-api-server-%e4%b8%8e-watch%e7%b3%bb%e7%bb%9f%e5%a6%82%e4%bd%95%e6%84%9f%e7%9f%a5%e8%b5%84%e6%ba%90%e5%8f%98%e5%8c%96" class="header-anchor"&gt;&lt;/a&gt;3.3 API Server 与 Watch：系统如何感知资源变化
+&lt;/h3&gt;&lt;p&gt;Kubernetes 不是靠 Controller 定时扫描所有 Pod 来维持状态，而是主要通过 Watch 事件机制触发调和。
+这里需要区分三个组件的职责：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;etcd：持久化保存 Kubernetes 资源数据。&lt;/li&gt;
+&lt;li&gt;API Server：提供统一的资源访问入口，处理资源操作，并向 Watch 客户端提供变更事件。&lt;/li&gt;
+&lt;li&gt;Controller / Informer：订阅相关资源的变化，维护缓存，将需要处理的对象加入工作队列，再执行 Reconcile。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/watch-flow.svg"
+loading="lazy"
+alt="LIST、WATCH 与控制器"
+&gt;
+Watch 通常配合 &lt;code&gt;LIST&lt;/code&gt; 与 &lt;code&gt;metadata.resourceVersion&lt;/code&gt; 使用：客户端先通过 LIST 获取当前资源及其版本，再从对应版本开始 WATCH 后续变化。发生连接中断时，可以尝试从已知版本继续监听；如果历史版本已经不可用，则需要重新 LIST 并恢复监听。&lt;/p&gt;
+&lt;p&gt;此外，Watch 监听的是 Kubernetes 资源对象的变化，而不是直接监控容器内部的每个进程。比如容器进程退出后，Kubelet 会处理容器状态，并将相应状态更新到 Pod 对象；随后，Controller 才能通过资源变化获知情况并重新调和。&lt;/p&gt;
+&lt;h2 id="4-templateclaim-与-warmpool"&gt;&lt;a href="#4-templateclaim-%e4%b8%8e-warmpool" class="header-anchor"&gt;&lt;/a&gt;4 Template、Claim 与 WarmPool
+&lt;/h2&gt;&lt;p&gt;该部分的核心在于理解 Agent Sandbox 如何从“管理一个沙箱”扩展到“为大量 Agent 用户提供沙箱”。这里先建立一个重要认知：模&lt;strong&gt;板解决配置复用，Claim 解决申请与供给的解耦，WarmPool 解决冷启动延迟&lt;/strong&gt;。三者是不同层面的抽象，不能简单理解成三个必然串行执行的步骤。&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/allocation.svg"
+loading="lazy"
+alt="Template、WarmPool 与 Claim 的关系"
+&gt;&lt;/p&gt;
+&lt;h3 id="41-sandbox-template-模型如何解决配置服用"&gt;&lt;a href="#41-sandbox-template-%e6%a8%a1%e5%9e%8b%e5%a6%82%e4%bd%95%e8%a7%a3%e5%86%b3%e9%85%8d%e7%bd%ae%e6%9c%8d%e7%94%a8" class="header-anchor"&gt;&lt;/a&gt;4.1 Sandbox Template 模型如何解决配置服用
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;SandboxTemplate&lt;/code&gt;就是一个可复用的沙箱配置蓝图。官方 Quickstart 将其作为创建沙箱前的基础配置资源，供 WarmPool 等机制引用。可按照下图理解。&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/template-position.svg"
+loading="lazy"
+alt="模板与沙箱实例的关系"
+&gt;
+当然，配置复用不等于运行环境共享。三个实例可以使用同一份模板，但各自拥有独立的运行实例；是否共享持久化数据、网络或其他资源，则取决于具体配置。&lt;/p&gt;
+&lt;p&gt;Question 1：模板是不是改一次，所有沙箱就会自动更新？&lt;/p&gt;
+&lt;p&gt;当然不是。模板被修改后，已有沙箱是否自动更新，取决于项目定义的模板版本识别、控制器协调和更新策略。即使某种版本支持滚动更新，也不意味着任何字段变化都可以无损地应用到正在运行的沙箱。基本是结合根据模版本身的定义和沙箱本身配置，运行情况等逐步更新。&lt;/p&gt;
+&lt;p&gt;Question 2：模版更改后，怎么确立所有沙箱均更新完成？&lt;/p&gt;
+&lt;p&gt;正常情况下，关键在于版本一致性。例如，可以为模板内容计算一个 &lt;code&gt;templateHash&lt;/code&gt;，创建沙箱时记录它使用的哈希。更新模板后，将目标哈希从 &lt;code&gt;H1&lt;/code&gt;变为 &lt;code&gt;H2&lt;/code&gt;，再统计每个目标实例是否使用 &lt;code&gt;H2&lt;/code&gt;且已经 Ready。&lt;/p&gt;
+&lt;p&gt;但有一个实际限制：Agent Sandbox 当前不能简单地依靠 WarmPool 的 &lt;code&gt;readyReplicas&lt;/code&gt;就证明所有实例已使用最新模板。项目中关于可靠滚动更新结果的 Issue #1327 指出，现有状态统计可能把旧模板创建的 Ready 实例也计算进去；该 Issue 还将按模板哈希统计更新后的 Ready 副本、设置更新超时并明确报告失败，列为待完善的能力。&lt;/p&gt;
+&lt;p&gt;因此，如果你在上层系统中需要可靠的“更新完成”信号，应该确认所用版本是否支持这些状态；如果没有，就需要额外做版本追踪与核验，而不能直接把 WarmPool Ready 当作全量更新成功。&lt;/p&gt;
+&lt;h3 id="42-sandboxclaim-与-sandboxwarmpool如何申请和快速分配沙箱"&gt;&lt;a href="#42-sandboxclaim-%e4%b8%8e-sandboxwarmpool%e5%a6%82%e4%bd%95%e7%94%b3%e8%af%b7%e5%92%8c%e5%bf%ab%e9%80%9f%e5%88%86%e9%85%8d%e6%b2%99%e7%ae%b1" class="header-anchor"&gt;&lt;/a&gt;4.2 SandboxClaim 与 SandboxWarmPool：如何申请和快速分配沙箱
+&lt;/h3&gt;&lt;p&gt;&lt;code&gt;SandboxClaim&lt;/code&gt;可以理解为一份沙箱申请单。调用方不必直接管理底层 Pod 的创建细节，而是声明需要什么沙箱、使用哪个 WarmPool 等信息。控制器负责处理申请，并将分配结果反映到 Claim 的状态中。比如：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;# 申请使用名为 python-warmpool 的预热池。它并没有在 YAML 中直接编写完整的 Pod 定义。
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;apiVersion: extensions.agents.x-k8s.io/v1beta1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;kind: SandboxClaim
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;metadata:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; name: user-a-claim
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;spec:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; warmPoolRef:
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; name: python-warmpool
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;SandboxWarmPool&lt;/code&gt;的思路是：把一部分创建工作提前做完，维持一批已经准备好的沙箱实例，等待 Claim 申请。工作方式可以如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/warmpool-flow.svg"
+loading="lazy"
+alt="WarmPool 的领养与补货"
+&gt;
+注意预热池中存在可用实例，不代表所有 Claim 都一定能直接复用它。根据项目当前的性能调优文档，Claim 如果设置了 spec.env 或 spec.volumeClaimTemplates，就会走冷启动路径，而不是直接接管已经运行的预热实例。这是因为这些定制内容无法直接应用到已经启动的预热 Pod 上。相对而言，spec.additionalPodMetadata 可以应用于被接管的实例，不会仅因为设置了它就强制冷启动。&lt;/p&gt;
+&lt;p&gt;这体现了一个很重要的工程权衡：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;复用预热实例：分配速度快，但实例必须满足 Claim 的配置要求。&lt;/li&gt;
+&lt;li&gt;按需创建实例：灵活性更高，可以根据申请定制运行环境，但需要承担启动成本。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;因此，设计 Agent 沙箱产品时，不能只看预热池有多少副本，还要考虑请求的配置是否兼容预热实例。预热池中存在可用实例，不代表所有 Claim 都一定能直接复用它。&lt;/p&gt;
+&lt;p&gt;Question 1：当外部需要的sandbox数量比预热池数量多时，agent sandbox和预热池分别会怎么做？&lt;/p&gt;
+&lt;p&gt;预热池不是系统能够创建的沙箱总量上限。预热池不足时，Agent Sandbox 可以在等待短暂的预热候选期后，转向冷启动创建；WarmPool Controller 则异步补充预热实例。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align: center"&gt;组件&lt;/th&gt;
+&lt;th style="text-align: center"&gt;主要行为&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align: center"&gt;SandboxClaim Controller&lt;/td&gt;
+&lt;td style="text-align: center"&gt;尝试寻找可分配的预热 Sandbox；没有合适候选时，根据候选等待策略转向冷启动创建&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: center"&gt;Sandbox Controller&lt;/td&gt;
+&lt;td style="text-align: center"&gt;协调新 Sandbox 的底层资源，例如创建 Pod，并根据实际状态更新就绪情况&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: center"&gt;SandboxWarmPool Controller&lt;/td&gt;
+&lt;td style="text-align: center"&gt;发现池内空闲容量不足后，继续创建替代 Sandbox，尽量维持 &lt;code&gt;spec.replicas&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: center"&gt;Kubernetes Scheduler / Kubelet 等&lt;/td&gt;
+&lt;td style="text-align: center"&gt;负责后续 Pod 调度、容器启动等工作；资源不足时，Pod 可能无法及时运行&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;当前仓库配置文档中，&lt;code&gt;--sandbox-claim-warm-candidate-grace-period&lt;/code&gt;的默认值为 2 秒：新 Claim 在等待预热候选实例报告 Pod IP 时，会短暂等待；如果到期仍没有合适候选，就会转向冷启动创建。这个时间是候选等待策略，不是保证整个沙箱在 2 秒内创建成功。&lt;/p&gt;
+&lt;p&gt;如果存在异常场景，比如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;突发流量：短时间内有大量 Claim 到来。预热池可以优先满足一部分请求，其余请求进入冷启动路径；预热池同时补充容量。&lt;/li&gt;
+&lt;li&gt;持续高并发：长期请求量高于预热池的可用容量。系统会反复经历预热分配与冷启动，整体延迟取决于冷启动速度、集群资源和控制器处理能力。如果需要减少冷启动，就应评估增加预热副本、动态扩缩容或设置请求并发上限。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;此外，如果节点没有足够的 CPU、内存或其他资源，即使进入冷启动路径，也不代表 Pod 一定能马上调度成功。WarmPool 的补充过程同样可能受资源不足影响。官方配置文档还提供了批量创建、控制器并发和不可调度实例重新检查等参数，以便在高负载下调整行为。&lt;/p&gt;
+&lt;h2 id="5-执行链路运行时与安全边界"&gt;&lt;a href="#5-%e6%89%a7%e8%a1%8c%e9%93%be%e8%b7%af%e8%bf%90%e8%a1%8c%e6%97%b6%e4%b8%8e%e5%ae%89%e5%85%a8%e8%be%b9%e7%95%8c" class="header-anchor"&gt;&lt;/a&gt;5 执行链路、运行时与安全边界
+&lt;/h2&gt;&lt;p&gt;当用户让 Agent 执行一条命令时，这条命令究竟是怎么进入沙箱的？Pod 为什么能隔离不同用户？如果普通容器隔离不够，又该如何选择 gVisor、Kata Containers 等 Runtime？&lt;/p&gt;
+&lt;h3 id="51-sandbox-的执行路径"&gt;&lt;a href="#51-sandbox-%e7%9a%84%e6%89%a7%e8%a1%8c%e8%b7%af%e5%be%84" class="header-anchor"&gt;&lt;/a&gt;5.1 Sandbox 的执行路径
+&lt;/h3&gt;&lt;p&gt;Agent Sandbox 的管理路径与执行路径是两个不同的部分。管理路径负责创建和维护沙箱资源，执行路径负责将 Agent 的命令发送到正确的沙箱中执行，并将执行结果返回给调用方。&lt;/p&gt;
+&lt;p&gt;当用户要求 Agent 执行 Python 脚本或 Shell 命令时，典型流程是：用户向 Agent 发起请求，Agent 后端根据用户身份、会话信息和 Sandbox 关联关系找到目标沙箱，然后通过受控执行 API、沙箱内的执行服务或 Kubernetes exec 通道发送命令。命令最终在 Sandbox 对应的 Pod 容器中执行，执行结果再返回 Agent 后端。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;用户 / Agent
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ 执行请求
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Agent 后端 / 执行调度层
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ 身份校验、定位 Sandbox、检查权限
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;沙箱访问接口
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │ 发送命令
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Sandbox 对应的 Pod / 容器
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;执行命令并返回输出、错误信息和退出码
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;其中，Sandbox Controller 主要负责资源生命周期管理，不需要参与每一次命令执行。它通过 Reconcile 协调 Sandbox、Pod 等 Kubernetes 资源；执行调度层则负责用户请求与具体沙箱之间的关联。沙箱创建成功不等于用户自动获得执行权限，因此还需要进行身份认证、访问鉴权、执行超时控制、并发限制和操作审计。上述流程是典型架构示意，具体执行接口取决于 Agent Sandbox 的集成方式。&lt;/p&gt;
+&lt;h3 id="52-runtime容器运行机制与隔离方式"&gt;&lt;a href="#52-runtime%e5%ae%b9%e5%99%a8%e8%bf%90%e8%a1%8c%e6%9c%ba%e5%88%b6%e4%b8%8e%e9%9a%94%e7%a6%bb%e6%96%b9%e5%bc%8f" class="header-anchor"&gt;&lt;/a&gt;5.2 Runtime：容器运行机制与隔离方式
+&lt;/h3&gt;&lt;p&gt;Agent Sandbox 本身不实现一个全新的操作系统内核，而是通过 Kubernetes 管理沙箱工作负载，并利用底层容器运行时提供执行和隔离能力。普通 Kubernetes 容器通常由 containerd 或 CRI-O 等实现 CRI 接口的运行时管理，再通过 &lt;code&gt;runc&lt;/code&gt;等 OCI Runtime 创建容器进程。典型链路为：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Kubelet
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;CRI Runtime（containerd / CRI-O）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;OCI Runtime（runc）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;容器进程
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;普通容器主要依靠 Linux Namespace、cgroups、seccomp、Linux capabilities 等机制进行隔离和资源控制。其中，Namespace 隔离进程、网络和挂载点等视图；cgroups 控制或统计 CPU、内存等资源；seccomp 限制系统调用。普通容器通常仍与宿主机共享 Linux 内核，因此容器隔离并不等于拥有独立内核。&lt;/p&gt;
+&lt;p&gt;对于运行不可信 Agent 生成代码的场景，可以考虑更强的隔离运行时。gVisor通过用户态内核处理应用的大量系统调用，减少工作负载直接接触宿主机内核的机会，但需要评估系统调用兼容性和性能。Kata Containers通常将工作负载运行在轻量虚拟机中，使其使用独立的 Guest 内核，增加硬件虚拟化隔离边界，但也会带来额外的启动和内存开销。&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align: left"&gt;对比项&lt;/th&gt;
+&lt;th style="text-align: left"&gt;普通容器（runc）&lt;/th&gt;
+&lt;th style="text-align: left"&gt;gVisor&lt;/th&gt;
+&lt;th style="text-align: left"&gt;Kata Containers&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;核心隔离机制&lt;/td&gt;
+&lt;td style="text-align: left"&gt;Linux 内核隔离机制&lt;/td&gt;
+&lt;td style="text-align: left"&gt;用户态内核&lt;/td&gt;
+&lt;td style="text-align: left"&gt;轻量虚拟机、独立 Guest 内核&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;主要优势&lt;/td&gt;
+&lt;td style="text-align: left"&gt;兼容性好、开销较低&lt;/td&gt;
+&lt;td style="text-align: left"&gt;增加系统调用隔离层&lt;/td&gt;
+&lt;td style="text-align: left"&gt;提供更强的内核隔离边界&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;主要权衡&lt;/td&gt;
+&lt;td style="text-align: left"&gt;与宿主机共享内核&lt;/td&gt;
+&lt;td style="text-align: left"&gt;兼容性与性能&lt;/td&gt;
+&lt;td style="text-align: left"&gt;启动、内存和虚拟化开销&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Agent Sandbox 可以通过 Pod 配置中的 &lt;code&gt;runtimeClassName&lt;/code&gt;指定运行时，例如 &lt;code&gt;kata-qemu&lt;/code&gt;。但这要求集群已经配置相应的 RuntimeClass 和底层运行环境，仅修改 YAML 并不会自动安装或启用 Kata。运行时的选择应根据威胁模型、工作负载兼容性、资源成本和集群环境综合决定，而不是简单地认为某一种运行时适合所有场景。&lt;/p&gt;
+&lt;h3 id="53-安全隔离边界与多租户防护"&gt;&lt;a href="#53-%e5%ae%89%e5%85%a8%e9%9a%94%e7%a6%bb%e8%be%b9%e7%95%8c%e4%b8%8e%e5%a4%9a%e7%a7%9f%e6%88%b7%e9%98%b2%e6%8a%a4" class="header-anchor"&gt;&lt;/a&gt;5.3 安全隔离边界与多租户防护
+&lt;/h3&gt;&lt;p&gt;Agent Sandbox 的核心目标之一是为不同 Agent 任务提供相对独立的执行环境，但创建独立 Sandbox 或 Pod 并不意味着整个系统已经具备完整的多租户安全能力。安全设计需要同时考虑身份权限、网络访问、运行时隔离、资源控制、凭据管理和操作审计。&lt;/p&gt;
+&lt;p&gt;Namespace 可以对 Kubernetes 资源进行逻辑分组，并配合 RBAC 限制用户和服务账号的操作权限，但 Namespace 本身不会自动隔离所有网络流量，也不会为每个租户创建独立内核。因此，多租户环境通常还需要结合 NetworkPolicy 限制沙箱之间的通信，使用安全的 Runtime 降低内核攻击风险，并通过 CPU、内存限制及配额控制资源消耗。&lt;/p&gt;
+&lt;p&gt;另一个重要问题是凭据安全。沙箱中的代码可能尝试访问进程有权读取的环境变量、文件和服务接口，因此不应向沙箱暴露不必要的 Kubernetes ServiceAccount Token、云平台高权限密钥或其他租户的凭据。对于不可信代码，应尽可能限制其 Kubernetes API 访问权限，并控制网络出站访问，避免沙箱访问内部敏感服务或云元数据接口。同时，还需要设置执行超时、日志审计、异常检测和资源清理机制，防止恶意或失控的 Agent 长时间占用资源。&lt;/p&gt;
+&lt;p&gt;整体上，可以将安全防护理解为多个层次的组合：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;span class="lnt"&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;身份与权限控制
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;网络隔离与访问限制
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;容器 / 虚拟化运行时隔离
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;资源限制与凭据保护
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;监控、审计与异常清理
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这些机制分别解决不同类型的风险，不能相互替代。Namespace 主要解决资源组织和权限边界问题，NetworkPolicy 主要限制网络通信，gVisor 和 Kata 强化运行时隔离，而凭据管理和审计则用于减少敏感信息泄露与追踪异常行为。&lt;/p&gt;
+&lt;h2 id="附录"&gt;&lt;a href="#%e9%99%84%e5%bd%95" class="header-anchor"&gt;&lt;/a&gt;附录
+&lt;/h2&gt;&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_agent_sandbox/overview-architecture.jpg"
+loading="lazy"
+alt="Agent Sandbox 整体架构与工作流程"
+&gt;&lt;/p&gt;
+&lt;h2 id="参考"&gt;&lt;a href="#%e5%8f%82%e8%80%83" class="header-anchor"&gt;&lt;/a&gt;参考
+&lt;/h2&gt;&lt;p&gt;&lt;a class="link" href="https://github.com/kubernetes-sigs/agent-sandbox" target="_blank" rel="noopener"
+&gt;agent-sandbox&lt;/a&gt;&lt;/p&gt;</description></item><item><title>K8s基础学习</title><link>https://sutdown.github.io/p/k8s%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/</link><pubDate>Tue, 24 Nov 2026 00:00:00 +0000</pubDate><guid>https://sutdown.github.io/p/k8s%E5%9F%BA%E7%A1%80%E5%AD%A6%E4%B9%A0/</guid><description>&lt;p&gt;Kubernetes集群由一个控制平面和一组运行容器化应用程序的工作机器（称为节点）组成。每个集群都需要至少一个工作节点才能运行Pod。&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_k8s_basics/kubernetes-cluster.jpg"
+loading="lazy"
+alt="Kubernetes 集群组件"
+&gt;&lt;/p&gt;
+&lt;h2 id="1-背景和概念"&gt;&lt;a href="#1-%e8%83%8c%e6%99%af%e5%92%8c%e6%a6%82%e5%bf%b5" class="header-anchor"&gt;&lt;/a&gt;1 背景和概念
+&lt;/h2&gt;&lt;p&gt;实际生产环境中，考虑到：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;应用&lt;/strong&gt;后端按业务功能或技术职责拆分成多个&lt;strong&gt;服务&lt;/strong&gt;，例如用户、订单、消息、网关等。服务边界清晰后，可以独立开发、部署和扩容；某个服务出问题，也尽量不拖垮整个系统。&lt;/li&gt;
+&lt;li&gt;服务有多个&lt;strong&gt;副本&lt;/strong&gt;，副本分布在不同机器上，通过负载均衡分摊流量，避免一台机器承担全部负载；机器故障或维护时，也能把容器迁移或重新调度到其他机器。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;容器&lt;/strong&gt;共享底层服务器的 CPU、内存和网络资源。调度系统会把容器分散到多台&lt;strong&gt;机器&lt;/strong&gt;上，避免一台机器承担全部负载；机器故障或维护时，也能把容器迁移或重新调度到其他机器。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;K8s就是其中的调度系统，实现&lt;code&gt;自动部署，自动扩容，自动重启，负载均衡，服务发现，滚动更新&lt;/code&gt;。&lt;/p&gt;
+&lt;h2 id="2-产品结构"&gt;&lt;a href="#2-%e4%ba%a7%e5%93%81%e7%bb%93%e6%9e%84" class="header-anchor"&gt;&lt;/a&gt;2 产品结构
+&lt;/h2&gt;&lt;h3 id="21-核心要点"&gt;&lt;a href="#21-%e6%a0%b8%e5%bf%83%e8%a6%81%e7%82%b9" class="header-anchor"&gt;&lt;/a&gt;2.1 核心要点
+&lt;/h3&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;K8s Cluster 整个 K8s 系统
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── Node 是一台真正运行工作负载的机器 （物理服务器，虚拟机，云服务器均可）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── Pod 最基本的运行单位，通常里面放一个或几个容器
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ └── Container
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ └── 后端程序
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ └── Pod
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── Deployment 负责管理 Pod
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└── Service 负责让其他服务能够稳定地找到这些 Pod，并进行流量分发
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="22-从后端流程看"&gt;&lt;a href="#22-%e4%bb%8e%e5%90%8e%e7%ab%af%e6%b5%81%e7%a8%8b%e7%9c%8b" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;2.2 从后端流程看&lt;/strong&gt;
+&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;代码 → 镜像 → 容器 → Pod → K8s 管理 → Service 暴露 → CI/CD 自动部署
+当你写了一个Java/Python/C++ 后端&lt;code&gt;my-server&lt;/code&gt;，先构建 Docker 镜像&lt;code&gt;my-server:v1&lt;/code&gt;，然后交给K8s，&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;然后通过Development为你创建三个pod，理解为创建了三个副本&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;span class="lnt"&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Deployment
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;创建 3 个 Pod
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;┌────────────┐ ┌────────────┐ ┌────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ Pod 1 │ │ Pod 2 │ │ Pod 3 │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ my-server │ │ my-server │ │ my-server │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└────────────┘ └────────────┘ └────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;当用户存在大量请求涌入时，Service可以将这个后端服务的请求分流到多个pod中，保证负载均衡&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; 用户
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; Service
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ↙ ↓ ↘
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; Pod1 Pod2 Pod3
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;即使访问量突然增加时，K8s也可以自动扩容pod从3到10。&lt;/p&gt;
+&lt;h2 id="3-技术架构"&gt;&lt;a href="#3-%e6%8a%80%e6%9c%af%e6%9e%b6%e6%9e%84" class="header-anchor"&gt;&lt;/a&gt;3 技术架构
+&lt;/h2&gt;&lt;p&gt;Kubernetes 集群主要分为 &lt;strong&gt;控制面（Control Plane）&lt;/strong&gt; 和 &lt;strong&gt;节点面（Worker Node）&lt;/strong&gt; 两部分：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Kubernetes Cluster
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;├── Control Plane —— 负责管理、调度、维护集群状态
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── API Server
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── etcd
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ├── Scheduler
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ └── Controller Manager
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└── Worker Node —— 负责真正运行 Pod / Container
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── Kubelet
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── Container Runtime
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; ├── CNI
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; └── kube-proxy
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="31-控制面-control-plane"&gt;&lt;a href="#31-%e6%8e%a7%e5%88%b6%e9%9d%a2-control-plane" class="header-anchor"&gt;&lt;/a&gt;3.1 控制面 Control Plane
+&lt;/h3&gt;&lt;p&gt;控制面可以理解为 Kubernetes 的大脑，主要负责接收用户请求、保存集群状态、进行资源调度以及自动维持集群的期望状态。&lt;/p&gt;
+&lt;p&gt;API Server&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Kubernetes 集群的统一入口。&lt;/li&gt;
+&lt;li&gt;kubectl、各种 SDK、Agent 等都可以通过 Kubernetes API 与集群交互。&lt;/li&gt;
+&lt;li&gt;负责认证、鉴权、请求处理以及 Kubernetes 对象的管理。&lt;/li&gt;
+&lt;li&gt;可以理解为：“集群的大门”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;etcd&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Kubernetes 使用的分布式键值数据库。&lt;/li&gt;
+&lt;li&gt;保存 Pod、Node、Deployment 等 Kubernetes 对象以及集群状态。&lt;/li&gt;
+&lt;li&gt;本身不负责运行容器，只负责保存和提供集群状态。&lt;/li&gt;
+&lt;li&gt;可以理解为：“集群的状态数据库 / 账本”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Scheduler&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Kubernetes 的调度（Scheduling）主要负责决定 Pod 应该运行在哪个 Node 上。&lt;/li&gt;
+&lt;li&gt;Scheduler 会根据 Pod 的 &lt;strong&gt;Requests/Limits&lt;/strong&gt; （比如CPU，GPU，memory等）判断资源需求，再结合 &lt;strong&gt;NodeSelector、Affinity、Taint/Toleration&lt;/strong&gt; 等规则筛选合适的 Node，同时可以通过 &lt;strong&gt;Pod Affinity/Anti-Affinity 和 Topology Spread&lt;/strong&gt; 控制 Pod 之间的分布关系，最终选择一个合适的 Node。&lt;/li&gt;
+&lt;li&gt;简单来说：&lt;strong&gt;Requests/Limits 决定“需要多少资源”，Affinity 等决定“想去哪里”，Taint/Toleration 决定“能不能去”，Scheduler 最终决定“具体去哪台 Node”。&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Controller Manager&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;内部运行多个 Controller。&lt;/li&gt;
+&lt;li&gt;Controller 持续观察集群当前状态，并与用户声明的期望状态进行比较。&lt;/li&gt;
+&lt;li&gt;Develpoment如果发现服务预计的pod数量和实际不一致，就让Controller Manager执行相应操作进行纠正。&lt;/li&gt;
+&lt;li&gt;可以理解为：“自动纠偏系统”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="32-节点面-worker-node"&gt;&lt;a href="#32-%e8%8a%82%e7%82%b9%e9%9d%a2-worker-node" class="header-anchor"&gt;&lt;/a&gt;3.2 节点面 Worker Node
+&lt;/h3&gt;&lt;p&gt;Worker Node 可以理解为 Kubernetes 的“执行层”，真正负责运行 Pod 和其中的容器。&lt;/p&gt;
+&lt;p&gt;Kubelet&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;每个 Worker Node 上运行的 Kubernetes Agent。&lt;/li&gt;
+&lt;li&gt;根据 API Server 中记录的 Pod 配置，负责管理本机 Pod 的生命周期。&lt;/li&gt;
+&lt;li&gt;会与 Container Runtime、CNI 等组件协作。&lt;/li&gt;
+&lt;li&gt;可以理解为：“节点上的执行者 / 管家”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Container Runtime&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;真正负责创建、启动、停止容器。&lt;/li&gt;
+&lt;li&gt;常见实现有 containerd、CRI-O。&lt;/li&gt;
+&lt;li&gt;Kubelet 通常通过 CRI（Container Runtime Interface） 与其交互。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;CNI&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;负责 Pod 的网络配置，例如分配 IP、建立网络连接等。&lt;/li&gt;
+&lt;li&gt;常见实现有 Calico、Cilium、Flannel。&lt;/li&gt;
+&lt;li&gt;可以理解为：“Pod 的网络系统”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;kube-proxy&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主要负责 Kubernetes Service 相关的流量转发。&lt;/li&gt;
+&lt;li&gt;传统上通过 iptables、IPVS 等机制实现 Service 到后端 Pod 的流量转发。&lt;/li&gt;
+&lt;li&gt;现代一些网络方案可以替代 kube-proxy 的部分甚至全部功能。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="4-k8s网络"&gt;&lt;a href="#4-k8s%e7%bd%91%e7%bb%9c" class="header-anchor"&gt;&lt;/a&gt;4 k8s网络
+&lt;/h2&gt;&lt;p&gt;k8s网络主要解决的问题为：① Pod内部通信：Pod ↔ Pod；② 集群内访问：外部 / Pod ↔ Service ↔ Pod；③ 外部流量访问：Pod ↔ 外部网络。&lt;/p&gt;
+&lt;h3 id="41-整体结构"&gt;&lt;a href="#41-%e6%95%b4%e4%bd%93%e7%bb%93%e6%9e%84" class="header-anchor"&gt;&lt;/a&gt;4.1 整体结构
+&lt;/h3&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; Kubernetes Cluster
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;┌─────────────────────────────────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ Pod A ───────────────→ Pod B │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ ↑ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ↓ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ Service ────────────────┘ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ↑ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ DNS 根据名字找到 Service │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ CNI：负责 Pod 网络 │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ kube-proxy：负责传统 Service 转发 │
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└─────────────────────────────────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;核心组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pod Network：提供 Pod 之间通信的基础网络，即使 Pod 位于不同 Node 上，也能够通过网络进行通信。&lt;/li&gt;
+&lt;li&gt;CNI：负责配置 Pod 网络，包括 IP 分配、网卡和路由等，常见实现有 Calico、Cilium、Flannel。&lt;/li&gt;
+&lt;li&gt;Service：为一组 Pod 提供稳定的访问入口，通过 Label Selector 找到对应的 Pod，避免 Pod IP 变化影响访问。&lt;/li&gt;
+&lt;li&gt;DNS：负责服务名称解析，使应用可以通过 Service 名称访问其他服务，而不必记住 IP 地址。&lt;/li&gt;
+&lt;li&gt;kube-proxy：传统上负责配置 Service 到后端 Pod 的流量转发规则。&lt;/li&gt;
+&lt;li&gt;NetworkPolicy：控制 Pod 之间以及 Pod 与其他网络之间允许通过的流量，具体执行通常依赖 CNI 实现。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="42-实际示例agent-sandbox-访问数据库"&gt;&lt;a href="#42-%e5%ae%9e%e9%99%85%e7%a4%ba%e4%be%8bagent-sandbox-%e8%ae%bf%e9%97%ae%e6%95%b0%e6%8d%ae%e5%ba%93" class="header-anchor"&gt;&lt;/a&gt;4.2 实际示例：Agent Sandbox 访问数据库
+&lt;/h3&gt;&lt;p&gt;假设 Agent 创建了一个 Sandbox Pod 执行 Python 代码，需要连接数据库保存执行结果。集群中有以下资源（IP 均为虚拟示例）：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align: left"&gt;资源&lt;/th&gt;
+&lt;th style="text-align: left"&gt;地址（网络ip由CNI配置）&lt;/th&gt;
+&lt;th style="text-align: left"&gt;作用&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Sandbox Pod&lt;/td&gt;
+&lt;td style="text-align: left"&gt;&lt;code&gt;10.244.1.10&lt;/code&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;执行代码&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Database Service&lt;/td&gt;
+&lt;td style="text-align: left"&gt;&lt;code&gt;10.96.0.100:5432&lt;/code&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;稳定访问入口&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Database Pod A&lt;/td&gt;
+&lt;td style="text-align: left"&gt;&lt;code&gt;10.244.2.20:5432&lt;/code&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;数据库实例&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;Database Pod B&lt;/td&gt;
+&lt;td style="text-align: left"&gt;&lt;code&gt;10.244.2.21:5432&lt;/code&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;数据库实例&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;通信流程：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Agent Sandbox Pod
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;IP: 10.244.1.10
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ① 程序连接 db-service:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Kubernetes DNS（如 CoreDNS）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ② 查询服务名称对应的地址
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ db-service → 10.96.0.100
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;Database Service
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;IP: 10.96.0.100:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ ③ 通过转发规则 比如Label 选择后端 Pod
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ （传统架构通常由 kube-proxy 配置）
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;▼
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;┌───────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ Database Pod A│ 10.244.2.20:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;│ Database Pod B│ 10.244.2.21:5432
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;└───────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="5-k8s存储"&gt;&lt;a href="#5-k8s%e5%ad%98%e5%82%a8" class="header-anchor"&gt;&lt;/a&gt;5 k8s存储
+&lt;/h2&gt;&lt;p&gt;Kubernetes 将计算和存储分开管理。Pod 负责运行任务，Volume 提供存储挂载，PVC 申请存储，PV 表示持久化资源，StorageClass 定义供应方式，CSI 对接底层存储。这样就能根据需要，让文件的生命周期独立于 Pod 的生命周期。&lt;/p&gt;
+&lt;h3 id="51-存储产生原因"&gt;&lt;a href="#51-%e5%ad%98%e5%82%a8%e4%ba%a7%e7%94%9f%e5%8e%9f%e5%9b%a0" class="header-anchor"&gt;&lt;/a&gt;5.1 存储产生原因
+&lt;/h3&gt;&lt;p&gt;Agent Sandbox 执行代码后会产生文件，例如 &lt;code&gt;result.csv&lt;/code&gt;。如果文件只保存在容器可写层或临时卷中，Pod 删除后数据可能丢失，因此需要根据数据的生命周期选择存储方式，对于不同的需求存在不同的方案：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th style="text-align: left"&gt;需求&lt;/th&gt;
+&lt;th style="text-align: left"&gt;适合的方案&lt;/th&gt;
+&lt;th style="text-align: left"&gt;数据生命周期&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;临时文件，中间数据&lt;/td&gt;
+&lt;td style="text-align: left"&gt;&lt;code&gt;emptyDir&lt;/code&gt;&lt;/td&gt;
+&lt;td style="text-align: left"&gt;通常随 Pod 删除而清理&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;需要持久保存的文件&lt;/td&gt;
+&lt;td style="text-align: left"&gt;PV/PVC&lt;/td&gt;
+&lt;td style="text-align: left"&gt;可以独立于 Pod 生命周期保留&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td style="text-align: left"&gt;供其他系统下载、共享的文件&lt;/td&gt;
+&lt;td style="text-align: left"&gt;对象存储等&lt;/td&gt;
+&lt;td style="text-align: left"&gt;由对象存储的生命周期和清理策略决定&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="52-核心结构"&gt;&lt;a href="#52-%e6%a0%b8%e5%bf%83%e7%bb%93%e6%9e%84" class="header-anchor"&gt;&lt;/a&gt;5.2 核心结构
+&lt;/h3&gt;&lt;p&gt;当Agent需要为任务申请一个 10 GiB 的持久化工作目录，整个关系大概为：（实际中K8s的控制器、调度器、节点组件和 CSI 插件会协同工作）&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_k8s_basics/storage-relationship.svg"
+loading="lazy"
+alt="存储概念关系"
+&gt;
+&lt;img src="https://sutdown.github.io/img/img_k8s_basics/storage-components.svg"
+loading="lazy"
+alt="存储相关的核心组件协同"
+&gt;
+实际中，即使pod被删除，只要 PVC、PV 和底层存储仍然保留，新 Pod 又具备相应的访问条件并成功挂载，就可以继续读取原有文件。实际结果取决于存储类型、回收策略及删除操作。&lt;/p&gt;
+&lt;h2 id="6-其它"&gt;&lt;a href="#6-%e5%85%b6%e5%ae%83" class="header-anchor"&gt;&lt;/a&gt;6 其它
+&lt;/h2&gt;&lt;h3 id="kubernetes-安全security"&gt;&lt;a href="#kubernetes-%e5%ae%89%e5%85%a8security" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;Kubernetes 安全（Security）&lt;/strong&gt;
+&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;Kubernetes 安全主要解决用户权限、容器运行权限和网络访问控制问题。
+Namespace 用于划分不同用户或租户的资源，RBAC 控制用户或 ServiceAccount 能执行哪些 Kubernetes API 操作，SecurityContext 和 Pod Security 用于限制容器权限及危险配置，NetworkPolicy 控制 Pod 之间的网络通信，ResourceQuota 则限制 Namespace 的资源用量。对于多用户 Agent Sandbox，通常通过 Namespace + RBAC + 网络和资源限制实现多层隔离，但 Namespace 本身并不是完整的安全边界。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="kubernetes-运行时与-apiruntime--api"&gt;&lt;a href="#kubernetes-%e8%bf%90%e8%a1%8c%e6%97%b6%e4%b8%8e-apiruntime--api" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;Kubernetes 运行时与 API（Runtime &amp;amp; API）&lt;/strong&gt;
+&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;Kubernetes API 提供统一的资源管理入口。
+API Server 接收并处理资源请求，Scheduler 负责为 Pod 选择合适的 Node，Kubelet 负责在节点上落实 Pod 的运行要求。Kubelet 通过 CRI（Container Runtime Interface） 与容器运行时通信，由 containerd 或 CRI-O 等组件负责容器生命周期管理和镜像处理。RuntimeClass 可以让 Pod 选择集群中预先配置的运行时处理方式，以满足不同的隔离或性能需求。整体流程是：创建 Pod → API Server 处理 → Scheduler 调度 → Kubelet 执行 → 容器运行时创建并启动容器。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id="crd--operator--controller"&gt;&lt;a href="#crd--operator--controller" class="header-anchor"&gt;&lt;/a&gt;&lt;strong&gt;CRD / Operator / Controller&lt;/strong&gt;
+&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;Kubernetes 内置了 Pod、Job、Deployment 等资源，但不直接理解 Agent Sandbox 的业务概念。
+通过 CRD（CustomResourceDefinition） 可以扩展 Kubernetes API，定义 Sandbox 等自定义资源；CR（Custom Resource） 是具体的资源实例，用于声明镜像、CPU、内存等期望配置；Controller 持续对比实际状态与期望状态，并通过创建、更新或清理资源使两者趋于一致；Operator 则将 CRD、Controller 与具体业务逻辑结合，实现自动化管理。对于 Agent Sandbox，Operator 可以统一管理 Sandbox 的创建、状态跟踪、异常处理、重试和资源清理，适合生命周期管理较复杂的场景。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id="附录"&gt;&lt;a href="#%e9%99%84%e5%bd%95" class="header-anchor"&gt;&lt;/a&gt;附录
+&lt;/h2&gt;&lt;p&gt;k8s结构图&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://sutdown.github.io/img/img_k8s_basics/k8s-agent-sandbox-overview.jpg"
+loading="lazy"
+alt="Kubernetes &amp;#43; Agent Sandbox 总体架构"
+&gt;&lt;/p&gt;</description></item></channel></rss>

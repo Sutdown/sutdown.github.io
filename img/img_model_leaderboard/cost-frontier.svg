@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 430" width="100%" role="img" aria-label="模型能力指数与单任务成本的分布，横轴为对数刻度">
+  <defs>
+    <style>
+      .grid { stroke: #eee7db; stroke-width: 1; }
+      .axis { stroke: #d8d2c8; stroke-width: 1; }
+      .tick { font-family: ui-monospace,Consolas,monospace; font-size: 11px; fill: #9a9287; }
+      .dot { fill: #b9b1a4; }
+      .ttl { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 13px; font-weight: 600; fill: #3d3a37; }
+      .lab { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11.5px; fill: #4a453e; }
+      .lab2 { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11.5px; fill: #b5637a; font-weight: 600; }
+      .note { font-family: system-ui,-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; font-size: 11.5px; fill: #6b655c; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="780" height="430" fill="#fffdf9" rx="10"/>
+  <text x="40" y="36" class="ttl">能力指数与单任务成本（横轴为对数刻度）</text>
+  <text x="740" y="36" text-anchor="end" class="tick">AA v5.0.1 · 2026-11-22</text>
+
+  <!-- 网格 -->
+  <g class="grid">
+    <line x1="80" y1="80" x2="700" y2="80"/>
+    <line x1="80" y1="132" x2="700" y2="132"/>
+    <line x1="80" y1="184" x2="700" y2="184"/>
+    <line x1="80" y1="236" x2="700" y2="236"/>
+    <line x1="80" y1="288" x2="700" y2="288"/>
+    <line x1="80" y1="340" x2="700" y2="340"/>
+    <line x1="198" y1="80" x2="198" y2="340"/>
+    <line x1="328" y1="80" x2="328" y2="340"/>
+    <line x1="446" y1="80" x2="446" y2="340"/>
+    <line x1="576" y1="80" x2="576" y2="340"/>
+  </g>
+  <line x1="80" y1="340" x2="700" y2="340" class="axis"/>
+  <line x1="80" y1="80" x2="80" y2="340" class="axis"/>
+
+  <g class="tick">
+    <text x="70" y="84" text-anchor="end">70</text>
+    <text x="70" y="136" text-anchor="end">60</text>
+    <text x="70" y="188" text-anchor="end">50</text>
+    <text x="70" y="240" text-anchor="end">40</text>
+    <text x="70" y="292" text-anchor="end">30</text>
+    <text x="70" y="344" text-anchor="end">20</text>
+    <text x="80" y="360" text-anchor="middle">$0.1</text>
+    <text x="198" y="360" text-anchor="middle">$0.3</text>
+    <text x="328" y="360" text-anchor="middle">$1</text>
+    <text x="446" y="360" text-anchor="middle">$3</text>
+    <text x="576" y="360" text-anchor="middle">$10</text>
+    <text x="694" y="360" text-anchor="middle">$30</text>
+  </g>
+  <text x="700" y="378" text-anchor="end" class="tick">单任务成本 USD</text>
+
+  <!-- 帕累托前沿 -->
+  <polyline points="124,298 232,257 329,148 477,122 681,106"
+            fill="none" stroke="#c98a9a" stroke-width="2" stroke-dasharray="6 4" opacity="0.85"/>
+
+  <!-- 普通点 -->
+  <g class="dot">
+    <circle cx="251" cy="293" r="4"/>
+    <circle cx="269" cy="298" r="4"/>
+    <circle cx="273" cy="272" r="4"/>
+    <circle cx="324" cy="179" r="4"/>
+    <circle cx="331" cy="262" r="4"/>
+    <circle cx="390" cy="324" r="4"/>
+    <circle cx="452" cy="163" r="4"/>
+    <circle cx="456" cy="220" r="4"/>
+    <circle cx="502" cy="278" r="4"/>
+    <circle cx="529" cy="127" r="4"/>
+    <circle cx="549" cy="132" r="4"/>
+    <circle cx="576" cy="184" r="4"/>
+    <circle cx="576" cy="158" r="4"/>
+    <circle cx="576" cy="137" r="4"/>
+  </g>
+
+  <!-- 标注点 -->
+  <circle cx="124" cy="298" r="6" fill="#8fbdb6" stroke="#fffdf9" stroke-width="2"/>
+  <text x="138" y="302" class="lab">GPT-6 Luna　28 分 / $0.15</text>
+
+  <circle cx="232" cy="257" r="6" fill="#8fbdb6" stroke="#fffdf9" stroke-width="2"/>
+  <text x="246" y="248" class="lab">Claude Haiku 5.5　36 分 / $0.41</text>
+
+  <circle cx="329" cy="148" r="7.5" fill="#b5637a" stroke="#fffdf9" stroke-width="2"/>
+  <text x="343" y="153" class="lab2">GPT-6.2 Sol　57 分 / $1.01</text>
+
+  <circle cx="477" cy="122" r="6" fill="#8fbdb6" stroke="#fffdf9" stroke-width="2"/>
+  <text x="477" y="108" text-anchor="middle" class="lab">GPT-6.2 Astra　62 分 / $4.00</text>
+
+  <circle cx="681" cy="106" r="6" fill="#c98a9a" stroke="#fffdf9" stroke-width="2"/>
+  <text x="681" y="92" text-anchor="middle" class="lab">Fable 5.2　65 分 / $26.54</text>
+
+  <circle cx="468" cy="205" r="6" fill="#a9873f" stroke="#fffdf9" stroke-width="2"/>
+  <text x="482" y="209" class="lab">Kimi K3.1 Pro　46 分 / $3.68</text>
+
+  <circle cx="273" cy="272" r="6" fill="#a9873f" stroke="#fffdf9" stroke-width="2"/>
+  <text x="287" y="281" class="lab">DeepSeek V4.1 Flash　33 分 / $0.60</text>
+
+  <!-- 底部说明 -->
+  <line x1="40" y1="392" x2="740" y2="392" stroke="#e5ded2"/>
+  <text x="40" y="413" class="note">虚线为帕累托前沿：从左到右每多花一档钱，换来的分数增量迅速递减。</text>
+</svg>
