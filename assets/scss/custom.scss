@@ -327,15 +327,16 @@ body {
      整条声明就失效了。 */
   margin-left: calc(var(--card-padding) * -1);
   margin-right: calc(var(--card-padding) * -1);
-  padding: 0 1.25rem 1.25rem;
+  padding: 1.4rem 1.25rem 1.25rem;
   background: transparent;
   border: 1px solid rgba(var(--accent-color-rgb), 0.3);
   border-radius: var(--radius-wobbly);
 }
 
-/* 说明卡顶部的花枝标语卡：用负 margin 让横幅顶到描边内缘 */
+/* 说明卡顶部的标语：不再有底色，改回正常流内边距，
+   负 margin 会把标题顶到描边外面去。 */
 .links-note-banner {
-  margin: 0 -1.25rem 1.1rem;
+  margin: 0 0 1.1rem;
 }
 
 .links-note-body {
@@ -451,11 +452,10 @@ body {
 
 @media (max-width: 768px) {
   .links-note {
-    padding: 0 1.1rem 1.1rem;
+    padding: 1.3rem 1.1rem 1.1rem;
 
     .links-note-banner {
-      margin-left: -1.1rem;
-      margin-right: -1.1rem;
+      margin: 0 0 1.1rem;
     }
   }
 }
@@ -1619,36 +1619,40 @@ body {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23e8a9b8' d='M12,2C7.5,7,5.5,11,5.5,14a6.5,6.5,0,0,0,13,0c0,-3,-2,-7,-6.5,-12z'/%3E%3C/svg%3E");
 }
 
-/* 首页花枝横幅 */
+/* 横幅（首页欢迎语 / 友情链接 / 关于这里 / Moments）
+   改成 Moments 页眉那套排版：藕粉手写体标题 + 一行小字副题，直接落在纸面上。
+   原先是一张带淡粉渐变、1px 描边、16px 圆角的胶囊卡 —— 全站文章卡、友链卡、
+   评论区都已改成透明，只剩它还带填充色块，在纸面上像贴上去的标签，很突兀。
+   DOM 结构没变，花枝 SVG 仍留在里面，只是不再显示。 */
 .spring-banner {
-  display: flex;
-  align-items: center;
-  gap: 1.1rem;
-  margin-bottom: 1.6rem;
-  padding: 1.1rem 1.4rem;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(212, 155, 168, 0.14), rgba(212, 155, 168, 0.03));
-  border: 1px solid rgba(var(--accent-color-rgb), 0.18);
+  display: block;
+  margin-bottom: 1.3rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
 }
 .spring-banner-branch {
-  flex: 0 0 auto;
-  width: 120px;
-  height: 56px;
+  display: none;
 }
 .spring-banner-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+  display: block;
 }
 .spring-banner-title {
-  font-size: 1.5rem;
+  display: block;
+  /* 手写体家族由 head/custom.html 内联统一，这里只管字号与颜色 */
+  font-size: 2.3rem;
   font-weight: 700;
-  line-height: 1.3;
-  color: var(--accent-color-darker);
+  line-height: 1.28;
+  letter-spacing: 0.02em;
+  color: var(--accent-color);
 }
 .spring-banner-sub {
-  font-size: 1.2rem;
-  color: rgba(var(--accent-color-rgb), 0.85);
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  color: var(--card-text-color-secondary);
 }
 
 /* ========================================
@@ -1672,18 +1676,13 @@ body {
     display: none;
   }
 
-  /* 标语卡顶到文章两侧：
-     主题给 .article-content 加了 padding: 0 var(--card-padding)（20~30px），
-     标语卡在这个内缩区域里，比 h3（被主题负 margin 顶到满宽）窄一截。
-     用等量负 margin 抵回来，让它和标题/正文的分隔线左右对齐。 */
-  > .main-article > .article-content > .spring-banner {
-    margin-left: calc(var(--card-padding) * -1);
-    margin-right: calc(var(--card-padding) * -1);
-  }
+  /* 标语区不再有底色，不需要负 margin 顶到满宽；
+     保持与正文同左边界即可（原来那两条 calc 会把它顶出 --card-padding，
+     文字反倒比正文左移一截）。 */
 
   /* 正文第一个 h3 不要顶着 banner 贴太近 */
   > .main-article > .article-content > h3:first-child {
-    margin-top: 0.6rem;
+    margin-top: 1.1rem;
   }
 
   /* 小节标题保持手写体 + 左侧藕粉短线，但没有卡片框。
@@ -1930,22 +1929,17 @@ hr {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2,15C18,7,34,20,52,12C70,6,86,19,104,12C122,6,140,18,158,11C176,6,188,14,198,9' fill='none' stroke='%23c9a992' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
-/* 移动端适配：小树和小猫一起隐藏、横幅收紧 */
+/* 移动端适配：小树和小猫一起隐藏、横幅字号收一档 */
 @media (max-width: 768px) {
   .spring-tree,
   .spring-cat {
     display: none;
   }
-  .spring-banner {
-    gap: 0.6rem;
-    padding: 0.9rem 1rem;
-  }
-  .spring-banner-branch {
-    width: 84px;
-    height: 44px;
-  }
   .spring-banner-title {
-    font-size: 1.35rem;
+    font-size: 1.9rem;
+  }
+  .spring-banner-sub {
+    font-size: 1.2rem;
   }
 }
 
